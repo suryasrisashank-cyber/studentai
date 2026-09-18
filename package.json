@@ -5,7 +5,7 @@
   "description": "StudentAI — Study Smarter. Prepare Better. Get Things Done. 100% free client-side student utilities.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/deploy-migration.js && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "node scripts/test-math.js && node scripts/test-ai-gateway.js && node scripts/test-admin-security.js",
