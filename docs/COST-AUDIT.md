@@ -8,42 +8,39 @@
 
 ## 1. Executive Summary
 
-StudentAI is intentionally designed and built under a **strict ₹0 upfront and ongoing operational cost policy**. Every utility, calculator, media formatter, and study tool runs **100% client-side** inside the user's browser.
+StudentAI is engineered under a **strict ₹0 upfront and ongoing operational cost policy**. All 20 student utilities (calculators, formatters, document processors, study tools) run **100% client-side** inside the user's browser.
 
-No paid APIs, subscriptions, cloud databases, authentication gateways, email delivery systems, or external analytics were introduced.
+The platform includes a multi-provider AI Assistant, an Admin Control Center, and an optional Neon PostgreSQL persistence layer, all designed to remain within permanent **free tiers**:
+
+- **AI Inference:** Powered by generous free-tier quotas (Google AI Studio Gemini 2.5 Flash, Groq Free, and OpenRouter Free).
+- **Hosting & Edge Functions:** Powered by Vercel Hobby Free Tier (unlimited deployments, 100k edge invocations/day).
+- **Database:** Powered by Neon Serverless PostgreSQL Free Tier (0.5 GiB storage, auto-suspend compute), with zero-cost in-memory fallback for local dev.
+- **Client Tools:** 100% in-browser computation; ₹0 server compute or storage cost for student documents.
 
 ---
 
 ## 2. Itemized Cost Audit Breakdown
 
-| Infrastructure Component | Status in MVP | Operating Cost (₹) | Implementation Method |
+| Infrastructure Component | Architecture in Production | Operating Cost (₹) | Implementation Method |
 | :--- | :--- | :--- | :--- |
-| **Paid AI APIs (OpenAI / Anthropic / Gemini / Claude)** | **NOT USED** | **₹0.00** | Uses deterministic client-side JavaScript algorithms, tokenizers, and curated knowledge banks. No AI API keys or credit cards required. |
-| **Backend Servers / VPS / Compute** | **NOT USED** | **₹0.00** | Static client-side Single Page Application (Next.js Static HTML/JS export). Runs entirely in browser memory. |
-| **Cloud Database (Supabase / Firebase / Postgres / Neon)** | **NOT USED** | **₹0.00** | Browser `window.localStorage` with versioned schema (`studentai:v1:*`). Includes full user-controlled JSON backup export and import. |
-| **User Authentication (Clerk / Auth0 / Supabase Auth)** | **NOT USED** | **₹0.00** | Zero account friction. Tools are instantly usable without signing up, entering email, phone number, or social OAuth. |
-| **Domain Name Registration** | **NOT USED** | **₹0.00** | Operates on free provider subdomains (e.g. `*.github.io`, `*.pages.dev`, `*.vercel.app`) without custom domain expense. |
-| **Website Hosting / CDN** | **FREE STATIC** | **₹0.00** | Deployable on 100% free static hosting tiers (GitHub Pages, Cloudflare Pages, Vercel Hobby, or Netlify Free). |
-| **Analytics & Session Recording (GA / Hotjar / PostHog)** | **NOT USED** | **₹0.00** | Zero tracking scripts installed. Maximizes privacy and eliminates analytics vendor fees. |
-| **Image / Document / PDF Processing APIs** | **NOT USED** | **₹0.00** | HTML5 Canvas, FileReader, and Web Cryptography APIs execute image compression, resizing, and QR generation in-memory. |
-| **Payment Gateway / Billing (Stripe / Razorpay)** | **NOT USED** | **₹0.00** | Entire MVP is completely free. No payment integration or gateway fees. |
-| **Email Service Provider (Resend / SendGrid / SES)** | **NOT USED** | **₹0.00** | No emails collected or transmitted. |
-| **Monitoring & Error Tracking (Sentry / Datadog)** | **NOT USED** | **₹0.00** | Zero monitoring SaaS dependencies. |
+| **Primary AI Gateway** | Google Gemini 2.5 Flash | **₹0.00** | Google AI Studio Free Tier (15 RPM / 1M TPM / 1,500 RPD free quota). |
+| **Secondary AI Gateway** | Groq (`openai/gpt-oss-120b` / `llama-3.3-70b-versatile`) | **₹0.00** | Groq Cloud Free Developer Tier (ultra-fast LPU inference at zero cost). |
+| **Tertiary AI Gateway** | OpenRouter Free Tier (`openrouter/free`) | **₹0.00** | OpenRouter free model routing as final failover layer. |
+| **Compute & Edge Hosting** | Vercel Hobby Tier | **₹0.00** | Serverless Next.js App Router runtime within free monthly allowances. |
+| **PostgreSQL Database** | Neon Serverless PostgreSQL | **₹0.00** | Neon Free Tier (3 projects, 0.5 GiB storage, scales to zero when idle). In-memory dev fallback when unconfigured. |
+| **User Authentication** | Custom HMAC-SHA256 Sessions | **₹0.00** | Edge-compatible Web Crypto API. Eliminates paid auth SaaS (Auth0, Clerk, etc.). |
+| **Domain & SSL** | `*.vercel.app` + Let's Encrypt | **₹0.00** | Automatic free SSL and global Anycast CDN. |
+| **Analytics & Telemetry** | First-Party Lightweight Telemetry | **₹0.00** | Internal anonymous events stored in Neon DB. No paid analytics SaaS (GA, PostHog, Hotjar). |
+| **Document & Image Processing** | Browser Web APIs | **₹0.00** | HTML5 Canvas, FileReader, and Web Crypto execute 100% in browser memory. |
 | **Total Monthly Operating Cost** | — | **₹0.00 / month** | **Guaranteed Free Operation** |
 
 ---
 
-## 3. Deployment & Hosting Verification
+## 3. Free Tier Safeguards & Overflow Defenses
 
-The application outputs a static bundle (`next build` with `output: 'export'`), producing standalone static assets in the `out/` folder:
+To prevent unexpected billing or account freezes:
 
-1. **GitHub Pages:**
-   - Cost: ₹0
-   - Terms: Free for public personal and open-source project repositories.
-2. **Cloudflare Pages:**
-   - Cost: ₹0
-   - Terms: Free tier provides unlimited bandwidth, global Anycast CDN, and 500 builds/month.
-3. **Vercel Hobby:**
-   - Cost: ₹0 for non-commercial and student personal projects.
-
-*Note: The application requires zero environment variables or backend secrets to build and serve.*
+1. **AI Rate Limiting:** Public clients are limited to 10 requests per minute. This guarantees traffic remains safely under Google AI Studio's 15 RPM free-tier threshold.
+2. **Cascading Redundancy:** If Google AI reaches its free rate limit (429), the router seamlessly cascades to Groq and OpenRouter without human intervention or cost escalation.
+3. **Storage Hygiene:** Anonymous telemetry logs older than 90 days are pruned, keeping total Neon PostgreSQL storage well below the 500 MB free quota.
+4. **Resilient DB Fallback:** If the database is paused or unreachable, all 20 student utilities and the AI assistant continue operating uninterrupted.

@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  lastLoginAt  DateTime?
+
+  @@map("admins")
+}
+
+model UserSession {
+  id             String   @id @default(cuid())
+  anonymousId    String   @unique
+  deviceCategory String?
+  firstSeen      DateTime @default(now())
+  lastActiveAt   DateTime @default(now())
+
+  @@index([lastActiveAt])
+  @@index([anonymousId])
+  @@map("user_sessions")
+}
+
+model LoginEvent {
+  id             String   @id @default(cuid())
+  email          String
+  status         String   // "SUCCESS" | "FAILURE"
+  deviceCategory String?
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([email])
+  @@map("login_events")
+}
+
+model UsageEvent {
+  id           String   @id @default(cuid())
+  eventType    String   // "TOOL_USED" | "AI_REQUEST" | "AI_SUCCESS" | "AI_FAILURE" | "AI_FALLBACK"
+  feature      String   // tool slug or provider
+  metadataJson String?  // safe auxiliary metrics (e.g. latency, fallback source)
+  sessionId    String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([eventType])
+  @@index([feature])
+  @@map("usage_events")
+}
+
+model ToolSetting {
+  slug       String   @id
+  isEnabled  Boolean  @default(true)
+  isFeatured Boolean  @default(false)
+  usageCount Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  @@map("tool_settings")
+}
+
+model SiteSetting {
+  key       String   @id
+  valueJson String
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}

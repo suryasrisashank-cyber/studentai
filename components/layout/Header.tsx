@@ -19,7 +19,7 @@ import {
   Bot,
 } from 'lucide-react';
 
-export function Header() {
+export function Header({ onOpenMobileTools }: { onOpenMobileTools?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [backupModalOpen, setBackupModalOpen] = useState(false);
   const pathname = usePathname();
@@ -106,7 +106,13 @@ export function Header() {
               {/* Mobile Menu Button */}
               <button
                 type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => {
+                  if (onOpenMobileTools) {
+                    onOpenMobileTools();
+                  } else {
+                    setMobileMenuOpen(!mobileMenuOpen);
+                  }
+                }}
                 className="p-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"
                 aria-label="Toggle mobile menu"
                 aria-expanded={mobileMenuOpen}

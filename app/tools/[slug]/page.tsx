@@ -61,11 +61,54 @@ export function generateMetadata({ params }: ToolPageProps): Metadata {
   };
 }
 
-export default function ToolPage({ params }: ToolPageProps) {
+import { db } from '@/lib/db';
+import Link from 'next/link';
+import { AlertCircle, Wrench } from 'lucide-react';
+
+export default async function ToolPage({ params }: ToolPageProps) {
   const tool = getToolBySlug(params.slug);
 
   if (!tool) {
     notFound();
+  }
+
+  // Check Maintenance Mode
+  const maintenance = await db.getSiteSetting('maintenance_mode', { enabled: false, message: '' });
+  if (maintenance.enabled) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center py-16 px-4 text-center space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
+          <Wrench className="w-7 h-7" />
+        </div>
+        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">StudentAI Maintenance</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+          {maintenance.message || 'StudentAI is currently undergoing scheduled maintenance. We will be back shortly.'}
+        </p>
+      </div>
+    );
+  }
+
+  // Check Tool Enabled State
+  const toolSettings = await db.getToolSettings();
+  const setting = toolSettings.get(tool.slug);
+  if (setting && !setting.isEnabled) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 px-4 text-center space-y-4">
+        <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">This tool is currently unavailable</h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+          StudentAI administrators have temporarily disabled this utility for maintenance or updates. Please check back shortly or explore our other student utilities.
+        </p>
+        <Link
+          href="/tools"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+        >
+          Explore Other Tools
+        </Link>
+      </div>
+    );
   }
 
   // Component Map for all 20 tools

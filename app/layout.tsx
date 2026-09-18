@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { ThemeRegistry } from '@/components/providers/ThemeRegistry';
+import { AppShell } from '@/components/layout/AppShell';
 
 export const metadata: Metadata = {
   title: {
@@ -59,11 +59,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased bg-white dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-200">
-        <ThemeProvider>
-          <Header />
-          <div className="flex-1 w-full">{children}</div>
-          <Footer />
-        </ThemeProvider>
+        <ThemeRegistry>
+          <ThemeProvider>
+            <AppShell>{children}</AppShell>
+          </ThemeProvider>
+        </ThemeRegistry>
       </body>
     </html>
   );

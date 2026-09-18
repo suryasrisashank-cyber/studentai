@@ -1,11 +1,11 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { ShieldCheck, Lock, Database, Info, HardDrive, Bot } from 'lucide-react';
+import { ShieldCheck, Lock, Database, Info, HardDrive, Bot, BarChart3, Clock } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Transparent Local-First Data Handling',
+  title: 'Privacy Policy — Transparent Data & Telemetry Handling',
   description:
-    'Learn how StudentAI processes tool data locally inside your browser with zero server tracking or document storage.',
+    'Learn how StudentAI handles client-side student tools, anonymous operational telemetry, AI gateway routing, and administrator controls.',
 };
 
 export default function PrivacyPage() {
@@ -19,21 +19,21 @@ export default function PrivacyPage() {
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
           Privacy Policy
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-xs sm:text-sm text-slate-500">
           Last updated: September 2026 &bull; Effective immediately
         </p>
       </div>
 
-      <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/80 text-xs sm:text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed space-y-1">
-        <p className="font-semibold">Summary of Core Principles:</p>
+      <div className="p-5 rounded-3xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/80 text-xs sm:text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed space-y-2">
+        <p className="font-bold text-sm">Our Privacy Commitments at a Glance:</p>
         <p>
-          &bull; <strong>Local Processing:</strong> Most StudentAI tools process your information directly in your browser.
+          &bull; <strong>Private Tool Content:</strong> Grades, calculations, attendance records, study notes, todo tasks, and uploaded resume text remain strictly on your local device. We never store your academic inputs on our server.
         </p>
         <p>
-          &bull; <strong>No Server Uploads:</strong> For tools that handle files or resumes, your file is processed in your browser and is not uploaded by StudentAI.
+          &bull; <strong>Minimal Anonymous Telemetry:</strong> We collect aggregate, privacy-conscious usage metrics (such as which tool was opened and heartbeat pings to measure active sessions) to maintain site health and guide platform improvements.
         </p>
         <p>
-          &bull; <strong>No Tracking:</strong> StudentAI does not use third-party tracking cookies or advertising networks.
+          &bull; <strong>No Commercial Tracking:</strong> We do not use third-party advertising trackers, sell user profiles, or collect personal identifiers from public students.
         </p>
       </div>
 
@@ -41,87 +41,94 @@ export default function PrivacyPage() {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Lock className="w-5 h-5 text-indigo-600" />
-            1. In-Browser Local Processing
+            1. In-Browser Local Processing for Utilities
           </h2>
           <p>
-            StudentAI is architected as a static, client-side web application. When you calculate your CGPA, format attendance records, compress images, generate passwords, or review resume keywords, the computations happen on your own device using browser JavaScript, Canvas APIs, and Web Cryptography.
+            StudentAI is designed so that calculations run directly inside your web browser using client-side JavaScript, Canvas APIs, and Web Cryptography. When you calculate your GPA, compute class attendance deficits, convert text cases, compress images, or check resume keywords against job requirements, the content is analyzed on your machine.
           </p>
           <p>
-            Your input data is not sent to a StudentAI server for calculation. Normal network requests are limited to the static asset requests required to load the website (HTML, CSS, JavaScript bundles, and web fonts).
+            Your confidential inputs—such as marks, course credits, text notes, or resume details—are never uploaded or saved to our servers.
           </p>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <HardDrive className="w-5 h-5 text-indigo-600" />
-            2. LocalStorage and Data Persistence
+            2. LocalStorage and Device Persistence
           </h2>
           <p>
-            Certain tools—such as the Todo List, Quick Notes, Study Planner, and Interview Question Progress—offer persistent storage so you can resume work across browser sessions.
+            Certain interactive tools (including the Todo List, Quick Notes, Study Planner, and Interview Question mastery tracker) save your entries locally in your browser&apos;s <code>window.localStorage</code> so you can pick up where you left off.
           </p>
           <p>
-            This data is stored directly in your browser&apos;s <code>window.localStorage</code> using versioned keys prefixed with <code>studentai:v1:</code>. You maintain full ownership and control over this data:
+            You retain absolute ownership over this data:
           </p>
           <ul className="list-disc list-inside space-y-1 pl-2">
-            <li>You can export your complete local data at any time as a standard JSON file (<code>studentai-data.json</code>).</li>
-            <li>You can restore previously backed-up data into any browser.</li>
-            <li>You can wipe all stored data using the Data Management modal or your browser&apos;s site data settings.</li>
+            <li>Export your entire local dataset at any time as a JSON file (<code>studentai-data.json</code>).</li>
+            <li>Restore previously exported backups into any device.</li>
+            <li>Wipe your local data at any time via the Backup modal or browser settings.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-indigo-600" />
+            3. Operational Telemetry &amp; Anonymous Sessions
+          </h2>
+          <p>
+            To understand platform health and monitor tool reliability, StudentAI collects coarse operational metrics:
+          </p>
+          <ul className="list-disc list-inside space-y-1 pl-2">
+            <li><strong>Tool Usage Events:</strong> When a tool is opened, an anonymous event records the tool identifier (e.g. <code>cgpa-calculator</code>). No user inputs, grades, or personal documents are attached.</li>
+            <li><strong>Active Session Heartbeats:</strong> Your browser periodically sends a lightweight heartbeat ping to help our admin dashboard estimate &ldquo;Active Sessions&rdquo; within a 5-minute window. This uses a random, ephemeral session token stored in session storage.</li>
+            <li><strong>Coarse Device Information:</strong> Standard viewport categorization (desktop, tablet, or mobile) to optimize layout rendering.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Bot className="w-5 h-5 text-indigo-600" />
+            4. StudentAI Assistant (AI Chatbot)
+          </h2>
+          <p>
+            When you ask questions in the <strong>StudentAI Assistant</strong>:
+          </p>
+          <ul className="list-disc list-inside space-y-1 pl-2">
+            <li>Your prompt and recent conversation messages are transmitted securely over HTTPS to our server endpoint (<code>/api/ai/chat</code>).</li>
+            <li>Our server gateway securely routes the prompt to our upstream AI provider (Google Gemini, Groq, or OpenRouter) to generate the educational answer. API keys remain strictly server-side.</li>
+            <li>We do not record full conversational transcripts in database telemetry logs. Only operational metadata (provider name, response latency, and success/fallback status) is retained to track provider health.</li>
+            <li>Conversation histories are stored in your device&apos;s LocalStorage and can be cleared immediately via the &ldquo;Clear Chat&rdquo; button.</li>
           </ul>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Database className="w-5 h-5 text-indigo-600" />
-            3. File Handling and Media Processing
+            5. Server Database &amp; Data Retention
           </h2>
           <p>
-            Tools such as the <strong>Image Compressor</strong> and <strong>Image Resizer</strong> read image files using the browser File and FileReader APIs. Image data is drawn onto an HTML5 <code>&lt;canvas&gt;</code> element in local system memory and re-encoded for download.
+            Server-side telemetry and platform settings are stored in a managed PostgreSQL database (Neon). Administrative authentication events (login successes and failures) are audited to protect against credential stuffing and brute-force attacks.
           </p>
           <p>
-            At no point are your images, photos, or documents uploaded to any remote server or third-party cloud infrastructure.
+            Detailed event logs are subject to a standard rolling 30-day retention schedule, after which granular logs are rotated out.
           </p>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Info className="w-5 h-5 text-indigo-600" />
-            4. Analytics, Cookies & Third Parties
+            <Clock className="w-5 h-5 text-indigo-600" />
+            6. Administrator Controls &amp; Security
           </h2>
           <p>
-            StudentAI operates under a strict zero-cost, privacy-first commitment:
+            StudentAI provides a protected Administrator Control Center accessible only to verified project administrators. All admin routes and API endpoints enforce strict server-side authentication, rate limiting, and cryptographic session cookies. Administrators cannot view personal student files or private tool computations.
           </p>
-          <ul className="list-disc list-inside space-y-1 pl-2">
-            <li>We do not utilize Google Analytics, Hotjar, Facebook Pixel, or tracking scripts.</li>
-            <li>We do not require user accounts, emails, or phone numbers.</li>
-            <li>We do not sell, rent, or monetize your personal or behavioral data.</li>
-          </ul>
-          <p>
-            If third-party hosting providers (such as GitHub Pages or Cloudflare) collect standard server access logs (such as IP addresses in web server connection logs), those are governed by the hosting provider&apos;s respective privacy terms.
-          </p>
-        </section>
-
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Bot className="w-5 h-5 text-indigo-600" />
-            5. StudentAI Assistant (AI Chatbot) &amp; Server-Side Processing
-          </h2>
-          <p>
-            While StudentAI&apos;s standard student calculators and document utilities operate 100% locally inside your browser, the <strong>StudentAI Assistant</strong> chatbot requires server-side communication to generate AI responses:
-          </p>
-          <ul className="list-disc list-inside space-y-1 pl-2">
-            <li>When you submit a question in the AI Assistant, your prompt and recent conversation context are sent over encrypted HTTPS to our server API route (<code>/api/ai/chat</code>).</li>
-            <li>Our server gateway routes the request to our designated upstream AI provider (such as Google Gemini, Groq, or OpenRouter) to generate your answer. API keys and credentials are kept strictly server-side.</li>
-            <li>Your conversation history is stored exclusively in your local device&apos;s browser memory (<code>window.localStorage</code>) and can be cleared at any time with the &quot;Clear Chat&quot; button.</li>
-            <li>We do not require user accounts, emails, or personal identifiers to use the assistant.</li>
-          </ul>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            6. Contact and Open Source Verification
+            7. Open Source Verification
           </h2>
           <p>
-            Because StudentAI is open-source, anyone may inspect the repository code to independently verify our security, privacy guarantees, and client-side utilities.
+            StudentAI is committed to full transparency. Anyone may inspect our public codebase on GitHub to independently verify our data practices, encryption mechanisms, and client-side processing boundaries.
           </p>
         </section>
       </div>

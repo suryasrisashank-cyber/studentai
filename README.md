@@ -2,26 +2,31 @@
 
 > **Study Smarter. Prepare Better. Get Things Done.**
 
-A fast, responsive, and privacy-first suite of **20 free browser-based utilities** designed for college students, school students, and job seekers. Built under a strict **₹0 upfront and operating cost rule**, running 100% client-side with zero paid APIs, zero tracking, and zero account friction.
+A modern, fast, and privacy-first suite of **20 free browser-based student utilities** combined with a built-in **AI Student Assistant** and a comprehensive **Admin Control Center**. Built under a strict **₹0 upfront and operating cost rule**, running all core calculations 100% client-side with zero paid APIs, zero tracking, and zero account friction.
+
+**Live Deployment:** [https://studentai-five.vercel.app/](https://studentai-five.vercel.app/)  
+**GitHub Repository:** [https://github.com/suryasrisashank-cyber/studentai](https://github.com/suryasrisashank-cyber/studentai)
 
 ---
 
-## 🌟 Why StudentAI?
+## 🌟 Key Features
 
-- **₹0 Operating Cost:** No paid AI APIs, cloud databases, serverless compute, or monthly subscription fees.
-- **Zero Registration:** Open any tool and immediately calculate or format. No email, password, or phone number required.
-- **Processed in Your Browser:** Your grades, resumes, images, and notes are processed locally in your browser memory and are never uploaded by StudentAI.
-- **Full Data Ownership:** Tasks and study notes persist in `LocalStorage`. Export everything as `studentai-data.json` at any time.
-- **PWA & Mobile-First:** Responsive layouts tested for smartphones, tablets, and desktop displays.
+- **20 Free Client-Side Student Tools:** Calculators, study timers, markdown notes, text tools, converters, image compressors, and interview prep.
+- **Figma-Inspired Desktop & MUI Mobile:** Persistent collapsible Tools Sidebar (260px expanded, 72px collapsed) on desktop and touch-friendly Material UI Drawer on mobile.
+- **Floating AI Student Assistant:** Contextual study companion with quick-action chips and multi-tier provider redundancy (`Google Gemini 2.5 Flash → Groq → OpenRouter`).
+- **Secure Admin Control Center (`/admin/*`):** Rate-limited login (`logindetails-admin@gmail.com`), HMAC-SHA256 signed session cookies, tool toggles, announcements, and AI telemetry.
+- **Neon PostgreSQL + Prisma ORM:** Production database models with resilient in-memory development fallback.
+- **Zero Fake Data Policy:** Real database-backed metrics and audit logs with graceful degradation when unconfigured.
+- **100% Local-First Tool Privacy:** Student marks, resumes, and study notes remain strictly in the browser memory and `LocalStorage`.
 
 ---
 
 ## 🛠️ Complete Tool Suite (20 Tools)
 
 ### 1. Student Calculators
-1. **CGPA Calculator (`/tools/cgpa-calculator`):** Calculate semester GPA and cumulative CGPA across 10-point, 4-point, or letter grade scales with credit point breakdowns.
+1. **CGPA Calculator (`/tools/cgpa-calculator`):** Calculate semester GPA and cumulative CGPA across 10-point, 4-point, or letter grade scales with credit breakdowns.
 2. **Percentage Calculator (`/tools/percentage-calculator`):** Compute single or multi-subject marks percentages with academic division classifications.
-3. **Attendance Calculator (`/tools/attendance-calculator`):** Calculate your current attendance rate and find out exactly how many consecutive classes you must attend or can safely miss.
+3. **Attendance Calculator (`/tools/attendance-calculator`):** Calculate current attendance rate and required classes to reach target attendance percentage.
 
 ### 2. Study & Focus Tools
 4. **Study Planner (`/tools/study-planner`):** Generate balanced daily revision timetables using deterministic difficulty, priority, and deadline weighting.
@@ -56,93 +61,78 @@ A fast, responsive, and privacy-first suite of **20 free browser-based utilities
 
 ```
 User Browser
-   ↓
-Next.js 14 (App Router) + React 18 + TypeScript + Tailwind CSS
-   ↓
-Client-Side Processing (HTML5 Canvas, Web Cryptography, Web Audio, Regex Tokenizers)
-   ↓
-Browser LocalStorage (studentai:v1:*)
-   ↓
-Instant Result Display & Safe JSON Export
+   ├── Local Client Tools (HTML5 Canvas, Web Cryptography, Web Audio)
+   ├── Material UI (MUI) & Tailwind CSS Theming
+   ├── Persistent Collapsible Tools Sidebar
+   └── Floating AI Assistant Companion
+          ↓
+Next.js 14 App Router (Vercel Serverless Edge Runtime)
+   ├── Edge Middleware Guard (/admin/*, /api/admin/*)
+   ├── Multi-Tier AI Gateway (Google Gemini 2.5 Flash → Groq → OpenRouter)
+   ├── Telemetry & Heartbeat Ingestion (/api/telemetry/event)
+   └── Prisma ORM Client v5.21.1
+          ↓
+Neon Serverless PostgreSQL (Optional Cloud DB / In-Memory Dev Fallback)
 ```
-
-- **Framework:** Next.js 14 (Static Export)
-- **Styling:** Tailwind CSS with dark and light mode persistence
-- **Icons:** Lucide React
-- **QR Code Engine:** `qrcode` (browser canvas rendering)
-- **Zero Secrets / Zero API Keys:** Operates without any `.env` requirements.
 
 ---
 
 ## 💻 Local Development Setup
 
 ### Prerequisites
-- Node.js 18+ (tested on Node v24)
+- Node.js 18+ (tested on Node v20/v24)
 - npm 9+
 
 ### Steps
 
 ```bash
-# 1. Clone or navigate to the repository
+# 1. Clone the repository
+git clone https://github.com/suryasrisashank-cyber/studentai.git
 cd studentai
 
 # 2. Install dependencies
 npm install
 
-# 3. Run automated tests
+# 3. Configure environment variables (optional for basic tools)
+cp .env.example .env.local
+
+# 4. Run automated test suite
 npm test
 
-# 4. Start local development server
+# 5. Run linter
+npm run lint
+
+# 6. Start development server
 npm run dev
 
-# 5. Open http://localhost:3000 in your browser
+# 7. Open http://localhost:3000 in your browser
 ```
 
-### Static Production Build
+---
 
-```bash
-npm run build
-```
+## 🔒 Admin Control Center Setup
 
-This compiles all pages and 20 tool routes into static HTML/CSS/JS inside the `out/` directory.
+1. Admin authentication email is bound to `logindetails-admin@gmail.com`.
+2. Configure these variables in `.env.local` or on your **Vercel Dashboard**:
+   ```env
+   ADMIN_EMAIL=logindetails-admin@gmail.com
+   ADMIN_PASSWORD=your_secure_admin_password
+   AUTH_SECRET=your_32_character_hex_secret
+   DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
+   ```
+3. Navigate to `/admin/login` and authenticate to access the Control Center.
 
 ---
 
-## 🔒 Privacy & Security Commitments
+## 📄 Documentation
 
-1. **No External Data Transmission:** Calculations and image processing occur strictly inside your device's browser memory.
-2. **No Tracking Cookies:** No Google Analytics, session recorders, or advertising trackers.
-3. **No eval() or Code Injection:** Safe JSON parsing and HTML escaping are enforced across all inputs.
-4. **Data Portability:** Your local notes, tasks, and schedules can be exported to `studentai-data.json` at any time.
-
----
-
-## 🚀 Free Static Deployment Guide
-
-Because the application compiles to static assets (`out/`), it can be hosted permanently for **₹0** on any free static provider:
-
-### Option 1: GitHub Pages (Recommended for Open Source)
-1. Push the repository to GitHub.
-2. Go to **Repository Settings** &rarr; **Pages**.
-3. Under **Build and deployment**, set Source to **GitHub Actions**.
-4. Use the official Next.js GitHub Pages workflow to build and deploy static files to `https://<username>.github.io/<repo>/`.
-
-### Option 2: Cloudflare Pages
-1. Connect your GitHub repository to Cloudflare Pages.
-2. Set Build command: `npm run build`
-3. Set Output directory: `out`
-4. Deploy on the free tier with global Anycast CDN.
-
-### Option 3: Vercel / Netlify
-1. Import repository.
-2. Framework preset: **Next.js**.
-3. Deploy directly on the free hobby tier.
+- [Admin Dashboard Guide](docs/ADMIN-DASHBOARD.md)
+- [Security & Authentication Architecture](docs/SECURITY.md)
+- [Telemetry & Analytics Architecture](docs/ANALYTICS.md)
+- [₹0 Cost Audit Breakdown](docs/COST-AUDIT.md)
 
 ---
 
-## 📄 License & Cost Audit
+## 📄 License
 
-- **License:** [MIT License](LICENSE)
-- **Cost Audit Document:** [docs/COST-AUDIT.md](docs/COST-AUDIT.md) (Verifying ₹0 upfront and ongoing costs)
-- **Future AI Architecture:** [docs/FUTURE-AI.md](docs/FUTURE-AI.md)
-- **Monetization Roadmap:** [docs/MONETIZATION.md](docs/MONETIZATION.md)
+MIT License — free for students, educators, and open-source contributors.

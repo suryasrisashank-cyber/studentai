@@ -4,10 +4,13 @@ const BASE_URL = 'https://studentai-five.vercel.app';
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-    },
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/api/'],
+      },
+    ],
     sitemap: `${BASE_URL}/sitemap.xml`,
   };
 }
