@@ -41,3 +41,18 @@ export interface AIProvider {
     options?: GenerationOptions
   ): Promise<AIResponse>;
 }
+
+export class ProviderError extends Error {
+  provider: string;
+  category: string;
+  statusCode?: number;
+
+  constructor(provider: string, category: string, statusCode?: number) {
+    super(`${provider.toUpperCase()}_${category}`);
+    this.name = 'ProviderError';
+    this.provider = provider;
+    this.category = `${provider.toUpperCase()}_${category}`;
+    this.statusCode = statusCode;
+  }
+}
+

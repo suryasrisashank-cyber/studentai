@@ -1,10 +1,11 @@
-import { AIProvider, AIResponse, ChatMessage, GenerationOptions } from '../types';
+import { AIProvider, AIResponse, ChatMessage, GenerationOptions, ProviderError } from '../types';
 
 export class GoogleAIProvider implements AIProvider {
   name = 'google';
 
   isConfigured(): boolean {
-    return Boolean(process.env.GOOGLE_AI_API_KEY && process.env.GOOGLE_AI_API_KEY.trim().length > 0);
+    const key = process.env.GOOGLE_AI_API_KEY?.trim();
+    return Boolean(key && key.length > 0);
   }
 
   async generate(
@@ -12,116 +13,119 @@ export class GoogleAIProvider implements AIProvider {
     systemPrompt: string,
     options?: GenerationOptions
   ): Promise<AIResponse> {
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
+    const apiKey = process.env.GOOGLE_AI_API_KEY?.trim();
     if (!apiKey) {
-      throw new Error('Google AI API key is not configured.');
+      throw new ProviderError('google', 'MISSING_KEY');
     }
 
-    const model = process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash';
-    const timeoutMs = options?.timeoutMs || 15000;
+    const model = (process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash').trim();
+    const timeoutMs = options?.timeoutMs || 7000;
     const maxTokens = options?.maxTokens || 1500;
     const temperature = options?.temperature ?? 0.7;
 
     const startTime = Date.now();
 
-    // Map messages to Google Gemini format (Gemini uses role 'user' and 'model')
-    const contents = messages.map((m) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
-    }));
+    // Map messages to Google Gemini format ensuring valid alternating roles
+    const contents: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
+    for (const m of messages) {
+      const text = m.content.trim();
+      if (!text) continue;
+      const role: 'user' | 'model' = m.role === 'assistant' ? 'model' : 'user';
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+      if (contents.length > 0 && contents[contents.length - 1].role === role) {
+        contents[contents.length - 1].parts[0].text += '\n' + text;
+      } else {
+        contents.push({ role, parts: [{ text }] });
+      }
+    }
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    // Gemini requires at least one user content
+    if (contents.length === 0 || contents[0].role !== 'user') {
+      contents.unshift({ role: 'user', parts: [{ text: 'Hello' }] });
+    }
+
+    const executeCall = async (targetModel: string): Promise<Response> => {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:generateContent`;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        return await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
+          body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: systemPrompt }],
+            },
+            contents,
+            generationConfig: {
+              maxOutputTokens: maxTokens,
+              temperature,
+            },
+          }),
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
+    let res: Response;
+    let usedModel = model;
 
     try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          system_instruction: {
-            parts: [{ text: systemPrompt }],
-          },
-          contents,
-          generationConfig: {
-            maxOutputTokens: maxTokens,
-            temperature,
-          },
-        }),
-        signal: controller.signal,
-      });
-
-      if (!res.ok) {
-        const status = res.status;
-        let errorMessage = `Google API responded with status ${status}`;
-        try {
-          const errJson = await res.json();
-          if (errJson?.error?.message) {
-            errorMessage = `${errorMessage}: ${errJson.error.message}`;
-          }
-        } catch {
-          // Keep generic message
-        }
-
-        // If the model is 404 (e.g., gemini-2.5-flash retired by Google for new users), attempt fallback to gemini-flash-latest
-        if (status === 404 && model !== 'gemini-flash-latest') {
-          const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`;
-          const fallbackRes = await fetch(fallbackUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': apiKey,
-            },
-            body: JSON.stringify({
-              system_instruction: {
-                parts: [{ text: systemPrompt }],
-              },
-              contents,
-              generationConfig: {
-                maxOutputTokens: maxTokens,
-                temperature,
-              },
-            }),
-            signal: controller.signal,
-          });
-
-          if (fallbackRes.ok) {
-            const fallbackData = await fallbackRes.json();
-            const text = fallbackData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            if (text) {
-              return {
-                text,
-                provider: this.name,
-                model: 'gemini-flash-latest',
-                latencyMs: Date.now() - startTime,
-              };
-            }
-          }
-        }
-
-        throw new Error(errorMessage);
+      res = await executeCall(model);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        throw new ProviderError('google', 'TIMEOUT');
       }
+      throw new ProviderError('google', 'NETWORK_ERROR');
+    }
 
+    // If model is 404 (e.g. gemini-2.5-flash deprecated/unavailable), attempt fallback to gemini-3.6-flash
+    if (res.status === 404 && model !== 'gemini-3.6-flash') {
+      try {
+        const fallbackRes = await executeCall('gemini-3.6-flash');
+        if (fallbackRes.ok) {
+          res = fallbackRes;
+          usedModel = 'gemini-3.6-flash';
+        }
+      } catch {
+        // Fall through to standard error handling
+      }
+    }
+
+    if (!res.ok) {
+      const status = res.status;
+      if (status === 401) throw new ProviderError('google', '401', 401);
+      if (status === 403) throw new ProviderError('google', '403', 403);
+      if (status === 404) throw new ProviderError('google', '404', 404);
+      if (status === 429) throw new ProviderError('google', '429', 429);
+      if (status >= 500) throw new ProviderError('google', '5XX', status);
+      throw new ProviderError('google', `ERROR_${status}`, status);
+    }
+
+    try {
       const data = await res.json();
       const candidate = data?.candidates?.[0];
       const text = candidate?.content?.parts?.[0]?.text || '';
 
       if (!text) {
-        throw new Error('Google API returned an empty response.');
+        throw new ProviderError('google', 'EMPTY_RESPONSE');
       }
 
       return {
         text,
         provider: this.name,
-        model,
+        model: usedModel,
         latencyMs: Date.now() - startTime,
       };
-    } finally {
-      clearTimeout(timer);
+    } catch (err) {
+      if (err instanceof ProviderError) throw err;
+      throw new ProviderError('google', 'PARSE_ERROR');
     }
   }
 }
