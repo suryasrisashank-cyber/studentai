@@ -19,7 +19,7 @@ export class GoogleAIProvider implements AIProvider {
     }
 
     const model = (process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash').trim();
-    const timeoutMs = options?.timeoutMs || 7000;
+    const timeoutMs = options?.timeoutMs || 5000;
     const maxTokens = options?.maxTokens || 1500;
     const temperature = options?.temperature ?? 0.7;
 
@@ -89,8 +89,8 @@ export class GoogleAIProvider implements AIProvider {
     if (res.status === 404 && model !== 'gemini-3.6-flash') {
       try {
         const fallbackRes = await executeCall('gemini-3.6-flash');
+        res = fallbackRes;
         if (fallbackRes.ok) {
-          res = fallbackRes;
           usedModel = 'gemini-3.6-flash';
         }
       } catch {
