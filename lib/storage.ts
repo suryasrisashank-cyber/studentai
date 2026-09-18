@@ -15,6 +15,7 @@ export const STORAGE_KEYS = {
   INTERVIEW_PROGRESS: `${STORAGE_PREFIX}interview-progress`,
   POMODORO_STATS: `${STORAGE_PREFIX}pomodoro-stats`,
   CGPA_RECORDS: `${STORAGE_PREFIX}cgpa-records`,
+  BTECH_SEMESTERS: `${STORAGE_PREFIX}btech-semesters`,
   ATTENDANCE_RECORDS: `${STORAGE_PREFIX}attendance-records`,
 } as const;
 

@@ -11,7 +11,11 @@ async function verifySessionTokenEdge(token: string, secret: string): Promise<bo
   if (!token) return false;
 
   try {
-    const raw = atob(token.replace(/-/g, '+').replace(/_/g, '/'));
+    let b64 = token.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4 !== 0) {
+      b64 += '=';
+    }
+    const raw = atob(b64);
     const parts = raw.split(':');
     if (parts.length !== 4) return false;
 

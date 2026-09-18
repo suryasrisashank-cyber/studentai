@@ -45,9 +45,9 @@ function AdminLoginFormContent() {
         throw new Error(data?.error || 'Invalid credentials.');
       }
 
-      // Successful login
-      router.push(returnUrl);
-      router.refresh();
+      // Successful login: perform clean navigation to commit cookie across Edge Middleware
+      window.location.href = returnUrl;
+      return;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Invalid credentials.';
       setErrorMessage(msg);

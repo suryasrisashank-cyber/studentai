@@ -22,12 +22,17 @@ interface DashboardData {
   metrics: {
     available: boolean;
     statusMessage: string;
-    registeredUsers: number;
-    successfulLogins: number;
+    totalAnonymousSessions: number;
     activeSessions: number;
+    sessionsToday: number;
+    sessionsThisWeek: number;
+    sessionsThisMonth: number;
     totalToolUses: number;
     totalAIRequests: number;
-    todayVisits: number;
+    successfulAIRequests: number;
+    failedAIRequests: number;
+    registeredUsers: number;
+    successfulLogins: number;
   };
   recentActivity: {
     id: string;
@@ -54,6 +59,10 @@ export default function AdminDashboardPage() {
     setError(null);
     try {
       const res = await fetch('/api/admin/dashboard');
+      if (res.status === 401) {
+        window.location.href = '/admin/login';
+        return;
+      }
       if (!res.ok) throw new Error('Failed to load dashboard data');
       const json = await res.json();
       setData(json);
@@ -99,6 +108,23 @@ export default function AdminDashboardPage() {
         </button>
       </div>
 
+      {/* Error Notice with Retry */}
+      {error && (
+        <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-300 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchDashboardData}
+            className="px-3 py-1 rounded-lg bg-rose-600 text-white font-semibold hover:bg-rose-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Database Offline Warning if unconfigured */}
       {status?.database && !status.database.connected && (
         <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-300 flex items-start gap-3">
@@ -114,11 +140,11 @@ export default function AdminDashboardPage() {
 
       {/* Metric Cards Grid (Figma SaaS Style) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Card 1: Registered Users */}
+        {/* Card 1: Total Anonymous Sessions */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Registered Users
+              Total Anonymous Sessions
             </span>
             <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
               <Users className="w-4 h-4" />
@@ -126,15 +152,15 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <div className="text-2xl font-black text-slate-900 dark:text-white">
-              {isLoading ? '...' : (metrics?.registeredUsers ?? 0)}
+              {isLoading ? '...' : (metrics?.totalAnonymousSessions ?? 0)}
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
-              Admin & authenticated accounts (Public tools require 0 accounts)
+              Privacy-conscious anonymous sessions tracked via telemetry
             </p>
           </div>
         </div>
 
-        {/* Card 2: Active Sessions */}
+        {/* Card 2: Active Sessions (5m) */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
@@ -154,12 +180,72 @@ export default function AdminDashboardPage() {
               )}
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
-              Anonymous active browser sessions within the 5-minute active window
+              Active browser sessions within the 5-minute heartbeat window
             </p>
           </div>
         </div>
 
-        {/* Card 3: Total Tool Uses */}
+        {/* Card 3: Sessions Today */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Sessions Today
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+              <Calendar className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white">
+              {isLoading ? '...' : (metrics?.sessionsToday ?? 0)}
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Distinct sessions active today since midnight
+            </p>
+          </div>
+        </div>
+
+        {/* Card 4: Sessions This Week */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Sessions This Week
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white">
+              {isLoading ? '...' : (metrics?.sessionsThisWeek ?? 0)}
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Active sessions recorded in the last 7 days
+            </p>
+          </div>
+        </div>
+
+        {/* Card 5: Sessions This Month */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Sessions This Month
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+              <Calendar className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white">
+              {isLoading ? '...' : (metrics?.sessionsThisMonth ?? 0)}
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Active sessions recorded in the last 30 days
+            </p>
+          </div>
+        </div>
+
+        {/* Card 6: Total Tool Uses */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
@@ -179,11 +265,11 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Card 4: AI Requests */}
+        {/* Card 7: Total AI Requests */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              AI Chat Requests
+              Total AI Requests
             </span>
             <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
               <Bot className="w-4 h-4" />
@@ -194,16 +280,41 @@ export default function AdminDashboardPage() {
               {isLoading ? '...' : (metrics?.totalAIRequests ?? 0)}
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
-              Multitier gateway queries served via Google, Groq, or OpenRouter
+              Assistant gateway queries routed via Google, Groq, or OpenRouter
             </p>
           </div>
         </div>
 
-        {/* Card 5: Successful Logins */}
+        {/* Card 8: Successful vs Failed AI Requests */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Successful Logins
+              AI Query Health
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+              <span className="text-emerald-600 dark:text-emerald-400">
+                {isLoading ? '...' : (metrics?.successfulAIRequests ?? 0)} <span className="text-xs font-normal text-slate-400">ok</span>
+              </span>
+              <span className="text-rose-600 dark:text-rose-400">
+                {isLoading ? '...' : (metrics?.failedAIRequests ?? 0)} <span className="text-xs font-normal text-slate-400">failed</span>
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Successful completions vs upstream provider failures
+            </p>
+          </div>
+        </div>
+
+        {/* Card 9: Successful Admin Logins */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Admin Authentications
             </span>
             <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
               <LogIn className="w-4 h-4" />
@@ -215,26 +326,6 @@ export default function AdminDashboardPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
               Cryptographically verified admin authentication sessions
-            </p>
-          </div>
-        </div>
-
-        {/* Card 6: Today's Visits */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Today&apos;s Active Sessions
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-              <Calendar className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-black text-slate-900 dark:text-white">
-              {isLoading ? '...' : (metrics?.todayVisits ?? 0)}
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              Distinct sessions active since midnight UTC
             </p>
           </div>
         </div>

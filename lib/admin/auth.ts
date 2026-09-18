@@ -31,6 +31,11 @@ function verifyPassword(suppliedPassword: string): boolean {
   const envPassword = process.env.ADMIN_PASSWORD?.trim();
   const envHash = process.env.ADMIN_PASSWORD_HASH?.trim();
 
+  if (!envPassword && !envHash) {
+    console.warn('[Admin Auth Warning] Neither ADMIN_PASSWORD nor ADMIN_PASSWORD_HASH is configured in environment.');
+    return false;
+  }
+
   // 1. Direct password match (constant-time)
   if (envPassword && safeEqual(suppliedPassword, envPassword)) {
     return true;
@@ -157,9 +162,16 @@ export async function authenticateAdmin(
  */
 export function checkAdminAuth(req: Request): boolean {
   try {
-    const cookieHeader = req.headers.get('cookie') || '';
-    const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${ADMIN_COOKIE_NAME}=([^;]+)`));
-    const token = match ? decodeURIComponent(match[1]) : '';
+    let token = '';
+    const reqWithCookies = req as { cookies?: { get?: (name: string) => { value?: string } | undefined } };
+    if (typeof reqWithCookies.cookies?.get === 'function') {
+      token = reqWithCookies.cookies.get(ADMIN_COOKIE_NAME)?.value || '';
+    }
+    if (!token) {
+      const cookieHeader = req.headers.get('cookie') || '';
+      const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${ADMIN_COOKIE_NAME}=([^;]+)`));
+      token = match ? decodeURIComponent(match[1]) : '';
+    }
     return verifySessionToken(token);
   } catch {
     return false;

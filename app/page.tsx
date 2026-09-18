@@ -49,8 +49,8 @@ export default function HomePage() {
       a: 'Data for persistent tools is saved locally in your browser using LocalStorage. You can also export all your data anytime as a JSON backup and restore it whenever needed.',
     },
     {
-      q: 'Does StudentAI use paid AI APIs like OpenAI or Gemini?',
-      a: 'No. The MVP relies entirely on deterministic algorithms, local dictionaries, and browser APIs. It does not call any paid AI services.',
+      q: 'Does StudentAI offer an AI Assistant?',
+      a: 'Yes! In addition to 20 local browser utilities, StudentAI includes a dedicated AI Assistant (/ai) with multi-provider redundancy (Google Gemini, Groq, OpenRouter) to help you explain concepts, draft essays, and solve problems at ₹0 cost.',
     },
     {
       q: 'Can I use StudentAI on my smartphone or tablet?',
@@ -65,7 +65,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>₹0 Cost &bull; No Login Required &bull; 100% In-Browser</span>
+            <span>₹0 Cost &bull; No Login Required &bull; Local-First Utilities + AI Assistant</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight sm:leading-tight">

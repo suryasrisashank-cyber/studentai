@@ -9,7 +9,10 @@ interface UserSessionItem {
   deviceCategory: string;
   firstSeen: string;
   lastActiveAt: string;
+  toolsUsed: number;
+  aiRequests: number;
   isActiveNow: boolean;
+  sessionStatus?: string;
 }
 
 export default function AdminUsersPage() {
@@ -96,6 +99,8 @@ export default function AdminUsersPage() {
                 <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
                   <th className="py-3 px-4">Anonymous ID</th>
                   <th className="py-3 px-4">Device</th>
+                  <th className="py-3 px-4">Tools Used</th>
+                  <th className="py-3 px-4">AI Queries</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">First Seen</th>
                   <th className="py-3 px-4">Last Active</th>
@@ -112,6 +117,12 @@ export default function AdminUsersPage() {
                         <DeviceIcon device={item.deviceCategory} />
                         <span>{item.deviceCategory}</span>
                       </div>
+                    </td>
+                    <td className="py-3 px-4 font-mono font-semibold text-indigo-600 dark:text-indigo-400">
+                      {item.toolsUsed ?? 0}
+                    </td>
+                    <td className="py-3 px-4 font-mono font-semibold text-violet-600 dark:text-violet-400">
+                      {item.aiRequests ?? 0}
                     </td>
                     <td className="py-3 px-4">
                       {item.isActiveNow ? (

@@ -49,8 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch {}
-    router.push('/admin/login');
-    router.refresh();
+    window.location.href = '/admin/login';
   };
 
   const NavList = ({ onItemClick }: { onItemClick?: () => void }) => (

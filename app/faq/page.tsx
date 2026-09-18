@@ -32,12 +32,12 @@ export default function FaqPage() {
       a: 'Yes. Every tool is designed mobile-first with responsive touch-friendly controls. It functions seamlessly in mobile Safari, Chrome, Edge, and Firefox.',
     },
     {
-      q: 'Does StudentAI require paid AI APIs like OpenAI, Gemini, or Claude?',
-      a: 'No. The current version does not require or call any paid AI APIs. All calculations, schedulers, and keyword analyzers use fast, deterministic client-side algorithms.',
+      q: 'Does StudentAI offer an AI Study Assistant?',
+      a: 'Yes! StudentAI features a dedicated AI Study Assistant (/ai) designed for students. It helps with step-by-step math and science explanations, essay outlining, study schedules, and coding help. The AI Assistant routes queries securely through a server-side proxy with multi-provider redundancy (Google Gemini, Groq, OpenRouter) so it remains accessible to students at ₹0 cost.',
     },
     {
-      q: 'Will AI features be added in the future?',
-      a: 'We plan to explore free, client-side browser AI models (such as WebLLM, Transformers.js, or optional Bring-Your-Own-Key options) in future versions. However, the core suite of tools will always remain 100% free and functional without any paid AI dependencies.',
+      q: 'How does privacy differ between the student tools and the AI Assistant?',
+      a: 'All 20 core student utilities (calculators, planners, image tools, resume checker) execute locally in your browser using deterministic algorithms and LocalStorage—no calculation or personal document data leaves your device. Only when you explicitly use the AI Assistant (/ai) is your study query sent to our server gateway to generate an answer. We never sell your questions or share them with advertisers.',
     },
     {
       q: 'How can I back up or transfer my data to another computer?',

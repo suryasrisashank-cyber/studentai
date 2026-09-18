@@ -1,19 +1,23 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import { TOOLS_REGISTRY, CATEGORY_INFO, ToolCategory } from '@/lib/tools-registry';
 import { ToolCard } from '@/components/tools/ToolCard';
 import { Search, Filter, X } from 'lucide-react';
 
-function ToolsDirectoryContent() {
-  const searchParams = useSearchParams();
-  const initialCategory = searchParams.get('category') as ToolCategory | null;
-
-  const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'all'>(
-    initialCategory || 'all'
-  );
+export default function ToolsDirectoryPage() {
+  const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get('category') as ToolCategory | null;
+      if (cat && cat in CATEGORY_INFO) {
+        setSelectedCategory(cat);
+      }
+    }
+  }, []);
 
   const categories = Object.keys(CATEGORY_INFO) as ToolCategory[];
 
@@ -126,19 +130,5 @@ function ToolsDirectoryContent() {
         </div>
       )}
     </div>
-  );
-}
-
-export default function ToolsDirectoryPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-500">
-          Loading tool directory...
-        </div>
-      }
-    >
-      <ToolsDirectoryContent />
-    </Suspense>
   );
 }

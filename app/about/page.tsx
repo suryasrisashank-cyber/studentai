@@ -56,7 +56,7 @@ export default function AboutPage() {
             StudentAI was created with a fundamental technical constraint: <strong>it must operate at ₹0 upfront and ongoing infrastructure cost</strong>, while remaining free forever for every student who opens the website.
           </p>
           <p>
-            To achieve this without compromising speed or reliability, we built the platform as a <strong>100% client-side, local-first application</strong>:
+            To achieve this without compromising speed, privacy, or reliability, we built the platform combining <strong>local-first browser utilities</strong> with an intelligent <strong>server-side AI study gateway</strong>:
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -65,10 +65,10 @@ export default function AboutPage() {
                 <Zap className="w-4 h-4" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">
-                Zero Cloud Compute Overhead
+                20 Local-First Student Tools
               </h3>
               <p className="text-xs text-slate-500">
-                Calculations and media manipulation execute directly in your browser using modern Web APIs.
+                Calculations, grading algorithms, and file compression execute directly in your browser using modern Web APIs without cloud compute delays.
               </p>
             </div>
 
@@ -77,10 +77,10 @@ export default function AboutPage() {
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">
-                No Cloud Database or Login
+                Multi-Provider AI Study Assistant
               </h3>
               <p className="text-xs text-slate-500">
-                You never have to create an account or provide personal credentials. Your data is stored safely in your own browser via LocalStorage.
+                When students need explanations or tutoring, queries route through a zero-cost server proxy across Google Gemini, Groq, and OpenRouter with automatic failover.
               </p>
             </div>
           </div>

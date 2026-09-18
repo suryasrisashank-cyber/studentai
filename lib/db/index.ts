@@ -232,12 +232,17 @@ export const db = {
       return {
         available: false,
         statusMessage: status.message,
-        registeredUsers: 0,
-        successfulLogins: 0,
+        totalAnonymousSessions: 0,
         activeSessions: 0,
+        sessionsToday: 0,
+        sessionsThisWeek: 0,
+        sessionsThisMonth: 0,
         totalToolUses: 0,
         totalAIRequests: 0,
-        todayVisits: 0,
+        successfulAIRequests: 0,
+        failedAIRequests: 0,
+        registeredUsers: 0,
+        successfulLogins: 0,
       };
     }
 
@@ -245,27 +250,56 @@ export const db = {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - 7);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(startOfMonth.getDate() - 30);
+    startOfMonth.setHours(0, 0, 0, 0);
+
     if (prisma && hasDatabaseUrl) {
       try {
-        const [registeredUsers, successfulLogins, activeSessions, totalToolUses, totalAIRequests, todayVisits] =
-          await Promise.all([
-            prisma.admin.count(),
-            prisma.loginEvent.count({ where: { status: 'SUCCESS' } }),
-            prisma.userSession.count({ where: { lastActiveAt: { gte: activeThreshold } } }),
-            prisma.usageEvent.count({ where: { eventType: 'TOOL_USED' } }),
-            prisma.usageEvent.count({ where: { eventType: 'AI_REQUEST' } }),
-            prisma.userSession.count({ where: { lastActiveAt: { gte: startOfToday } } }),
-          ]);
+        const [
+          totalAnonymousSessions,
+          activeSessions,
+          sessionsToday,
+          sessionsThisWeek,
+          sessionsThisMonth,
+          totalToolUses,
+          totalAIRequests,
+          successfulAIRequests,
+          failedAIRequests,
+          registeredUsers,
+          successfulLogins,
+        ] = await Promise.all([
+          prisma.userSession.count(),
+          prisma.userSession.count({ where: { lastActiveAt: { gte: activeThreshold } } }),
+          prisma.userSession.count({ where: { lastActiveAt: { gte: startOfToday } } }),
+          prisma.userSession.count({ where: { lastActiveAt: { gte: startOfWeek } } }),
+          prisma.userSession.count({ where: { lastActiveAt: { gte: startOfMonth } } }),
+          prisma.usageEvent.count({ where: { eventType: 'TOOL_USED' } }),
+          prisma.usageEvent.count({ where: { eventType: 'AI_REQUEST' } }),
+          prisma.usageEvent.count({ where: { eventType: 'AI_SUCCESS' } }),
+          prisma.usageEvent.count({ where: { eventType: 'AI_FAILURE' } }),
+          prisma.admin.count(),
+          prisma.loginEvent.count({ where: { status: 'SUCCESS' } }),
+        ]);
 
         return {
           available: true,
           statusMessage: 'Live database',
-          registeredUsers,
-          successfulLogins,
+          totalAnonymousSessions,
           activeSessions,
+          sessionsToday,
+          sessionsThisWeek,
+          sessionsThisMonth,
           totalToolUses,
           totalAIRequests,
-          todayVisits,
+          successfulAIRequests,
+          failedAIRequests,
+          registeredUsers,
+          successfulLogins,
         };
       } catch (err) {
         console.warn('[Database] Failed to fetch dashboard metrics:', err instanceof Error ? err.message : String(err));
@@ -273,12 +307,17 @@ export const db = {
           return {
             available: false,
             statusMessage: 'Database query failed. Analytics temporarily unavailable.',
-            registeredUsers: 0,
-            successfulLogins: 0,
+            totalAnonymousSessions: 0,
             activeSessions: 0,
+            sessionsToday: 0,
+            sessionsThisWeek: 0,
+            sessionsThisMonth: 0,
             totalToolUses: 0,
             totalAIRequests: 0,
-            todayVisits: 0,
+            successfulAIRequests: 0,
+            failedAIRequests: 0,
+            registeredUsers: 0,
+            successfulLogins: 0,
           };
         }
       }
@@ -286,25 +325,37 @@ export const db = {
 
     // Development local store
     let activeSessions = 0;
-    let todayVisits = 0;
+    let sessionsToday = 0;
+    let sessionsThisWeek = 0;
+    let sessionsThisMonth = 0;
+
     devStore.sessions.forEach((s) => {
       if (s.lastActiveAt >= activeThreshold) activeSessions++;
-      if (s.lastActiveAt >= startOfToday) todayVisits++;
+      if (s.lastActiveAt >= startOfToday) sessionsToday++;
+      if (s.lastActiveAt >= startOfWeek) sessionsThisWeek++;
+      if (s.lastActiveAt >= startOfMonth) sessionsThisMonth++;
     });
 
     const successfulLogins = devStore.loginEvents.filter((l) => l.status === 'SUCCESS').length;
     const totalToolUses = devStore.usageEvents.filter((u) => u.eventType === 'TOOL_USED').length;
     const totalAIRequests = devStore.usageEvents.filter((u) => u.eventType === 'AI_REQUEST').length;
+    const successfulAIRequests = devStore.usageEvents.filter((u) => u.eventType === 'AI_SUCCESS').length;
+    const failedAIRequests = devStore.usageEvents.filter((u) => u.eventType === 'AI_FAILURE').length;
 
     return {
       available: true,
       statusMessage: 'Development fallback',
-      registeredUsers: devStore.admins.length,
-      successfulLogins,
+      totalAnonymousSessions: devStore.sessions.size,
       activeSessions,
+      sessionsToday,
+      sessionsThisWeek,
+      sessionsThisMonth,
       totalToolUses,
       totalAIRequests,
-      todayVisits,
+      successfulAIRequests,
+      failedAIRequests,
+      registeredUsers: devStore.admins.length,
+      successfulLogins,
     };
   },
 
@@ -369,6 +420,207 @@ export const db = {
       page,
       pageSize,
       available: true,
+    };
+  },
+
+  /**
+   * Retrieves anonymous user session monitoring records.
+   */
+  async getUsersList(page = 1, pageSize = 20) {
+    const status = getDatabaseStatus();
+    const skip = (page - 1) * pageSize;
+    const activeThreshold = new Date(Date.now() - 5 * 60 * 1000);
+
+    if (prisma && hasDatabaseUrl && !status.isDevelopmentFallback) {
+      try {
+        const [total, sessions] = await Promise.all([
+          prisma.userSession.count(),
+          prisma.userSession.findMany({
+            orderBy: { lastActiveAt: 'desc' },
+            skip,
+            take: pageSize,
+          }),
+        ]);
+
+        const sessionIds = sessions.map((s) => s.id);
+        const anonymousIds = sessions.map((s) => s.anonymousId);
+        const relatedEvents =
+          sessionIds.length > 0
+            ? await prisma.usageEvent.findMany({
+                where: {
+                  sessionId: { in: [...sessionIds, ...anonymousIds] },
+                },
+                select: { sessionId: true, eventType: true },
+              })
+            : [];
+
+        const items = sessions.map((s) => {
+          const events = relatedEvents.filter(
+            (e) => e.sessionId === s.id || e.sessionId === s.anonymousId
+          );
+          const toolsUsed = events.filter((e) => e.eventType === 'TOOL_USED').length;
+          const aiRequests = events.filter((e) => e.eventType === 'AI_REQUEST').length;
+          const isActive = s.lastActiveAt >= activeThreshold;
+          return {
+            id: s.id,
+            anonymousId: s.anonymousId.length > 14 ? (s.anonymousId.slice(0, 8) + '...' + s.anonymousId.slice(-4)) : s.anonymousId,
+            deviceCategory: s.deviceCategory || 'Desktop',
+            firstSeen: s.firstSeen.toISOString(),
+            lastActiveAt: s.lastActiveAt.toISOString(),
+            toolsUsed,
+            aiRequests,
+            isActiveNow: isActive,
+            sessionStatus: isActive ? 'Active' : 'Idle',
+          };
+        });
+
+        return { items, total, page, pageSize, available: true };
+      } catch (err) {
+        console.warn('[Database] Failed to fetch users list:', err instanceof Error ? err.message : String(err));
+        if (isProd) return { items: [], total: 0, page, pageSize, available: false };
+      }
+    }
+
+    // Dev local fallback
+    const allSessions = Array.from(devStore.sessions.values()).sort(
+      (a, b) => b.lastActiveAt.getTime() - a.lastActiveAt.getTime()
+    );
+    const total = allSessions.length;
+    const paged = allSessions.slice(skip, skip + pageSize);
+    const items = paged.map((s) => {
+      const toolsUsed = devStore.usageEvents.filter((e) => e.sessionId === s.anonymousId && e.eventType === 'TOOL_USED').length;
+      const aiRequests = devStore.usageEvents.filter((e) => e.sessionId === s.anonymousId && e.eventType === 'AI_REQUEST').length;
+      const isActive = s.lastActiveAt >= activeThreshold;
+      return {
+        id: s.id,
+        anonymousId: s.anonymousId.length > 14 ? (s.anonymousId.slice(0, 8) + '...' + s.anonymousId.slice(-4)) : s.anonymousId,
+        deviceCategory: s.deviceCategory || 'Desktop',
+        firstSeen: s.firstSeen.toISOString(),
+        lastActiveAt: s.lastActiveAt.toISOString(),
+        toolsUsed,
+        aiRequests,
+        isActiveNow: isActive,
+        sessionStatus: isActive ? 'Active' : 'Idle',
+      };
+    });
+
+    return { items, total, page, pageSize, available: true };
+  },
+
+  /**
+   * Retrieves detailed per-tool analytics with usage count, unique sessions, and last used time.
+   */
+  async getToolAnalytics(range = '7d') {
+    const status = getDatabaseStatus();
+    const now = new Date();
+    let since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    if (range === 'today') {
+      since = new Date();
+      since.setHours(0, 0, 0, 0);
+    } else if (range === '30d') {
+      since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    } else if (range === '90d') {
+      since = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    } else if (range === 'all') {
+      since = new Date(0);
+    }
+
+    if (prisma && hasDatabaseUrl && !status.isDevelopmentFallback) {
+      try {
+        const [toolEvents, aiEvents, loginEvents] = await Promise.all([
+          prisma.usageEvent.findMany({
+            where: { eventType: 'TOOL_USED', createdAt: { gte: since } },
+            select: { feature: true, sessionId: true, createdAt: true },
+          }),
+          prisma.usageEvent.findMany({
+            where: { eventType: { in: ['AI_REQUEST', 'AI_SUCCESS'] }, createdAt: { gte: since } },
+            select: { eventType: true, feature: true, createdAt: true },
+          }),
+          prisma.loginEvent.findMany({
+            where: { createdAt: { gte: since } },
+            select: { status: true, createdAt: true },
+          }),
+        ]);
+
+        const toolStatsMap: Record<string, { slug: string; uses: number; sessions: Set<string>; lastUsed: Date }> = {};
+        for (const t of toolEvents) {
+          if (!toolStatsMap[t.feature]) {
+            toolStatsMap[t.feature] = { slug: t.feature, uses: 0, sessions: new Set(), lastUsed: t.createdAt };
+          }
+          toolStatsMap[t.feature].uses++;
+          if (t.sessionId) toolStatsMap[t.feature].sessions.add(t.sessionId);
+          if (t.createdAt > toolStatsMap[t.feature].lastUsed) {
+            toolStatsMap[t.feature].lastUsed = t.createdAt;
+          }
+        }
+
+        const tools = Object.values(toolStatsMap)
+          .sort((a, b) => b.uses - a.uses)
+          .map((item) => ({
+            slug: item.slug,
+            uses: item.uses,
+            uniqueSessions: item.sessions.size,
+            lastUsed: item.lastUsed.toISOString(),
+          }));
+
+        const toolBreakdown: Record<string, number> = {};
+        for (const item of tools) {
+          toolBreakdown[item.slug] = item.uses;
+        }
+
+        return {
+          available: true,
+          totalToolUses: toolEvents.length,
+          totalAIRequests: aiEvents.length,
+          totalLogins: loginEvents.filter((l) => l.status === 'SUCCESS').length,
+          tools,
+          toolBreakdown,
+          range,
+        };
+      } catch (err) {
+        if (isProd) return { available: false, totalToolUses: 0, totalAIRequests: 0, totalLogins: 0, tools: [], toolBreakdown: {}, range };
+      }
+    }
+
+    // Dev local fallback
+    const devEvents = devStore.usageEvents.filter((e) => e.eventType === 'TOOL_USED' && e.createdAt >= since);
+    const devAiEvents = devStore.usageEvents.filter((e) => (e.eventType === 'AI_REQUEST' || e.eventType === 'AI_SUCCESS') && e.createdAt >= since);
+    const devLogins = devStore.loginEvents.filter((l) => l.status === 'SUCCESS' && l.createdAt >= since);
+
+    const devToolStatsMap: Record<string, { slug: string; uses: number; sessions: Set<string>; lastUsed: Date }> = {};
+    for (const t of devEvents) {
+      if (!devToolStatsMap[t.feature]) {
+        devToolStatsMap[t.feature] = { slug: t.feature, uses: 0, sessions: new Set(), lastUsed: t.createdAt };
+      }
+      devToolStatsMap[t.feature].uses++;
+      if (t.sessionId) devToolStatsMap[t.feature].sessions.add(t.sessionId);
+      if (t.createdAt > devToolStatsMap[t.feature].lastUsed) {
+        devToolStatsMap[t.feature].lastUsed = t.createdAt;
+      }
+    }
+
+    const tools = Object.values(devToolStatsMap)
+      .sort((a, b) => b.uses - a.uses)
+      .map((item) => ({
+        slug: item.slug,
+        uses: item.uses,
+        uniqueSessions: item.sessions.size,
+        lastUsed: item.lastUsed.toISOString(),
+      }));
+
+    const devToolBreakdown: Record<string, number> = {};
+    for (const item of tools) {
+      devToolBreakdown[item.slug] = item.uses;
+    }
+
+    return {
+      available: true,
+      totalToolUses: devEvents.length,
+      totalAIRequests: devAiEvents.length,
+      totalLogins: devLogins.length,
+      tools,
+      toolBreakdown: devToolBreakdown,
+      range,
     };
   },
 

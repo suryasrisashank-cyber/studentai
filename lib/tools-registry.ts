@@ -60,16 +60,16 @@ export const TOOLS_REGISTRY: ToolDefinition[] = [
   // Student Tools (3)
   {
     slug: 'cgpa-calculator',
-    name: 'CGPA Calculator',
+    name: 'B.Tech CGPA Calculator',
     category: 'student',
-    description: 'Calculate semester GPA and cumulative CGPA across 10-point, 4-point, or letter grade scales.',
+    description: 'Calculate semester-wise SGPA, credit-weighted B.Tech CGPA (Semesters 1-8+), university percentage conversions, and target CGPA planner.',
     icon: 'GraduationCap',
     badge: 'Popular',
     isPopular: true,
-    tags: ['cgpa', 'gpa', 'grades', 'semester', 'calculator'],
-    seoTitle: 'CGPA & GPA Calculator — Fast, Free Academic Grading Tool',
-    seoDescription: 'Calculate your semester GPA and cumulative CGPA across 10-point, 4-point, or letter grade scales. 100% processed locally in your browser.',
-    privacyNote: 'Your grade data is processed locally in your browser and is never uploaded.',
+    tags: ['cgpa', 'btech', 'sgpa', 'engineering', 'percentage', 'semester', 'calculator'],
+    seoTitle: 'B.Tech CGPA Calculator — Semester-wise SGPA & Credit-Weighted Grading Tool',
+    seoDescription: 'Calculate credit-weighted B.Tech CGPA across 1 to 8+ semesters, convert to percentage with AICTE/CBSE formulas, and plan target CGPA locally.',
+    privacyNote: 'Your academic grades and semester records are processed locally in your browser and never uploaded.',
   },
   {
     slug: 'percentage-calculator',

@@ -133,6 +133,50 @@ console.log('\n[7] Testing Backup JSON Validation Schema...');
   console.log('  ✓ Backup schema validation verified correctly');
 }
 
+// 8. B.Tech Semester-Wise Credit-Weighted CGPA & Target Planner Test
+console.log('\n[8] Testing B.Tech Credit-Weighted CGPA & Target Planner...');
+{
+  const btechSemesters = [
+    { sem: 1, sgpa: 8.50, credits: 20 },
+    { sem: 2, sgpa: 8.75, credits: 20 },
+    { sem: 3, sgpa: 8.40, credits: 22 },
+    { sem: 4, sgpa: 8.80, credits: 22 },
+  ];
+
+  let totalCredits = 0;
+  let totalQualityPoints = 0;
+  btechSemesters.forEach((s) => {
+    totalCredits += s.credits;
+    totalQualityPoints += s.credits * s.sgpa;
+  });
+
+  const cgpa = totalQualityPoints / totalCredits;
+  assert.strictEqual(totalCredits, 84, 'Total completed credits should equal 84');
+  assert.strictEqual(totalQualityPoints.toFixed(1), '723.4', 'Quality points must be 723.4');
+  assert.strictEqual(cgpa.toFixed(2), '8.61', 'B.Tech CGPA should be 8.61');
+
+  // AICTE Percentage test: (CGPA - 0.75) * 10
+  const aictePct = ((cgpa - 0.75) * 10).toFixed(2);
+  assert.strictEqual(aictePct, '78.62', 'AICTE percentage must be 78.62%');
+
+  // Target Planner test
+  const targetCgpa = 8.85;
+  const remainingCredits = 76;
+  const degreeTotalCredits = totalCredits + remainingCredits; // 160
+  const targetTotalPoints = targetCgpa * degreeTotalCredits; // 1416
+  const neededPoints = targetTotalPoints - totalQualityPoints; // 1416 - 723.4 = 692.6
+  const requiredSgpa = neededPoints / remainingCredits; // 692.6 / 76 = 9.1131...
+  assert.strictEqual(requiredSgpa.toFixed(2), '9.11', 'Required average SGPA must be 9.11');
+
+  // Feasibility bounds check: target impossible test
+  const impossibleTarget = 9.9;
+  const neededImpossiblePoints = (impossibleTarget * degreeTotalCredits) - totalQualityPoints;
+  const requiredImpossibleSgpa = neededImpossiblePoints / remainingCredits;
+  assert.strictEqual(requiredImpossibleSgpa > 10.0, true, 'Required SGPA > 10.0 should be marked mathematically impossible');
+
+  console.log('  ✓ B.Tech weighted CGPA, AICTE conversion, and Target Planner verified correctly');
+}
+
 console.log('\n========================================');
-console.log('ALL 7 MATHEMATICAL & LOGICAL TESTS PASSED');
+console.log('ALL 8 MATHEMATICAL & LOGICAL TESTS PASSED');
 console.log('========================================\n');
