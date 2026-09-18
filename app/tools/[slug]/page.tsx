@@ -35,6 +35,8 @@ interface ToolPageProps {
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return getAllToolSlugs().map((slug) => ({
     slug,

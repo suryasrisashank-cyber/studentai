@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Settings, ShieldAlert, CheckCircle2, Clock, Database, AlertCircle, Save } from 'lucide-react';
+import { Settings, ShieldAlert, CheckCircle2, Clock, Database, AlertCircle, Save, Bot } from 'lucide-react';
 
 interface SettingsState {
   maintenance: { enabled: boolean; message: string };
   analyticsConfig: { activeWindowMinutes: number; retentionDays: number };
+  aiSettings?: { enabled: boolean };
 }
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<SettingsState>({
     maintenance: { enabled: false, message: 'StudentAI is currently undergoing scheduled maintenance. We will be back shortly.' },
     analyticsConfig: { activeWindowMinutes: 5, retentionDays: 30 },
+    aiSettings: { enabled: true },
   });
   const [savedSuccess, setSavedSuccess] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -27,12 +29,15 @@ export default function AdminSettingsPage() {
       .catch(() => {});
   }, []);
 
-  const handleSave = async (maintenanceOverride?: boolean) => {
+  const handleSave = async (maintenanceOverride?: boolean, aiOverride?: boolean) => {
     setSavedSuccess(null);
     const payload = {
       maintenance: {
         ...settings.maintenance,
         enabled: maintenanceOverride !== undefined ? maintenanceOverride : settings.maintenance.enabled,
+      },
+      aiSettings: {
+        enabled: aiOverride !== undefined ? aiOverride : (settings.aiSettings?.enabled ?? true),
       },
       analyticsConfig: settings.analyticsConfig,
     };
@@ -134,6 +139,44 @@ export default function AdminSettingsPage() {
             }
             className="w-full text-xs p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 outline-none"
           />
+        </div>
+      </div>
+
+      {/* AI Assistant Master Switch Card */}
+      <div className={`p-6 rounded-3xl border shadow-xs space-y-4 transition-all ${
+        (settings.aiSettings?.enabled ?? true)
+          ? 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800'
+          : 'bg-amber-50/70 dark:bg-amber-950/30 border-amber-300 dark:border-amber-900'
+      }`}>
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <Bot className={`w-5 h-5 ${(settings.aiSettings?.enabled ?? true) ? 'text-indigo-600' : 'text-amber-600'}`} />
+            <div>
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">AI Assistant Service Switch</h3>
+              <p className="text-[11px] text-slate-400">
+                Instantly enable or pause the AI Assistant (/ai), floating companion, and backend chat API.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-bold uppercase tracking-wider ${
+              (settings.aiSettings?.enabled ?? true) ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+            }`}>
+              {(settings.aiSettings?.enabled ?? true) ? 'ONLINE' : 'PAUSED'}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleSave(undefined, !(settings.aiSettings?.enabled ?? true))}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                (settings.aiSettings?.enabled ?? true)
+                  ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60 hover:bg-rose-100'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              }`}
+            >
+              {(settings.aiSettings?.enabled ?? true) ? 'Emergency Pause AI' : 'Re-Enable AI'}
+            </button>
+          </div>
         </div>
       </div>
 

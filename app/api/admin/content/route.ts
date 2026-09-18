@@ -53,6 +53,11 @@ export async function POST(req: NextRequest) {
         type: ['info', 'success', 'warning'].includes(data?.type) ? data.type : 'info',
       };
       await db.setSiteSetting('announcement', sanitized);
+      await db.auditAdminAction('ANNOUNCEMENT_UPDATED', {
+        enabled: sanitized.enabled,
+        type: sanitized.type,
+        textSnippet: sanitized.text.slice(0, 60),
+      });
       return NextResponse.json({ success: true, announcement: sanitized });
     }
 
@@ -62,6 +67,9 @@ export async function POST(req: NextRequest) {
         subtitle: sanitizeText(data?.subtitle || '', 200),
       };
       await db.setSiteSetting('ai_welcome', sanitized);
+      await db.auditAdminAction('AI_WELCOME_UPDATED', {
+        greeting: sanitized.greeting,
+      });
       return NextResponse.json({ success: true, aiWelcome: sanitized });
     }
 
@@ -71,6 +79,10 @@ export async function POST(req: NextRequest) {
         message: sanitizeText(data?.message || '', 300),
       };
       await db.setSiteSetting('maintenance_mode', sanitized);
+      await db.auditAdminAction('MAINTENANCE_CONTENT_UPDATED', {
+        enabled: sanitized.enabled,
+        messageSnippet: sanitized.message.slice(0, 60),
+      });
       return NextResponse.json({ success: true, maintenance: sanitized });
     }
 

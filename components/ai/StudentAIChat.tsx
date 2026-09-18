@@ -35,7 +35,12 @@ const MODES: { id: StudentAIMode; label: string; icon: React.ElementType; descri
   { id: 'career', label: 'Career', icon: Briefcase, description: 'Resume tips & interview preparation' },
 ];
 
-export function StudentAIChat() {
+interface StudentAIChatProps {
+  greeting?: string;
+  subtitle?: string;
+}
+
+export function StudentAIChat({ greeting, subtitle }: StudentAIChatProps) {
   const [messages, setMessages] = useState<StoredMessage[]>([]);
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<StudentAIMode>('general');
@@ -233,10 +238,11 @@ export function StudentAIChat() {
               <Sparkles className="w-7 h-7" />
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1.5">
-              Ask. Learn. Understand.
+              {greeting || 'Ask. Learn. Understand.'}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-              Your free educational assistant for conceptual clarity, exam revision, algorithm walkthroughs, and career preparation.
+              {subtitle ||
+                'Your free educational assistant for conceptual clarity, exam revision, algorithm walkthroughs, and career preparation.'}
             </p>
 
             <SuggestedPrompts

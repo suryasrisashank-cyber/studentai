@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
@@ -22,7 +22,40 @@ import {
 export function Header({ onOpenMobileTools }: { onOpenMobileTools?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [backupModalOpen, setBackupModalOpen] = useState(false);
+  const [announcement, setAnnouncement] = useState<{
+    enabled: boolean;
+    text: string;
+    type: 'info' | 'warning' | 'success';
+  } | null>(null);
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    fetch('/api/site/status')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.announcement?.enabled && data.announcement.text) {
+          try {
+            const dismissedText = sessionStorage.getItem('studentai:dismissed_announcement');
+            if (dismissedText !== data.announcement.text) {
+              setAnnouncement(data.announcement);
+            }
+          } catch {
+            setAnnouncement(data.announcement);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleDismissAnnouncement = () => {
+    try {
+      if (announcement?.text) {
+        sessionStorage.setItem('studentai:dismissed_announcement', announcement.text);
+      }
+    } catch {}
+    setAnnouncementDismissed(true);
+  };
 
   const navLinks = [
     { href: '/tools', label: 'All Tools' },
@@ -37,6 +70,32 @@ export function Header({ onOpenMobileTools }: { onOpenMobileTools?: () => void }
 
   return (
     <>
+      {/* Dynamic Site-Wide Announcement Banner */}
+      {announcement && announcement.enabled && !announcementDismissed && (
+        <div
+          className={`w-full py-2 px-4 text-xs font-semibold flex items-center justify-between gap-3 text-center transition-colors z-50 ${
+            announcement.type === 'warning'
+              ? 'bg-amber-500 text-slate-950 font-bold'
+              : announcement.type === 'success'
+              ? 'bg-emerald-600 text-white'
+              : 'bg-indigo-600 text-white'
+          }`}
+        >
+          <div className="flex-1 max-w-7xl mx-auto flex items-center justify-center gap-2">
+            <span>{announcement.text}</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleDismissAnnouncement}
+            className="p-1 rounded-md hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+            title="Dismiss announcement"
+            aria-label="Dismiss announcement"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-4">

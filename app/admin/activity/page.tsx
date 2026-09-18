@@ -14,6 +14,7 @@ interface ActivityItem {
 
 const EVENT_FILTERS = [
   { id: 'ALL', label: 'All Events' },
+  { id: 'ADMIN_ACTION', label: 'Admin Actions' },
   { id: 'TOOL_USED', label: 'Tool Usage' },
   { id: 'AI_REQUEST', label: 'AI Requests' },
   { id: 'AI_FALLBACK', label: 'AI Fallbacks' },
@@ -52,6 +53,13 @@ export default function AdminActivityPage() {
   const totalPages = Math.max(1, Math.ceil(total / 20));
 
   const EventBadge = ({ type }: { type: string }) => {
+    if (type === 'ADMIN_ACTION') {
+      return (
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80">
+          ADMIN_ACTION
+        </span>
+      );
+    }
     if (type === 'TOOL_USED') {
       return (
         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">

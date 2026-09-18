@@ -51,17 +51,62 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+import { cookies, headers } from 'next/headers';
+import { db } from '@/lib/db';
+import { verifySessionToken, ADMIN_COOKIE_NAME } from '@/lib/admin/auth';
+import { MaintenanceScreen } from '@/components/layout/MaintenanceScreen';
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = headers();
+  const pathname = headersList.get('x-pathname') || '';
+  const isAdminOrApiPath =
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/robots.txt') ||
+    pathname.startsWith('/sitemap.xml');
+
+  // Check Maintenance Mode from persistent store
+  const maintenance = await db.getSiteSetting('maintenance_mode', {
+    enabled: false,
+    message: 'StudentAI is currently undergoing scheduled maintenance. We will be back shortly.',
+  });
+
+  // Verify Admin session
+  const cookieStore = cookies();
+  const adminCookie = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
+  const isAdmin = adminCookie ? verifySessionToken(adminCookie) : false;
+
+  // If maintenance is active and visitor is not an admin, and not accessing admin routes:
+  // Render server-side MaintenanceScreen directly
+  const showMaintenance = maintenance.enabled && !isAdmin && !isAdminOrApiPath;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased bg-white dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <ThemeRegistry>
           <ThemeProvider>
-            <AppShell>{children}</AppShell>
+            {showMaintenance ? (
+              <MaintenanceScreen message={maintenance.message} />
+            ) : (
+              <>
+                {maintenance.enabled && isAdmin && !pathname.startsWith('/admin') && (
+                  <div className="bg-amber-600 text-white text-xs font-bold py-2 px-4 text-center sticky top-0 z-50 flex items-center justify-center gap-3 shadow-md">
+                    <span>🛠️ Maintenance Mode is ACTIVE — Public visitors see the maintenance screen. (Admin Preview)</span>
+                    <a
+                      href="/admin/settings"
+                      className="underline bg-amber-700 hover:bg-amber-800 px-2 py-0.5 rounded text-[11px]"
+                    >
+                      Admin Controls
+                    </a>
+                  </div>
+                )}
+                <AppShell>{children}</AppShell>
+              </>
+            )}
           </ThemeProvider>
         </ThemeRegistry>
       </body>

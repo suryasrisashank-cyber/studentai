@@ -8,6 +8,8 @@ import { Search, Filter, X } from 'lucide-react';
 export default function ToolsDirectoryPage() {
   const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [disabledTools, setDisabledTools] = useState<string[]>([]);
+  const [featuredTools, setFeaturedTools] = useState<string[]>([]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -17,6 +19,14 @@ export default function ToolsDirectoryPage() {
         setSelectedCategory(cat);
       }
     }
+
+    fetch('/api/site/status')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data?.disabledTools)) setDisabledTools(data.disabledTools);
+        if (Array.isArray(data?.featuredTools)) setFeaturedTools(data.featuredTools);
+      })
+      .catch(() => {});
   }, []);
 
   const categories = Object.keys(CATEGORY_INFO) as ToolCategory[];
@@ -105,7 +115,12 @@ export default function ToolsDirectoryPage() {
       {filteredTools.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTools.map((tool) => (
-            <ToolCard key={tool.slug} tool={tool} />
+            <ToolCard
+              key={tool.slug}
+              tool={tool}
+              isDisabled={disabledTools.includes(tool.slug)}
+              isFeatured={featuredTools.includes(tool.slug)}
+            />
           ))}
         </div>
       ) : (

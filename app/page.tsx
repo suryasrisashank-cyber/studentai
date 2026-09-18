@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TOOLS_REGISTRY, CATEGORY_INFO, ToolCategory } from '@/lib/tools-registry';
 import { ToolCard } from '@/components/tools/ToolCard';
@@ -18,6 +18,16 @@ import {
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [disabledTools, setDisabledTools] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/site/status')
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d?.disabledTools)) setDisabledTools(d.disabledTools);
+      })
+      .catch(() => {});
+  }, []);
 
   const filteredTools = searchQuery.trim()
     ? TOOLS_REGISTRY.filter(
@@ -178,7 +188,11 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {popularTools.map((tool) => (
-              <ToolCard key={tool.slug} tool={tool} />
+              <ToolCard
+                key={tool.slug}
+                tool={tool}
+                isDisabled={disabledTools.includes(tool.slug)}
+              />
             ))}
           </div>
         </div>

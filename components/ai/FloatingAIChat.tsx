@@ -47,6 +47,19 @@ export function FloatingAIChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  const [isAiEnabled, setIsAiEnabled] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/site/status')
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d?.ai?.enabled === 'boolean') {
+          setIsAiEnabled(d.ai.enabled);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Scroll to bottom when messages update
   useEffect(() => {
     if (isOpen) {
@@ -54,8 +67,8 @@ export function FloatingAIChat() {
     }
   }, [messages, isLoading, isOpen]);
 
-  // Don't render floating trigger when user is already on the dedicated /ai full page or on /admin
-  if (pathname === '/ai' || pathname?.startsWith('/admin')) {
+  // Don't render floating trigger when AI is disabled, or user is already on /ai full page or on /admin
+  if (!isAiEnabled || pathname === '/ai' || pathname?.startsWith('/admin')) {
     return null;
   }
 

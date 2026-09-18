@@ -53,6 +53,12 @@ export async function POST(req: NextRequest) {
       typeof isFeatured === 'boolean' ? isFeatured : undefined
     );
 
+    await db.auditAdminAction('TOOL_TOGGLED', {
+      slug,
+      isEnabled: typeof isEnabled === 'boolean' ? isEnabled : undefined,
+      isFeatured: typeof isFeatured === 'boolean' ? isFeatured : undefined,
+    });
+
     return NextResponse.json({ success: true, slug }, { status: 200 });
   } catch (err) {
     return NextResponse.json({ error: 'Failed to update tool' }, { status: 500 });

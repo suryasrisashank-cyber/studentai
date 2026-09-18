@@ -39,7 +39,8 @@ const devStore: DevStore = {
   siteSettings: new Map([
     ['maintenance_mode', { key: 'maintenance_mode', valueJson: JSON.stringify({ enabled: false, message: 'StudentAI is currently undergoing scheduled maintenance. We will be back shortly.' }), updatedAt: new Date() }],
     ['announcement', { key: 'announcement', valueJson: JSON.stringify({ enabled: false, text: '', type: 'info' }), updatedAt: new Date() }],
-    ['ai_welcome', { key: 'ai_welcome', valueJson: JSON.stringify({ greeting: 'Ask. Learn. Understand.', subtitle: 'Your AI educational study assistant for concepts, exam prep, and problem solving.' }), updatedAt: new Date() }],
+    ['ai_welcome', { key: 'ai_welcome', valueJson: JSON.stringify({ greeting: 'Ask. Learn. Understand.', subtitle: 'Your free educational assistant for conceptual clarity and exam prep.' }), updatedAt: new Date() }],
+    ['ai_settings', { key: 'ai_settings', valueJson: JSON.stringify({ enabled: true }), updatedAt: new Date() }],
   ]),
 };
 
@@ -83,7 +84,7 @@ export const db = {
    * Privacy note: Never records input data, grades, or personal student text.
    */
   async recordUsageEvent(data: {
-    eventType: 'TOOL_USED' | 'AI_REQUEST' | 'AI_SUCCESS' | 'AI_FAILURE' | 'AI_FALLBACK';
+    eventType: 'TOOL_USED' | 'AI_REQUEST' | 'AI_SUCCESS' | 'AI_FAILURE' | 'AI_FALLBACK' | 'ADMIN_ACTION' | string;
     feature: string;
     metadataJson?: Record<string, unknown>;
     sessionId?: string;
@@ -142,6 +143,18 @@ export const db = {
         }
       }
     }
+  },
+
+  /**
+   * Helper to write an administrative mutation audit record to usage_events.
+   */
+  async auditAdminAction(action: string, metadata?: Record<string, unknown>, sessionId = 'admin_console') {
+    await this.recordUsageEvent({
+      eventType: 'ADMIN_ACTION',
+      feature: action,
+      metadataJson: metadata,
+      sessionId,
+    });
   },
 
   /**

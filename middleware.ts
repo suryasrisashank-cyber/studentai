@@ -90,9 +90,17 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Inject x-pathname header so Server Components (like RootLayout) know the current route
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-pathname', pathname);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icons/).*)'],
 };

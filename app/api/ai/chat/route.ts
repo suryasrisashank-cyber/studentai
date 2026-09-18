@@ -4,11 +4,39 @@ import { checkRateLimit } from '@/lib/ai/rate-limit';
 import { buildSystemPrompt } from '@/lib/ai/prompts';
 import { aiRouter } from '@/lib/ai/router';
 import { ChatMessage } from '@/lib/ai/types';
+import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Check Platform Maintenance & AI Kill Switch from persistent store
+    const [maintenance, aiSettings] = await Promise.all([
+      db.getSiteSetting('maintenance_mode', { enabled: false, message: '' }),
+      db.getSiteSetting('ai_settings', { enabled: true }),
+    ]);
+
+    if (maintenance.enabled) {
+      return NextResponse.json(
+        {
+          error:
+            maintenance.message ||
+            'StudentAI Assistant is temporarily unavailable due to scheduled platform maintenance. Please check back shortly.',
+        },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } }
+      );
+    }
+
+    if (!aiSettings.enabled) {
+      return NextResponse.json(
+        {
+          error:
+            'The AI Assistant has been temporarily paused by the administrator. Please check back shortly or explore our 20 client-side tools.',
+        },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } }
+      );
+    }
+
     // 1. Content-Type Validation
     const contentType = req.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
