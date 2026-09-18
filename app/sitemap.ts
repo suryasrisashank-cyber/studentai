@@ -21,6 +21,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${BASE_URL}/ai`,
+      lastModified: LAST_MODIFIED_DATE,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
       url: `${BASE_URL}/about`,
       lastModified: LAST_MODIFIED_DATE,
       changeFrequency: 'monthly',

@@ -16,6 +16,7 @@ import {
   CheckSquare,
   Wrench,
   Search,
+  Bot,
 } from 'lucide-react';
 
 export function Header() {
@@ -25,6 +26,7 @@ export function Header() {
 
   const navLinks = [
     { href: '/tools', label: 'All Tools' },
+    { href: '/ai', label: 'AI Assistant', icon: Bot },
     { href: '/tools?category=student', label: 'Student', icon: GraduationCap },
     { href: '/tools?category=study', label: 'Study', icon: BookOpen },
     { href: '/tools?category=career', label: 'Career', icon: Briefcase },

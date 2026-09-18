@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { ShieldCheck, Lock, Database, Info, HardDrive } from 'lucide-react';
+import { ShieldCheck, Lock, Database, Info, HardDrive, Bot } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — Transparent Local-First Data Handling',
@@ -101,11 +101,27 @@ export default function PrivacyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            5. Contact and Open Source Verification
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Bot className="w-5 h-5 text-indigo-600" />
+            5. StudentAI Assistant (AI Chatbot) &amp; Server-Side Processing
           </h2>
           <p>
-            Because StudentAI is open-source, anyone may inspect the repository code to independently verify that calculations and file operations remain entirely client-side.
+            While StudentAI&apos;s standard student calculators and document utilities operate 100% locally inside your browser, the <strong>StudentAI Assistant</strong> chatbot requires server-side communication to generate AI responses:
+          </p>
+          <ul className="list-disc list-inside space-y-1 pl-2">
+            <li>When you submit a question in the AI Assistant, your prompt and recent conversation context are sent over encrypted HTTPS to our server API route (<code>/api/ai/chat</code>).</li>
+            <li>Our server gateway routes the request to our designated upstream AI provider (such as Google Gemini, Groq, or OpenRouter) to generate your answer. API keys and credentials are kept strictly server-side.</li>
+            <li>Your conversation history is stored exclusively in your local device&apos;s browser memory (<code>window.localStorage</code>) and can be cleared at any time with the &quot;Clear Chat&quot; button.</li>
+            <li>We do not require user accounts, emails, or personal identifiers to use the assistant.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            6. Contact and Open Source Verification
+          </h2>
+          <p>
+            Because StudentAI is open-source, anyone may inspect the repository code to independently verify our security, privacy guarantees, and client-side utilities.
           </p>
         </section>
       </div>
