@@ -43,8 +43,8 @@ export default function HomePage() {
 
   const faqs = [
     {
-      q: 'Is StudentAI really 100% free with ₹0 cost?',
-      a: 'Yes. StudentAI was engineered specifically to operate at zero ongoing cost. There are no paywalls, subscriptions, credit cards, or hidden fees. Every tool runs directly inside your browser.',
+      q: 'How does StudentAI work?',
+      a: 'StudentAI provides essential productivity, document, and study tools for students without paywalls, subscriptions, or credit card requirements. Standard tools run directly inside your browser.',
     },
     {
       q: 'Do I need to sign up or create an account?',
@@ -60,7 +60,7 @@ export default function HomePage() {
     },
     {
       q: 'Does StudentAI offer an AI Assistant?',
-      a: 'Yes! In addition to 20 local browser utilities, StudentAI includes a dedicated AI Assistant (/ai) with multi-provider redundancy (Google Gemini, Groq, OpenRouter) to help you explain concepts, draft essays, and solve problems at ₹0 cost.',
+      a: 'Yes! In addition to local browser utilities, StudentAI includes a dedicated AI Assistant (/ai) with multi-provider redundancy (Google Gemini, Groq, OpenRouter) to help you explain concepts, draft essays, and solve problems.',
     },
     {
       q: 'Can I use StudentAI on my smartphone or tablet?',
@@ -75,7 +75,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>₹0 Cost &bull; No Login Required &bull; Local-First Utilities + AI Assistant</span>
+            <span>Student Productivity &bull; Local-First Utilities &bull; AI Assistant</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight sm:leading-tight">
@@ -86,7 +86,7 @@ export default function HomePage() {
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Free browser-based tools for students, study, career preparation, and everyday productivity.
+            StudentAI — Student Productivity, Study, Career & PDF Platform. Fast, private, and engineered for students.
           </p>
 
           {/* Quick Search Bar */}
@@ -259,10 +259,10 @@ export default function HomePage() {
                 <Zap className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">
-                ₹0 Cost & Zero Sign-Up
+                Instant Access & Zero Sign-Up
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                No subscription plans, no trial periods, and no email registration. Open any tool and get immediate results.
+                No subscription friction, no trial barriers, and no mandatory login. Open any tool and get immediate results.
               </p>
             </div>
 

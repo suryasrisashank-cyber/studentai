@@ -2,13 +2,14 @@
   "name": "studentai",
   "version": "1.0.0",
   "private": true,
-  "description": "StudentAI — Study Smarter. Prepare Better. Get Things Done. 100% free client-side student utilities.",
+  "description": "StudentAI — Student Productivity, Study, Career & PDF Platform.",
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/deploy-migration.js && next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node scripts/test-math.js && node scripts/test-ai-gateway.js && node scripts/test-admin-security.js && node scripts/test-control-center-e2e.js && node scripts/test-pdf-toolkit.js && node scripts/test-admin-hardening.js",
+    "test": "node scripts/test-math.js && node scripts/test-ai-gateway.js && node scripts/test-admin-security.js && node scripts/test-control-center-e2e.js && node scripts/test-pdf-toolkit.js && node scripts/test-admin-hardening.js && node scripts/test-ai-eval-suite.js && node scripts/test-admin-runtime.js",
+
     "postinstall": "prisma generate"
   },
   "dependencies": {

@@ -50,10 +50,10 @@ export default function AboutPage() {
 
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            The StudentAI Zero-Cost Architecture
+            The StudentAI Architecture
           </h2>
           <p>
-            StudentAI was created with a fundamental technical constraint: <strong>it must operate at ₹0 upfront and ongoing infrastructure cost</strong>, while remaining free forever for every student who opens the website.
+            StudentAI is built as a high-performance student productivity suite: <strong>private, lightweight, and accessible to students worldwide</strong> with zero friction and zero forced account creation.
           </p>
           <p>
             To achieve this without compromising speed, privacy, or reliability, we built the platform combining <strong>local-first browser utilities</strong> with an intelligent <strong>server-side AI study gateway</strong>:

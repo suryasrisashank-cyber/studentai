@@ -116,12 +116,12 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 mt-8 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
           <p>
-            &copy; {new Date().getFullYear()} StudentAI. Free open-source student utilities. Built for students worldwide.
+            &copy; {new Date().getFullYear()} StudentAI. Productivity, study, career, and document platform.
           </p>
           <div className="flex items-center gap-1">
             <span>Built with</span>
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-            <span>and ₹0 operating cost.</span>
+            <span>for students and educators worldwide.</span>
           </div>
         </div>
       </div>

@@ -251,7 +251,7 @@ export function ToolsSidebar() {
       {/* Sidebar Footer */}
       {!isCollapsed && (
         <div className="p-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500 text-center">
-          <span>StudentAI &bull; ₹0 Free</span>
+          <span>StudentAI &bull; Productivity Suite</span>
         </div>
       )}
     </aside>

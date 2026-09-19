@@ -249,7 +249,7 @@ async function runPdfToolkitTests() {
   try {
     process.stdout.write('[TEST 10] Testing Password Protection (Status and limited mode honesty)... ');
     const registrySrc = fs.readFileSync('lib/pdf-tools-registry.ts', 'utf8');
-    assert(registrySrc.includes("slug: 'protect'"), 'Protect tool must be registered');
+    assert(registrySrc.includes("slug: 'protect-pdf'") || registrySrc.includes("slug: 'protect'"), 'Protect tool must be registered');
     assert(registrySrc.includes("status: 'LIMITED'"), 'Protect tool must be marked LIMITED');
 
     console.log('✓ PASSED (Protect PDF correctly labeled LIMITED with honest disclaimer)');
@@ -276,8 +276,9 @@ async function runPdfToolkitTests() {
   try {
     process.stdout.write('[TEST 12] Testing PDF/A Preparation (Metadata embedding & LIMITED scope)... ');
     const registrySrc = fs.readFileSync('lib/pdf-tools-registry.ts', 'utf8');
-    assert(registrySrc.includes("name: 'PDF/A Preparation'"), 'Tool name must be PDF/A Preparation');
+    assert(registrySrc.includes("name: 'PDF/A Preparation'") || registrySrc.includes("name: 'PDF to PDF/A'"), 'Tool name must be PDF/A Preparation or PDF to PDF/A');
     assert(registrySrc.includes("status: 'LIMITED'"), 'PDF/A must be marked LIMITED without external validator');
+
 
     console.log('✓ PASSED (PDF/A Preparation correctly named and labeled LIMITED)');
     passed++;
@@ -353,12 +354,12 @@ async function runPdfToolkitTests() {
     process.stdout.write('[TEST 16] Testing Admin Tool Kill Switch for PDF Tools... ');
     const registrySrc = fs.readFileSync('lib/pdf-tools-registry.ts', 'utf8');
     const matches = registrySrc.match(/id:\s*['"][^'"]+['"]/g);
-    assert.strictEqual(matches.length, 33, 'Registry must define exactly 33 PDF tools');
+    assert.strictEqual(matches.length, 40, 'Registry must define exactly 40 PDF tools');
 
     const adminRoute = fs.readFileSync('app/api/admin/tools/route.ts', 'utf8');
     assert(adminRoute.includes('PDF_TOOLS_REGISTRY'), 'Admin tools API must include PDF_TOOLS_REGISTRY');
 
-    console.log('✓ PASSED (All 33 PDF tools registered with admin kill-switch compatibility)');
+    console.log('✓ PASSED (All 40 PDF tools registered with admin kill-switch compatibility)');
     passed++;
   } catch (err) {
     console.log('✗ FAILED:', err.message);

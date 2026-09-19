@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 export default function FaqPage() {
   const faqs = [
     {
-      q: 'Is StudentAI really 100% free with ₹0 cost?',
-      a: 'Yes, completely free. StudentAI was engineered to run without any recurring operational costs. There are no paywalls, hidden fees, monthly subscriptions, or credit card requirements.',
+      q: 'How does StudentAI work?',
+      a: 'StudentAI is designed as an accessible utility platform for students. There are no paywalls, hidden fees, mandatory monthly subscriptions, or credit card requirements to use the standard suite.',
     },
     {
       q: 'Do I need to register or create an account?',
@@ -33,7 +33,7 @@ export default function FaqPage() {
     },
     {
       q: 'Does StudentAI offer an AI Study Assistant?',
-      a: 'Yes! StudentAI features a dedicated AI Study Assistant (/ai) designed for students. It helps with step-by-step math and science explanations, essay outlining, study schedules, and coding help. The AI Assistant routes queries securely through a server-side proxy with multi-provider redundancy (Google Gemini, Groq, OpenRouter) so it remains accessible to students at ₹0 cost.',
+      a: 'Yes! StudentAI features a dedicated AI Study Assistant (/ai) designed for students. It helps with step-by-step math and science explanations, essay outlining, study schedules, and coding help. The AI Assistant routes queries securely through a server-side proxy with multi-provider redundancy (Google Gemini, Groq, OpenRouter).',
     },
     {
       q: 'How does privacy differ between the student tools and the AI Assistant?',

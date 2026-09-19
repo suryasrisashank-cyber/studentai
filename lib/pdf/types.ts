@@ -1,17 +1,24 @@
 export type PdfToolCategory =
   | 'organization'
-  | 'conversion'
+  | 'optimize'
+  | 'convert_to'
+  | 'convert_from'
   | 'editing'
-  | 'optimization'
   | 'security'
-  | 'scanning'
-  | 'ai';
+  | 'forms'
+  | 'analysis'
+  | 'ai'
+  | 'conversion'
+  | 'optimization'
+  | 'scanning';
 
 export type PdfToolStatus =
-  | 'READY'
+  | 'PRODUCTION'
   | 'LIMITED'
-  | 'EXPERIMENTAL'
+  | 'BETA'
   | 'COMING_SOON'
+  | 'READY'
+  | 'EXPERIMENTAL'
   | 'DISABLED';
 
 export type PdfProcessingMode = 'client' | 'server' | 'hybrid';

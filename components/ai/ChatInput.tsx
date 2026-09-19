@@ -11,6 +11,7 @@ interface ChatInputProps {
   isLoading: boolean;
   onStop: () => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 export function ChatInput({
@@ -20,7 +21,9 @@ export function ChatInput({
   isLoading,
   onStop,
   disabled = false,
+  placeholder,
 }: ChatInputProps) {
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize textarea height
@@ -51,7 +54,8 @@ export function ChatInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask StudentAI anything (e.g. explain a concept, study plan, code, exam tips)..."
+          placeholder={placeholder || "Ask StudentAI anything (e.g. explain a concept, study plan, code, exam tips)..."}
+
           rows={1}
           disabled={disabled}
           className="w-full bg-transparent resize-none outline-none text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 max-h-44 min-h-[44px] py-1.5 px-1 leading-relaxed"

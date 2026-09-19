@@ -2,7 +2,7 @@
 
 > **Study Smarter. Prepare Better. Get Things Done.**
 
-A modern, fast, and privacy-first suite of **20 free browser-based student utilities** combined with a built-in **AI Student Assistant** and a comprehensive **Admin Control Center**. Built under a strict **₹0 upfront and operating cost rule**, running all core calculations 100% client-side with zero paid APIs, zero tracking, and zero account friction.
+A modern, fast, and privacy-first suite of **20 browser-based student utilities**, a professional **40-tool PDF Toolkit**, a built-in **AI Student Assistant**, and a comprehensive **Admin Control Center**. Running all core calculations and document transformations client-side with zero tracking and zero friction.
 
 **Live Deployment:** [https://studentai-five.vercel.app/](https://studentai-five.vercel.app/)  
 **GitHub Repository:** [https://github.com/suryasrisashank-cyber/studentai](https://github.com/suryasrisashank-cyber/studentai)
@@ -11,7 +11,7 @@ A modern, fast, and privacy-first suite of **20 free browser-based student utili
 
 ## 🌟 Key Features
 
-- **20 Free Client-Side Student Tools:** Calculators, study timers, markdown notes, text tools, converters, image compressors, and interview prep.
+- **20 Client-Side Student Tools:** Calculators, study timers, markdown notes, text tools, converters, image compressors, and interview prep.
 - **Figma-Inspired Desktop & MUI Mobile:** Persistent collapsible Tools Sidebar (260px expanded, 72px collapsed) on desktop and touch-friendly Material UI Drawer on mobile.
 - **Floating AI Student Assistant:** Contextual study companion with quick-action chips and multi-tier provider redundancy (`Google Gemini 2.5 Flash → Groq → OpenRouter`).
 - **Secure Admin Control Center (`/admin/*`):** Rate-limited login (`logindetails-admin@gmail.com`), HMAC-SHA256 signed session cookies, tool toggles, announcements, and AI telemetry.
@@ -129,7 +129,7 @@ npm run dev
 - [Admin Dashboard Guide](docs/ADMIN-DASHBOARD.md)
 - [Security & Authentication Architecture](docs/SECURITY.md)
 - [Telemetry & Analytics Architecture](docs/ANALYTICS.md)
-- [₹0 Cost Audit Breakdown](docs/COST-AUDIT.md)
+- [Infrastructure & Cost Audit Breakdown](docs/COST-AUDIT.md)
 
 ---
 

@@ -111,12 +111,12 @@ export function Header({ onOpenMobileTools }: { onOpenMobileTools?: () => void }
                   <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">
                     Student<span className="text-indigo-600 dark:text-indigo-400">AI</span>
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-                    ₹0-Free
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
+                    Student Suite
                   </span>
                 </div>
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden sm:inline">
-                  Client-Side Student Utilities
+                  Productivity, Career & Document Platform
                 </span>
               </div>
             </Link>

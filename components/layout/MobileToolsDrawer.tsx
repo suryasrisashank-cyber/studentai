@@ -88,8 +88,8 @@ export function MobileToolsDrawer({ open, onClose }: MobileToolsDrawerProps) {
               <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">
                 Student<span className="text-indigo-600 dark:text-indigo-400">AI</span>
               </span>
-              <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-                ₹0 Free
+              <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                Suite
               </span>
             </div>
           </div>

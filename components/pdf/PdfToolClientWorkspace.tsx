@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { PdfToolDefinition } from '@/lib/pdf/types';
+import { SLUG_ALIASES } from '@/lib/pdf-tools-registry';
 import { PdfToolkitLayout } from './PdfToolkitLayout';
 import { PdfDropzone } from './PdfDropzone';
 import { PdfFileList } from './PdfFileList';
@@ -40,6 +41,7 @@ import { applyWatermark } from '@/lib/pdf/editing/watermark';
 import { cropPdf } from '@/lib/pdf/editing/crop';
 import { applyAnnotations } from '@/lib/pdf/editing/edit';
 import { redactPdf } from '@/lib/pdf/editing/redact';
+import { getFormFields, fillFormFields } from '@/lib/pdf/editing/forms';
 import { compressPdf } from '@/lib/pdf/optimization/compress';
 import { repairPdf } from '@/lib/pdf/optimization/repair';
 import { protectPdf } from '@/lib/pdf/security/protect';
@@ -48,6 +50,8 @@ import { comparePdfs, PdfComparisonResult } from '@/lib/pdf/security/compare';
 import { runPdfOcr } from '@/lib/pdf/ocr/recognize';
 
 export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
+  const canonicalSlug = SLUG_ALIASES[tool.slug] || tool.slug;
+
   const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<'idle' | 'processing' | 'ready' | 'error'>('idle');
   const [progressPercent, setProgressPercent] = useState(0);
@@ -95,7 +99,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
 
   const handleFilesSelected = async (newFiles: File[]) => {
     setErrorMessage(null);
-    if (tool.slug === 'merge' || tool.slug === 'jpg-to-pdf') {
+    if (['merge-pdf', 'jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug)) {
       setFiles((prev) => [...prev, ...newFiles]);
     } else {
       setFiles(newFiles);
@@ -110,13 +114,13 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
         setPageInfos(infos);
 
         // Preload editor image for edit/redact/sign
-        if (['edit', 'redact', 'sign'].includes(tool.slug)) {
+        if (['edit-pdf', 'redact-pdf', 'sign-pdf'].includes(canonicalSlug)) {
           const imgUrl = await renderPageToImage(new Uint8Array(buffer), 1, 'image/png', 1.5);
           setEditorPageImage(imgUrl);
         }
 
-        // Pre-extract text for AI or OCR tools
-        if (tool.requiresAI || tool.slug === 'ocr' || tool.slug === 'compare') {
+        // Pre-extract text for AI, OCR, or comparison tools
+        if (tool.requiresAI || ['ocr-pdf', 'compare-pdf', 'pdf-text'].includes(canonicalSlug)) {
           const textRes = await extractAllPdfText(new Uint8Array(buffer), 20);
           setExtractedText(textRes.text);
         }
@@ -127,136 +131,136 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
   };
 
   const executeToolAction = async () => {
-    if (files.length === 0 && tool.slug !== 'scan-to-pdf' && tool.slug !== 'html-to-pdf') {
-      setErrorMessage('Please upload a file to proceed.');
+    if (files.length === 0 && canonicalSlug !== 'scan-to-pdf' && canonicalSlug !== 'html-to-pdf') {
+      setErrorMessage('Please select a file to process.');
       return;
     }
 
     setStatus('processing');
-    setProgressPercent(5);
-    setProgressMessage('Starting operation...');
-    setErrorMessage(null);
+    setProgressPercent(10);
+    setProgressMessage('Initializing document...');
 
     try {
       const primaryFile = files[0];
       const baseName = primaryFile?.name.replace(/\.[^/.]+$/, '') || 'studentai_document';
 
-      if (tool.slug === 'merge') {
+      if (canonicalSlug === 'merge-pdf') {
         const buffers = await Promise.all(files.map((f) => readFileAsArrayBuffer(f)));
         const res = await mergePdfs(buffers, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_merged.pdf`);
         setOutputMimeType('application/pdf');
-      } else if (tool.slug === 'split') {
+      } else if (canonicalSlug === 'split-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await splitPdf(buffer, splitRanges, baseName, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res.bytes);
         setOutputFilename(res.filename);
         setIsZipOutput(res.isZip);
         setOutputMimeType(res.isZip ? 'application/zip' : 'application/pdf');
-      } else if (tool.slug === 'organize') {
+      } else if (canonicalSlug === 'organize-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const configs = pageInfos.map((p) => ({ sourcePageIndex: p.pageNumber - 1, rotationAngle: p.rotation }));
         const res = await organizePdf(buffer, configs, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_organized.pdf`);
-      } else if (tool.slug === 'remove-pages') {
+      } else if (canonicalSlug === 'remove-pages') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await removePdfPages(buffer, Array.from(selectedPages), (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_pages_removed.pdf`);
-      } else if (tool.slug === 'extract-pages') {
+      } else if (canonicalSlug === 'extract-pages') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await extractPdfPages(buffer, Array.from(selectedPages), (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_extracted.pdf`);
-      } else if (tool.slug === 'rotate') {
+      } else if (canonicalSlug === 'rotate-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const targets = selectedPages.size > 0 ? Array.from(selectedPages) : undefined;
         const res = await rotatePdf(buffer, rotationAngle, targets, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_rotated.pdf`);
-      } else if (tool.slug === 'page-numbers') {
+      } else if (canonicalSlug === 'page-numbers') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await addPageNumbers(buffer, { position: pageNumberPos }, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_numbered.pdf`);
-      } else if (tool.slug === 'watermark') {
+      } else if (canonicalSlug === 'watermark-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await applyWatermark(buffer, { type: 'text', text: watermarkText, opacity: watermarkOpacity }, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_watermarked.pdf`);
-      } else if (tool.slug === 'crop') {
+      } else if (canonicalSlug === 'crop-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await cropPdf(buffer, { top: 36, bottom: 36, left: 36, right: 36 }, undefined, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_cropped.pdf`);
-      } else if (tool.slug === 'compress') {
+      } else if (canonicalSlug === 'compress-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await compressPdf(buffer, 'balanced', (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res.bytes);
         setOutputFilename(`${baseName}_compressed.pdf`);
-      } else if (tool.slug === 'repair') {
+      } else if (canonicalSlug === 'repair-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await repairPdf(buffer, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_repaired.pdf`);
-      } else if (tool.slug === 'protect') {
+      } else if (canonicalSlug === 'protect-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await protectPdf(buffer, passwordInput, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_protected.pdf`);
-      } else if (tool.slug === 'unlock') {
+      } else if (canonicalSlug === 'unlock-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await unlockPdf(buffer, passwordInput, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_unlocked.pdf`);
-      } else if (tool.slug === 'pdf-to-word') {
+      } else if (canonicalSlug === 'pdf-to-word') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await convertPdfToDocx(new Uint8Array(buffer), baseName, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}.docx`);
         setOutputMimeType('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-      } else if (tool.slug === 'pdf-to-excel') {
+      } else if (canonicalSlug === 'pdf-to-excel') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await convertPdfToXlsx(new Uint8Array(buffer), baseName, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}.xlsx`);
         setOutputMimeType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      } else if (tool.slug === 'pdf-to-powerpoint') {
+      } else if (canonicalSlug === 'pdf-to-powerpoint') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await convertPdfToPptx(new Uint8Array(buffer), baseName, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}.pptx`);
         setOutputMimeType('application/vnd.openxmlformats-officedocument.presentationml.presentation');
-      } else if (tool.slug === 'word-to-pdf') {
+      } else if (canonicalSlug === 'word-to-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await convertDocxToPdf(buffer, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}.pdf`);
-      } else if (tool.slug === 'excel-to-pdf') {
+      } else if (canonicalSlug === 'excel-to-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const isCsv = primaryFile.name.toLowerCase().endsWith('.csv');
         const res = await convertXlsxToPdf(buffer, isCsv, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}.pdf`);
-      } else if (tool.slug === 'powerpoint-to-pdf') {
+      } else if (canonicalSlug === 'powerpoint-to-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await convertPptxToPdf(buffer, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}.pdf`);
-      } else if (tool.slug === 'html-to-pdf') {
+      } else if (canonicalSlug === 'html-to-pdf') {
         const res = await convertHtmlToPdf(htmlInput, 'HTML_Export', (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename('html_document.pdf');
-      } else if (tool.slug === 'pdf-a') {
+      } else if (canonicalSlug === 'pdf-to-pdfa') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const res = await preparePdfA(buffer, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename(`${baseName}_pdfa.pdf`);
-      } else if (tool.slug === 'pdf-to-jpg') {
+      } else if (['pdf-to-jpg', 'pdf-to-png'].includes(canonicalSlug)) {
+        const format = canonicalSlug === 'pdf-to-png' ? 'image/png' : 'image/jpeg';
         const buffer = await readFileAsArrayBuffer(primaryFile);
-        const res = await convertPdfToImages(new Uint8Array(buffer), pageInfos.length || 1, 'image/jpeg', 1.5, baseName, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
+        const res = await convertPdfToImages(new Uint8Array(buffer), pageInfos.length || 1, format, 1.5, baseName, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         if (res.isZip && res.zipBytes) {
           setOutputBytes(res.zipBytes);
           setOutputFilename(res.filename);
@@ -269,9 +273,9 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
           for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
           setOutputBytes(bytes);
           setOutputFilename(res.filename);
-          setOutputMimeType('image/jpeg');
+          setOutputMimeType(format);
         }
-      } else if (tool.slug === 'jpg-to-pdf') {
+      } else if (['jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug)) {
         const imageInputs = await Promise.all(
           files.map(async (f) => {
             const buf = await readFileAsArrayBuffer(f);
@@ -281,7 +285,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
         const res = await convertImagesToPdf(imageInputs, {}, (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         setOutputBytes(res);
         setOutputFilename('images_assembled.pdf');
-      } else if (tool.slug === 'compare') {
+      } else if (canonicalSlug === 'compare-pdf') {
         if (files.length < 2) {
           throw new Error('Please upload 2 PDF files to compare.');
         }
@@ -291,13 +295,51 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
         setComparisonResult(res);
         setStatus('ready');
         return;
-      } else if (tool.slug === 'ocr') {
+      } else if (canonicalSlug === 'ocr-pdf') {
         const buffer = await readFileAsArrayBuffer(primaryFile);
         const pNums = selectedPages.size > 0 ? Array.from(selectedPages).map((i) => i + 1) : [1];
         const res = await runPdfOcr(new Uint8Array(buffer), pNums, 'eng', (p, m) => { setProgressPercent(p); setProgressMessage(m); });
         const enc = new TextEncoder();
         setOutputBytes(enc.encode(res.fullText));
         setOutputFilename(`${baseName}_ocr_text.txt`);
+        setOutputMimeType('text/plain');
+      } else if (canonicalSlug === 'pdf-text') {
+        const buffer = await readFileAsArrayBuffer(primaryFile);
+        const textRes = await extractAllPdfText(new Uint8Array(buffer), 100);
+        const enc = new TextEncoder();
+        setOutputBytes(enc.encode(textRes.text || 'No text found in document.'));
+        setOutputFilename(`${baseName}_extracted_text.txt`);
+        setOutputMimeType('text/plain');
+      } else if (canonicalSlug === 'pdf-info') {
+        const buffer = await readFileAsArrayBuffer(primaryFile);
+        const doc = await loadPdf(buffer, { ignoreEncryption: true });
+        const info = `StudentAI Document Information Report\n` +
+          `====================================\n\n` +
+          `File Name: ${primaryFile.name}\n` +
+          `File Size: ${(primaryFile.size / 1024).toFixed(1)} KB\n` +
+          `Page Count: ${doc.getPageCount()}\n` +
+          `Title: ${doc.getTitle() || 'Not specified'}\n` +
+          `Author: ${doc.getAuthor() || 'Not specified'}\n` +
+          `Subject: ${doc.getSubject() || 'Not specified'}\n` +
+          `Keywords: ${doc.getKeywords() || 'Not specified'}\n` +
+          `Producer: ${doc.getProducer() || 'Not specified'}\n` +
+          `Creator: ${doc.getCreator() || 'Not specified'}\n` +
+          `Creation Date: ${doc.getCreationDate() ? doc.getCreationDate()?.toISOString() : 'Unknown'}\n` +
+          `Modification Date: ${doc.getModificationDate() ? doc.getModificationDate()?.toISOString() : 'Unknown'}\n`;
+        const enc = new TextEncoder();
+        setOutputBytes(enc.encode(info));
+        setOutputFilename(`${baseName}_metadata_info.txt`);
+        setOutputMimeType('text/plain');
+      } else if (canonicalSlug === 'pdf-forms' || canonicalSlug === 'fill-pdf') {
+        const buffer = await readFileAsArrayBuffer(primaryFile);
+        const fields = await getFormFields(buffer);
+        const formSummary = fields.length === 0
+          ? 'No interactive AcroForm fields detected in this document.'
+          : `Interactive Form Fields (${fields.length}):\n\n` +
+            fields.map((f, i) => `${i + 1}. [${f.type.toUpperCase()}] ${f.name} = "${f.value}"`).join('\n');
+        const enc = new TextEncoder();
+        setOutputBytes(enc.encode(formSummary));
+        setOutputFilename(`${baseName}_form_fields.txt`);
         setOutputMimeType('text/plain');
       }
 
@@ -344,7 +386,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
       )}
 
       {/* 4. Scanner View */}
-      {tool.slug === 'scan-to-pdf' && status === 'idle' && (
+      {canonicalSlug === 'scan-to-pdf' && status === 'idle' && (
         <PdfCameraScanner
           onScanComplete={(bytes) => {
             setOutputBytes(bytes);
@@ -365,7 +407,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
             />
           ) : (
             <PdfAiPanel
-              toolSlug={tool.slug}
+              toolSlug={canonicalSlug}
               extractedText={extractedText}
               onRunAi={async (action, opts) => {
                 const res = await fetch('/api/ai/pdf', {
@@ -388,7 +430,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
       )}
 
       {/* 6. HTML Input View */}
-      {tool.slug === 'html-to-pdf' && status === 'idle' && (
+      {canonicalSlug === 'html-to-pdf' && status === 'idle' && (
         <div className="max-w-2xl mx-auto space-y-4">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
             Paste or Type HTML Content:
@@ -412,12 +454,12 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
       )}
 
       {/* 7. General File Upload & Tool Controls */}
-      {status === 'idle' && tool.slug !== 'scan-to-pdf' && tool.slug !== 'html-to-pdf' && !tool.requiresAI && (
+      {status === 'idle' && canonicalSlug !== 'scan-to-pdf' && canonicalSlug !== 'html-to-pdf' && !tool.requiresAI && (
         <div className="space-y-6">
           {files.length === 0 ? (
             <PdfDropzone
               accept={tool.supportedInputTypes.join(',')}
-              multiple={tool.slug === 'merge' || tool.slug === 'jpg-to-pdf' || tool.slug === 'compare'}
+              multiple={['merge-pdf', 'jpg-to-pdf', 'png-to-pdf', 'compare-pdf'].includes(canonicalSlug)}
               maxSizeMB={tool.maxFileSizeMB}
               onFilesSelected={handleFilesSelected}
             />
@@ -426,21 +468,21 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
               <PdfFileList
                 files={files}
                 onRemove={(idx) => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                allowReorder={tool.slug === 'merge' || tool.slug === 'jpg-to-pdf'}
+                allowReorder={['merge-pdf', 'jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug)}
                 onAddMore={
-                  tool.slug === 'merge' || tool.slug === 'jpg-to-pdf' || (tool.slug === 'compare' && files.length < 2)
+                  ['merge-pdf', 'jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug) || (canonicalSlug === 'compare-pdf' && files.length < 2)
                     ? () => {}
                     : undefined
                 }
               />
 
               {/* Visual Page Grid for Reorder/Organize/Remove/Extract */}
-              {['organize', 'remove-pages', 'extract-pages', 'rotate', 'ocr'].includes(tool.slug) && pageInfos.length > 0 && (
+              {['organize-pdf', 'remove-pages', 'extract-pages', 'rotate-pdf', 'ocr-pdf'].includes(canonicalSlug) && pageInfos.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-bold text-slate-500 text-center">
-                    {tool.slug === 'remove-pages'
+                    {canonicalSlug === 'remove-pages'
                       ? 'Select pages you wish to DELETE permanently:'
-                      : tool.slug === 'extract-pages'
+                      : canonicalSlug === 'extract-pages'
                       ? 'Select pages you wish to EXTRACT into a new PDF:'
                       : 'Preview and manage document pages:'}
                   </p>
@@ -456,7 +498,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
                       });
                     }}
                     onRotatePage={
-                      tool.slug === 'organize'
+                      canonicalSlug === 'organize-pdf'
                         ? (idx, deg) => {
                             setPageInfos((prev) =>
                               prev.map((p, i) => (i === idx ? { ...p, rotation: (p.rotation + deg) % 360 } : p))
@@ -465,7 +507,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
                         : undefined
                     }
                     onDeletePage={
-                      tool.slug === 'organize'
+                      canonicalSlug === 'organize-pdf'
                         ? (idx) => setPageInfos((prev) => prev.filter((_, i) => i !== idx))
                         : undefined
                     }
@@ -474,18 +516,18 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
               )}
 
               {/* Interactive Editor Workspace */}
-              {['edit', 'redact', 'sign'].includes(tool.slug) && editorPageImage && (
+              {['edit-pdf', 'redact-pdf', 'sign-pdf'].includes(canonicalSlug) && editorPageImage && (
                 <PdfEditorWorkspace
                   pageImageUrl={editorPageImage}
                   pageNumber={activeEditorPage}
                   totalPages={pageInfos.length || 1}
-                  mode={tool.slug as any}
+                  mode={canonicalSlug === 'redact-pdf' ? 'redact' : canonicalSlug === 'sign-pdf' ? 'sign' : 'edit'}
                   onSaveAnnotations={async (annotations) => {
                     setStatus('processing');
                     try {
                       const buffer = await readFileAsArrayBuffer(files[0]);
                       const res =
-                        tool.slug === 'redact'
+                        canonicalSlug === 'redact-pdf'
                           ? await redactPdf(
                               buffer,
                               annotations.map((a) => ({
@@ -510,7 +552,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
               )}
 
               {/* Tool Specific Inline Controls */}
-              {tool.slug === 'split' && (
+              {canonicalSlug === 'split-pdf' && (
                 <div className="max-w-md mx-auto p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
                   <label className="font-bold text-slate-700 dark:text-slate-300">
                     Page Ranges to Extract (e.g. 1-3, 5 or &quot;all&quot;):
@@ -524,7 +566,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
                 </div>
               )}
 
-              {tool.slug === 'rotate' && (
+              {canonicalSlug === 'rotate-pdf' && (
                 <div className="max-w-md mx-auto p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 text-xs text-center">
                   <label className="font-bold text-slate-700 dark:text-slate-300 block">Rotation Angle:</label>
                   <div className="inline-flex gap-2">
@@ -544,7 +586,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
                 </div>
               )}
 
-              {tool.slug === 'watermark' && (
+              {canonicalSlug === 'watermark-pdf' && (
                 <div className="max-w-md mx-auto p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 text-xs">
                   <div>
                     <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Watermark Text:</label>
@@ -572,10 +614,10 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
                 </div>
               )}
 
-              {['protect', 'unlock'].includes(tool.slug) && (
+              {['protect-pdf', 'unlock-pdf'].includes(canonicalSlug) && (
                 <div className="max-w-md mx-auto p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
                   <label className="font-bold text-slate-700 dark:text-slate-300 block">
-                    {tool.slug === 'protect' ? 'Set Document Password:' : 'Enter Document Password:'}
+                    {canonicalSlug === 'protect-pdf' ? 'Set Document Password:' : 'Enter Document Password:'}
                   </label>
                   <input
                     type="password"
@@ -588,7 +630,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
               )}
 
               {/* Action Trigger Button */}
-              {!['edit', 'redact', 'sign'].includes(tool.slug) && (
+              {!['edit-pdf', 'redact-pdf', 'sign-pdf'].includes(canonicalSlug) && (
                 <div className="text-center pt-2">
                   <button
                     type="button"

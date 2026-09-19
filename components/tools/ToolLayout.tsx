@@ -158,7 +158,7 @@ export function ToolLayout({
           <span>{tool.privacyNote}</span>
         </div>
         <span className="shrink-0 text-slate-500 dark:text-slate-400 hidden sm:inline">
-          No sign-in required &bull; Free forever
+          Client-Side Processing &bull; Private & Secure
         </span>
       </div>
 
