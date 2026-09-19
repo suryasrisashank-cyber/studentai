@@ -8,7 +8,7 @@
     "build": "node scripts/deploy-migration.js && next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node scripts/test-math.js && node scripts/test-ai-gateway.js && node scripts/test-admin-security.js && node scripts/test-control-center-e2e.js && node scripts/test-pdf-toolkit.js",
+    "test": "node scripts/test-math.js && node scripts/test-ai-gateway.js && node scripts/test-admin-security.js && node scripts/test-control-center-e2e.js && node scripts/test-pdf-toolkit.js && node scripts/test-admin-hardening.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {

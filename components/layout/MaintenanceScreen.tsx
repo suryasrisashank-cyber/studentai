@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { Wrench, Shield, Sparkles, Clock, Lock } from 'lucide-react';
+import { Wrench, Shield, Sparkles, Clock } from 'lucide-react';
 
 interface MaintenanceScreenProps {
   message?: string;
@@ -57,18 +56,11 @@ export function MaintenanceScreen({ message }: MaintenanceScreenProps) {
         </div>
       </main>
 
-      {/* Footer with Discreet Staff Portal Link */}
+      {/* Footer */}
       <footer className="w-full py-6 px-4 border-t border-slate-200/80 dark:border-slate-800/80 text-center text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <p>&copy; {new Date().getFullYear()} StudentAI. Study Smarter. Prepare Better. Get Things Done.</p>
-
-          <Link
-            href="/admin/login"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-          >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Staff / Admin Portal</span>
-          </Link>
+          <p className="text-slate-400 dark:text-slate-500">Student digital utilities & AI platform</p>
         </div>
       </footer>
     </div>
