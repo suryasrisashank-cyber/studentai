@@ -86,9 +86,41 @@ export default async function RootLayout({
   // Render server-side MaintenanceScreen directly
   const showMaintenance = maintenance.enabled && !isAdmin && !isAdminOrApiPath;
 
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': 'https://studentai-five.vercel.app/#website',
+        url: 'https://studentai-five.vercel.app',
+        name: 'StudentAI',
+        description: 'Student Productivity, Study, Career & PDF Platform',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://studentai-five.vercel.app/pdf-tools?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'Organization',
+        '@id': 'https://studentai-five.vercel.app/#organization',
+        name: 'StudentAI',
+        url: 'https://studentai-five.vercel.app',
+        description: 'Study Smarter. Prepare Better. Get Things Done.',
+      },
+    ],
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased bg-white dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-200">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         <ThemeRegistry>
           <ThemeProvider>
             {showMaintenance ? (

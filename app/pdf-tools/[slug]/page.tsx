@@ -29,15 +29,26 @@ export function generateMetadata({ params }: PdfToolPageProps): Metadata {
     };
   }
 
+  const canonicalUrl = `https://studentai-five.vercel.app/pdf-tools/${tool.slug}`;
+
   return {
-    title: `${tool.name} — Free Online Student Utility | StudentAI`,
+    title: `${tool.name} — Free Online Tool | StudentAI`,
     description: tool.seoDescription,
     keywords: tool.tags,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${tool.name} | StudentAI`,
       description: tool.seoDescription,
-      url: `https://studentai-five.vercel.app/pdf-tools/${tool.slug}`,
+      url: canonicalUrl,
       type: 'website',
+      siteName: 'StudentAI',
+    },
+    twitter: {
+      card: 'summary',
+      title: `${tool.name} | StudentAI`,
+      description: tool.seoDescription,
     },
   };
 }
@@ -112,6 +123,64 @@ export default async function PdfToolPage({ params }: PdfToolPageProps) {
     }
   }
 
-  // 4. Render client-side interactive workspace
-  return <PdfToolClientWorkspace tool={tool} />;
+  // 4. Render client-side interactive workspace with JSON-LD structured data
+  const canonicalUrl = `https://studentai-five.vercel.app/pdf-tools/${tool.slug}`;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebApplication',
+        '@id': canonicalUrl,
+        name: tool.name,
+        description: tool.seoDescription,
+        url: canonicalUrl,
+        applicationCategory: 'UtilitiesApplication',
+        operatingSystem: 'All',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+        provider: {
+          '@type': 'Organization',
+          name: 'StudentAI',
+          url: 'https://studentai-five.vercel.app',
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://studentai-five.vercel.app',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'PDF Tools',
+            item: 'https://studentai-five.vercel.app/pdf-tools',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: tool.name,
+            item: canonicalUrl,
+          },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <PdfToolClientWorkspace tool={tool} />
+    </>
+  );
 }

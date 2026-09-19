@@ -13,6 +13,7 @@ import { PdfEditorWorkspace } from './PdfEditorWorkspace';
 import { PdfCameraScanner } from './PdfCameraScanner';
 import { PdfCompareView } from './PdfCompareView';
 import { PdfAiPanel } from './PdfAiPanel';
+import { JpgToPdfWorkspace } from './JpgToPdfWorkspace';
 
 import { downloadUint8Array, readFileAsArrayBuffer, readFileAsDataUrl } from '@/lib/pdf/utils';
 import { loadPdf } from '@/lib/pdf/core/load';
@@ -358,8 +359,13 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
 
   return (
     <PdfToolkitLayout tool={tool} onReset={resetAll} showReset={files.length > 0 || status !== 'idle'}>
+      {/* JPG/PNG to PDF — Professional Workspace (Phase 3 upgrade) */}
+      {['jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug) && (
+        <JpgToPdfWorkspace />
+      )}
+
       {/* 1. Progress State */}
-      {status === 'processing' && (
+      {!['jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug) && status === 'processing' && (
         <PdfProgress progress={progressPercent} message={progressMessage} onCancel={resetAll} />
       )}
 
@@ -454,7 +460,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
       )}
 
       {/* 7. General File Upload & Tool Controls */}
-      {status === 'idle' && canonicalSlug !== 'scan-to-pdf' && canonicalSlug !== 'html-to-pdf' && !tool.requiresAI && (
+      {status === 'idle' && canonicalSlug !== 'scan-to-pdf' && canonicalSlug !== 'html-to-pdf' && !tool.requiresAI && !['jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug) && (
         <div className="space-y-6">
           {files.length === 0 ? (
             <PdfDropzone
