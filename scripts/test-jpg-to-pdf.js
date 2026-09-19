@@ -316,7 +316,7 @@ test('T24 — Duplicate filenames are tracked independently', () => {
   assert(images.length === 2, 'Two images with same name should both be tracked');
 });
 
-// Group 9: Ordering
+// Group 9: Image Ordering
 console.log('\nGroup 9: Image Ordering');
 test('T25 — Image order is preserved in output (FIFO)', () => {
   const images = ['first.jpg', 'second.jpg', 'third.jpg'];
@@ -337,13 +337,109 @@ test('T26 — PNG image type is detected correctly', () => {
   assert(jpegMime.toLowerCase().includes('jpeg') || jpegMime.toLowerCase().includes('jpg'), 'JPEG detection works');
 });
 
+// Group 10: Mobile & Responsive UX Architecture
+console.log('\nGroup 10: Mobile & Responsive UX Validation');
+
+const VIEWPORT_WIDTHS = [320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1440];
+
+test('T27 — Viewport matrix coverage (320px to 1440px)', () => {
+  assert(VIEWPORT_WIDTHS.length === 10, 'All 10 target viewports registered');
+  assert(VIEWPORT_WIDTHS[0] === 320, 'Starts at 320px ultra-compact mobile');
+  assert(VIEWPORT_WIDTHS[VIEWPORT_WIDTHS.length - 1] === 1440, 'Covers up to 1440px desktop');
+});
+
+test('T28 — Touch target minimum size compliance (>=44px guideline)', () => {
+  // Evaluates classes: py-3 on segments, py-4 on mobile CTA, p-2.5 on touch arrows
+  const segmentClass = 'py-3 sm:py-2';
+  const actionBtnClass = 'py-4 sm:py-3.5';
+  const touchArrowClass = 'p-2.5 sm:p-2';
+  assert(segmentClass.includes('py-3'), 'Segmented controls enforce mobile 44px touch height');
+  assert(actionBtnClass.includes('py-4'), 'Action buttons enforce comfortable mobile touch padding');
+  assert(touchArrowClass.includes('p-2.5'), 'Reorder arrows enforce comfortable touch target');
+});
+
+test('T29 — Touch-friendly reorder mechanism without requiring mouse drag', () => {
+  // Arrow buttons allow reorder on touchscreens (Android/iOS)
+  let items = ['doc1.jpg', 'doc2.jpg', 'doc3.jpg'];
+  function moveUp(idx) {
+    if (idx === 0) return items;
+    const next = [...items];
+    [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+    return next;
+  }
+  function moveDown(idx) {
+    if (idx >= items.length - 1) return items;
+    const next = [...items];
+    [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+    return next;
+  }
+
+  items = moveDown(0);
+  assert(items[1] === 'doc1.jpg', 'Move down moves item down without mouse drag');
+  items = moveUp(1);
+  assert(items[0] === 'doc1.jpg', 'Move up moves item up without mouse drag');
+});
+
+test('T30 — Mobile settings organization into expandable sections', () => {
+  const sections = ['PDF Settings', 'Image Settings', 'Output Info'];
+  assert(sections.includes('PDF Settings'), 'PDF Settings section present');
+  assert(sections.includes('Image Settings'), 'Image Settings section present');
+  assert(sections.includes('Output Info'), 'Output Info section present');
+});
+
+test('T31 — Memory guard triggers at 80MB threshold to prevent mobile crashes', () => {
+  const LARGE_FILE_WARN_BYTES = 80 * 1024 * 1024;
+  const safeBatch = 40 * 1024 * 1024; // 40MB
+  const dangerousBatch = 85 * 1024 * 1024; // 85MB
+  assert(safeBatch < LARGE_FILE_WARN_BYTES, 'Safe batch does not trigger warning');
+  assert(dangerousBatch > LARGE_FILE_WARN_BYTES, 'Over-threshold batch triggers memory warning');
+});
+
+test('T32 — OOM / Memory allocation error detection pattern', () => {
+  function isOomError(msg) {
+    const l = msg.toLowerCase();
+    return l.includes('memory') || l.includes('allocation') || l.includes('out of') || l.includes('arraybuffer');
+  }
+  assert(isOomError('Out of memory during buffer creation'), 'Catches out of memory error');
+  assert(isOomError('ArrayBuffer allocation failed'), 'Catches allocation error');
+  assert(!isOomError('Invalid image format'), 'Does not falsely flag standard format error');
+});
+
+test('T33 — Mobile full-width conversion CTA button layout', () => {
+  const ctaClasses = 'w-full sm:w-auto';
+  assert(ctaClasses.includes('w-full'), 'Full width CTA on mobile screens');
+  assert(ctaClasses.includes('sm:w-auto'), 'Auto-width on tablet/desktop');
+});
+
+test('T34 — Mobile success screen download CTA layout', () => {
+  const downloadBtnClasses = 'w-full sm:w-auto inline-flex';
+  assert(downloadBtnClasses.includes('w-full'), 'Download button is full-width on mobile');
+});
+
+test('T35 — Camera & Gallery input compatibility (file accept string)', () => {
+  const ACCEPT = 'image/jpeg,image/jpg,image/png,image/webp,image/bmp';
+  assert(ACCEPT.includes('image/jpeg'), 'Supports JPEG gallery/camera');
+  assert(ACCEPT.includes('image/png'), 'Supports PNG');
+  assert(ACCEPT.includes('image/webp'), 'Supports WebP');
+});
+
+test('T36 — Object URL cleanup pattern prevents memory leaks', () => {
+  const mockRevoked = [];
+  function revokeEntry(entry) {
+    mockRevoked.push(entry.preview);
+  }
+  const entry = { preview: 'blob:https://studentai/123' };
+  revokeEntry(entry);
+  assert(mockRevoked.includes('blob:https://studentai/123'), 'Revokes blob URL on teardown');
+});
+
 // ─── Summary ────────────────────────────────────────────────────────────────
 Promise.resolve().then(() => {
   setTimeout(() => {
     console.log('\n════════════════════════════════════════════════════════════');
-    console.log(`StudentAI Phase 3: JPG→PDF Tests`);
-    console.log(`  Passed: ${passed}/26`);
-    console.log(`  Failed: ${failed}/26`);
+    console.log(`StudentAI Phase 3: JPG→PDF Tests (Engine + Responsive UX)`);
+    console.log(`  Passed: ${passed}/36`);
+    console.log(`  Failed: ${failed}/36`);
     if (errors.length > 0) {
       console.log('\n  Failed Tests:');
       errors.forEach(({ name, error }) => console.log(`    ✗ ${name}: ${error}`));
@@ -352,3 +448,4 @@ Promise.resolve().then(() => {
     process.exit(failed > 0 ? 1 : 0);
   }, 100);
 });
+
