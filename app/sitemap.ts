@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getAllToolSlugs } from '@/lib/tools-registry';
+import { getAllPdfToolSlugs } from '@/lib/pdf-tools-registry';
 
 const BASE_URL = 'https://studentai-five.vercel.app';
 
@@ -16,6 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/tools`,
+      lastModified: LAST_MODIFIED_DATE,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/pdf-tools`,
       lastModified: LAST_MODIFIED_DATE,
       changeFrequency: 'weekly',
       priority: 0.9,
@@ -59,5 +66,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticRoutes, ...toolRoutes];
+  const pdfRoutes: MetadataRoute.Sitemap = getAllPdfToolSlugs().map((slug) => ({
+    url: `${BASE_URL}/pdf-tools/${slug}`,
+    lastModified: LAST_MODIFIED_DATE,
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  }));
+
+  return [...staticRoutes, ...toolRoutes, ...pdfRoutes];
 }

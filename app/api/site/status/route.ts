@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { checkAdminAuth } from '@/lib/admin/auth';
 import { TOOLS_REGISTRY } from '@/lib/tools-registry';
+import { PDF_TOOLS_REGISTRY } from '@/lib/pdf-tools-registry';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +33,12 @@ export async function GET(req: NextRequest) {
     const disabledTools: string[] = [];
     const featuredTools: string[] = [];
 
-    for (const tool of TOOLS_REGISTRY) {
+    const allRegisteredTools = [
+      ...TOOLS_REGISTRY.map((t) => ({ slug: t.slug, isPopular: Boolean(t.isPopular) })),
+      ...PDF_TOOLS_REGISTRY.map((t) => ({ slug: t.slug, isPopular: Boolean(t.isPopular) })),
+    ];
+
+    for (const tool of allRegisteredTools) {
       const s = toolSettings.get(tool.slug);
       if (s && !s.isEnabled) {
         disabledTools.push(tool.slug);

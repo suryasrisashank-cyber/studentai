@@ -17,6 +17,7 @@ import {
   Wrench,
   Search,
   Bot,
+  FileText,
 } from 'lucide-react';
 
 export function Header({ onOpenMobileTools }: { onOpenMobileTools?: () => void }) {
@@ -59,6 +60,7 @@ export function Header({ onOpenMobileTools }: { onOpenMobileTools?: () => void }
 
   const navLinks = [
     { href: '/tools', label: 'All Tools' },
+    { href: '/pdf-tools', label: 'PDF Tools', icon: FileText },
     { href: '/ai', label: 'AI Assistant', icon: Bot },
     { href: '/tools?category=student', label: 'Student', icon: GraduationCap },
     { href: '/tools?category=study', label: 'Study', icon: BookOpen },

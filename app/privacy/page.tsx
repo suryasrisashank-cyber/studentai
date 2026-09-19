@@ -102,8 +102,24 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-indigo-600" />
+            5. StudentAI PDF Tools &amp; Document Privacy
+          </h2>
+          <p>
+            The <strong>StudentAI PDF Toolkit</strong> adheres to a strict browser-first privacy architecture:
+          </p>
+          <ul className="list-disc list-inside space-y-1.5 pl-2">
+            <li><strong>100% Client-Side Processing:</strong> 30 out of 33 PDF utilities (including Merge, Split, Compress, Organize, Rotate, Sign, Watermark, and OCR) execute completely within your device&apos;s local browser memory using WebAssembly and HTML5 Canvas. Your sensitive documents, assignments, and notes are never uploaded to any StudentAI server, database, or third-party cloud storage.</li>
+            <li><strong>AI PDF Processing:</strong> For AI-powered utilities (AI Summarizer, PDF Translator, and PDF-to-Markdown), text is extracted locally on your device. Only the extracted text content is transmitted to our secure serverless AI gateway to generate your study results. The original binary PDF file is never uploaded.</li>
+            <li><strong>True Permanent Redaction:</strong> When using the Redact PDF tool, underlying text streams and vector objects beneath redaction boxes are permanently erased and flattened, ensuring sensitive details cannot be copied, inspected, or recovered.</li>
+            <li><strong>Zero Password Logging:</strong> Passwords entered for Unlock PDF or Protect PDF are held transiently in memory solely to execute the operation and are never logged, transmitted, or stored in analytics.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Database className="w-5 h-5 text-indigo-600" />
-            5. Server Database &amp; Data Retention
+            6. Server Database &amp; Data Retention
           </h2>
           <p>
             Server-side telemetry and platform settings are stored in a managed PostgreSQL database (Neon). Administrative authentication events (login successes and failures) are audited to protect against credential stuffing and brute-force attacks.
@@ -116,7 +132,7 @@ export default function PrivacyPage() {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Clock className="w-5 h-5 text-indigo-600" />
-            6. Administrator Controls &amp; Security
+            7. Administrator Controls &amp; Security
           </h2>
           <p>
             StudentAI provides a protected Administrator Control Center accessible only to verified project administrators. All admin routes and API endpoints enforce strict server-side authentication, rate limiting, and cryptographic session cookies. Administrators cannot view personal student files or private tool computations.
@@ -125,7 +141,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            7. Open Source Verification
+            8. Open Source Verification
           </h2>
           <p>
             StudentAI is committed to full transparency. Anyone may inspect our public codebase on GitHub to independently verify our data practices, encryption mechanisms, and client-side processing boundaries.

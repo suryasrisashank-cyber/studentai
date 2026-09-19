@@ -113,12 +113,36 @@ export function MobileToolsDrawer({ open, onClose }: MobileToolsDrawerProps) {
           >
             <div className="flex items-center gap-2.5">
               <Bot className="w-5 h-5" />
-              <div>
-                <p className="text-xs font-bold leading-none">StudentAI Assistant</p>
-                <p className="text-[10px] text-indigo-100 leading-tight mt-0.5">Ask questions & study companion</p>
+              <div className="text-left">
+                <div className="text-xs font-bold leading-tight flex items-center gap-1.5">
+                  <span>StudentAI Assistant</span>
+                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-white/20">AI</span>
+                </div>
+                <div className="text-[10px] text-indigo-100 font-medium">Conceptual learning, formulas, study advice</div>
               </div>
             </div>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 opacity-80" />
+          </Link>
+        </div>
+
+        {/* PDF Tools Quick Banner */}
+        <div className="px-3 py-2 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/40 dark:to-pink-950/40 border-b border-purple-100/60 dark:border-purple-900/40">
+          <Link
+            href="/pdf-tools"
+            onClick={onClose}
+            className="flex items-center justify-between p-2.5 rounded-2xl bg-purple-600 text-white shadow-sm active:scale-[0.98] transition-transform min-h-[48px]"
+          >
+            <div className="flex items-center gap-2.5">
+              <FileText className="w-5 h-5" />
+              <div className="text-left">
+                <div className="text-xs font-bold leading-tight flex items-center gap-1.5">
+                  <span>StudentAI PDF Tools</span>
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-white/20">33 Tools</span>
+                </div>
+                <div className="text-[10px] text-purple-100 font-medium">Merge, compress, edit, convert & OCR</div>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 opacity-80" />
           </Link>
         </div>
 

@@ -18,6 +18,7 @@ export default function AdminToolsPage() {
   const [tools, setTools] = useState<ToolItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingSlug, setUpdatingSlug] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const fetchTools = async () => {
     setIsLoading(true);
@@ -77,13 +78,33 @@ export default function AdminToolsPage() {
     }
   };
 
+  const categories = [
+    { id: 'all', label: 'All Tools' },
+    { id: 'student', label: 'Academic (20)' },
+    { id: 'pdf', label: 'PDF Tools (33)' },
+    { id: 'pdf-organization', label: 'Organize' },
+    { id: 'pdf-conversion', label: 'Convert' },
+    { id: 'pdf-editing', label: 'Edit' },
+    { id: 'pdf-optimization', label: 'Optimize' },
+    { id: 'pdf-security', label: 'Security' },
+    { id: 'pdf-scanning', label: 'Scan & OCR' },
+    { id: 'pdf-ai', label: 'AI PDF' },
+  ];
+
+  const filteredTools = tools.filter((t) => {
+    if (selectedCategory === 'all') return true;
+    if (selectedCategory === 'student') return !t.category.startsWith('pdf-');
+    if (selectedCategory === 'pdf') return t.category.startsWith('pdf-');
+    return t.category === selectedCategory;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Tool Management & Availability</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Enable, disable, or feature individual student tools without altering source code.
+            Enable, disable, or feature individual student utilities and PDF tools in real time.
           </p>
         </div>
 
@@ -98,11 +119,30 @@ export default function AdminToolsPage() {
         </button>
       </div>
 
+      {/* Category Filter Pills */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-colors ${
+              selectedCategory === cat.id
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
       <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Tools Registered:</span>
             <span className="text-xs font-black text-slate-900 dark:text-white">{tools.length}</span>
+            <span className="text-xs text-slate-400">({filteredTools.length} shown)</span>
           </div>
         </div>
 
@@ -122,7 +162,7 @@ export default function AdminToolsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                {tools.map((t) => (
+                {filteredTools.map((t) => (
                   <tr key={t.slug} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="py-3 px-4">
                       <div>
