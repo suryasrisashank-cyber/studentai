@@ -8,12 +8,12 @@ export class GoogleAIProvider implements AIProvider {
     return Boolean(key && key.length > 0);
   }
 
-  getStatus(model?: string): { status: AIProviderStatus; message?: string } {
+  getStatus(model?: string): { status: AIProviderStatus } {
     if (!this.isConfigured()) {
-      return { status: 'NOT_CONFIGURED', message: 'GOOGLE_AI_API_KEY is missing' };
+      return { status: 'NOT_CONFIGURED' };
     }
     const targetModel = (model || process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash').trim();
-    return { status: 'AVAILABLE', message: `Configured with model: ${targetModel}` };
+    return { status: 'AVAILABLE' };
   }
 
   private formatContents(messages: ChatMessage[]): { role: 'user' | 'model'; parts: { text: string }[] }[] {

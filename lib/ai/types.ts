@@ -48,10 +48,11 @@ export type AIProviderName = 'google' | 'groq' | 'openrouter' | 'bytez' | 'atria
 
 export type AIProviderStatus =
   | 'CONFIGURED'
+  | 'NOT_CONFIGURED'
   | 'AVAILABLE'
+  | 'UNAVAILABLE'
   | 'OPERATIONAL'
-  | 'DISABLED'
-  | 'NOT_CONFIGURED';
+  | 'FAILED';
 
 export type AIErrorCode =
   | 'AI_DISABLED'

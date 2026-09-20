@@ -7,6 +7,7 @@ import {
   GenerationOptions,
   ProviderError,
 } from '../types';
+import { validateModelId } from '../models/catalog';
 
 export class AtriaAIProvider implements AIProvider {
   name: AIProviderName = 'atria';
@@ -16,15 +17,19 @@ export class AtriaAIProvider implements AIProvider {
     return Boolean(key && key.length > 0);
   }
 
-  getStatus(model?: string): { status: AIProviderStatus; message?: string } {
+  getStatus(model?: string): { status: AIProviderStatus } {
     if (!this.isConfigured()) {
-      return { status: 'NOT_CONFIGURED', message: 'ATRIA_API_KEY is missing from environment' };
+      return { status: 'NOT_CONFIGURED' };
     }
     const targetModel = (model || process.env.AI_ATRIA_MODEL || 'Atria-Dawn-Preview').trim();
     if (!targetModel) {
-      return { status: 'CONFIGURED', message: 'API key configured, awaiting model selection' };
+      return { status: 'CONFIGURED' };
     }
-    return { status: 'AVAILABLE', message: `Configured with model: ${targetModel}` };
+    const validation = validateModelId('atria', targetModel);
+    if (!validation.valid) {
+      return { status: 'UNAVAILABLE' };
+    }
+    return { status: 'AVAILABLE' };
   }
 
   async generate(

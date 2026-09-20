@@ -8,12 +8,11 @@ export class OpenRouterAIProvider implements AIProvider {
     return Boolean(key && key.length > 0);
   }
 
-  getStatus(model?: string): { status: AIProviderStatus; message?: string } {
+  getStatus(model?: string): { status: AIProviderStatus } {
     if (!this.isConfigured()) {
-      return { status: 'NOT_CONFIGURED', message: 'OPENROUTER_API_KEY is missing' };
+      return { status: 'NOT_CONFIGURED' };
     }
-    const targetModel = (model || process.env.AI_OPENROUTER_MODEL || 'openrouter/free').trim();
-    return { status: 'AVAILABLE', message: `Configured with model: ${targetModel}` };
+    return { status: 'AVAILABLE' };
   }
 
   async generate(

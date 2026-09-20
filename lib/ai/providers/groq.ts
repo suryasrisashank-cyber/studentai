@@ -8,12 +8,11 @@ export class GroqAIProvider implements AIProvider {
     return Boolean(key && key.length > 0);
   }
 
-  getStatus(model?: string): { status: AIProviderStatus; message?: string } {
+  getStatus(model?: string): { status: AIProviderStatus } {
     if (!this.isConfigured()) {
-      return { status: 'NOT_CONFIGURED', message: 'GROQ_API_KEY is missing' };
+      return { status: 'NOT_CONFIGURED' };
     }
-    const targetModel = (model || process.env.AI_GROQ_MODEL || 'openai/gpt-oss-120b').trim();
-    return { status: 'AVAILABLE', message: `Configured with model: ${targetModel}` };
+    return { status: 'AVAILABLE' };
   }
 
   async generate(

@@ -54,31 +54,38 @@ export class AIRouter {
     configured: boolean;
     available: boolean;
     operational: boolean;
-    message?: string;
   } {
     const provider = this.providers.get(providerName);
     if (!provider) {
-      return { status: 'NOT_CONFIGURED', configured: false, available: false, operational: false, message: 'Provider not registered' };
+      return { status: 'NOT_CONFIGURED', configured: false, available: false, operational: false };
     }
 
     const configured = provider.isConfigured();
     if (!configured) {
-      return { status: 'NOT_CONFIGURED', configured: false, available: false, operational: false, message: 'API key not configured in environment' };
+      return { status: 'NOT_CONFIGURED', configured: false, available: false, operational: false };
     }
 
     const targetModel = modelId || DEFAULT_MODELS[providerName];
     const validation = validateModelId(providerName, targetModel);
     const available = validation.valid;
 
-    // Check if verified operational within the last 15 minutes
+    // Check if verified operational or failed within the last 15 minutes
     const cached = this.operationalCache.get(providerName);
-    const isOperational = Boolean(cached?.isOperational && Date.now() - cached.checkedAt < 15 * 60 * 1000);
+    const hasRecentCheck = Boolean(cached && Date.now() - cached.checkedAt < 15 * 60 * 1000);
+    const isOperational = Boolean(hasRecentCheck && cached?.isOperational === true);
+    const isFailed = Boolean(hasRecentCheck && cached?.isOperational === false);
 
-    let status: AIProviderStatus = 'CONFIGURED';
+    let status: AIProviderStatus;
     if (isOperational) {
       status = 'OPERATIONAL';
+    } else if (isFailed) {
+      status = 'FAILED';
+    } else if (!available) {
+      status = 'UNAVAILABLE';
     } else if (available) {
       status = 'AVAILABLE';
+    } else {
+      status = 'CONFIGURED';
     }
 
     return {
@@ -86,7 +93,6 @@ export class AIRouter {
       configured,
       available,
       operational: isOperational,
-      message: `Status: ${status} (${targetModel})`,
     };
   }
 

@@ -349,30 +349,22 @@ export default function AdminAIPage() {
                     )}
                   </div>
 
-                  {/* Tri-State Badges */}
+                  {/* Status Badge (CONFIGURED, NOT_CONFIGURED, AVAILABLE, UNAVAILABLE, OPERATIONAL, FAILED) */}
                   <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      isConfigured
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold tracking-wide uppercase ${
+                      p?.status === 'OPERATIONAL'
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                        : p?.status === 'AVAILABLE'
+                        ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800'
+                        : p?.status === 'CONFIGURED'
+                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                        : p?.status === 'UNAVAILABLE'
+                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300 dark:border-purple-800'
+                        : p?.status === 'FAILED'
+                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
                     }`}>
-                      {isConfigured ? 'CONFIGURED' : 'NOT_CONFIGURED'}
-                    </span>
-
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      isAvailable
-                        ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300'
-                        : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
-                    }`}>
-                      {isAvailable ? 'AVAILABLE' : 'INVALID_MODEL'}
-                    </span>
-
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      isOperational
-                        ? 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300'
-                        : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                    }`}>
-                      {isOperational ? 'OPERATIONAL' : 'STANDBY'}
+                      {p?.status || (isConfigured ? 'CONFIGURED' : 'NOT_CONFIGURED')}
                     </span>
                   </div>
 

@@ -13,12 +13,13 @@ export async function POST(req: NextRequest) {
   }
 
   const start = Date.now();
+  let targetProvider: AIProviderName | undefined;
 
   try {
     const body = await req.json().catch(() => ({}));
     const testPrompt = (body?.prompt || 'Hello! Test StudentAI connectivity and output latency.').trim();
     const testRetrieval = Boolean(body?.testRetrieval);
-    const targetProvider: AIProviderName | undefined = body?.provider && ['google', 'groq', 'openrouter', 'bytez', 'atria'].includes(body.provider)
+    targetProvider = body?.provider && ['google', 'groq', 'openrouter', 'bytez', 'atria'].includes(body.provider)
       ? body.provider
       : undefined;
 
@@ -89,14 +90,22 @@ export async function POST(req: NextRequest) {
       { status: 200, headers: { 'Cache-Control': 'no-store' } }
     );
   } catch (err: unknown) {
-    const errorMsg =
-      err instanceof Error
-        ? err.message.replace(/([a-zA-Z0-9_\-]{20,})/g, '[REDACTED]')
-        : 'Diagnostic test execution failed.';
+    if (targetProvider) {
+      aiRouter.markProviderOperational(targetProvider, false);
+    }
+
+    const rawMsg = err instanceof Error ? err.message : 'Diagnostic test execution failed.';
+    const errorMsg = rawMsg
+      .replace(/([a-zA-Z0-9_\-]{20,})/g, '[REDACTED]')
+      .replace(/AIza[0-9A-Za-z-_]{35}/g, '[REDACTED]')
+      .replace(/gsk_[a-zA-Z0-9_-]{20,}/g, '[REDACTED]')
+      .replace(/bytez_[a-zA-Z0-9_-]{16,}/gi, '[REDACTED]')
+      .replace(/atria_[a-zA-Z0-9_-]{16,}/gi, '[REDACTED]');
 
     return NextResponse.json(
       {
         success: false,
+        statusState: 'FAILED',
         latencyMs: Date.now() - start,
         error: errorMsg,
       },
