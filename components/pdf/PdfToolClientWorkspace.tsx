@@ -14,6 +14,7 @@ import { PdfCameraScanner } from './PdfCameraScanner';
 import { PdfCompareView } from './PdfCompareView';
 import { PdfAiPanel } from './PdfAiPanel';
 import { JpgToPdfWorkspace } from './JpgToPdfWorkspace';
+import { PdfToJpgWorkspace } from './PdfToJpgWorkspace';
 
 import { downloadUint8Array, readFileAsArrayBuffer, readFileAsDataUrl } from '@/lib/pdf/utils';
 import { loadPdf } from '@/lib/pdf/core/load';
@@ -364,13 +365,18 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
         <JpgToPdfWorkspace />
       )}
 
+      {/* PDF to JPG — Dedicated Workspace */}
+      {canonicalSlug === 'pdf-to-jpg' && (
+        <PdfToJpgWorkspace />
+      )}
+
       {/* 1. Progress State */}
-      {!['jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug) && status === 'processing' && (
+      {!['jpg-to-pdf', 'png-to-pdf', 'pdf-to-jpg'].includes(canonicalSlug) && status === 'processing' && (
         <PdfProgress progress={progressPercent} message={progressMessage} onCancel={resetAll} />
       )}
 
       {/* 2. Result State */}
-      {status === 'ready' && outputBytes && (
+      {!['jpg-to-pdf', 'png-to-pdf', 'pdf-to-jpg'].includes(canonicalSlug) && status === 'ready' && outputBytes && (
         <PdfResultCard
           filename={outputFilename}
           outputBytes={outputBytes}
@@ -460,7 +466,7 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
       )}
 
       {/* 7. General File Upload & Tool Controls */}
-      {status === 'idle' && canonicalSlug !== 'scan-to-pdf' && canonicalSlug !== 'html-to-pdf' && !tool.requiresAI && !['jpg-to-pdf', 'png-to-pdf'].includes(canonicalSlug) && (
+      {status === 'idle' && canonicalSlug !== 'scan-to-pdf' && canonicalSlug !== 'html-to-pdf' && !tool.requiresAI && !['jpg-to-pdf', 'png-to-pdf', 'pdf-to-jpg'].includes(canonicalSlug) && (
         <div className="space-y-6">
           {files.length === 0 ? (
             <PdfDropzone
