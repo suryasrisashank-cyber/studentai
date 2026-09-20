@@ -350,6 +350,34 @@ export const PDF_TOOLS_REGISTRY: PdfToolDefinition[] = [
     seoTitle: 'JPG to PDF Converter — Convert JPG Images to PDF Online',
     seoDescription: 'Convert JPG pictures into a clean PDF document in seconds with complete privacy.',
     tags: ['jpg', 'jpeg', 'image to pdf', 'photos', 'convert'],
+    howToUse: [
+      'Click "Drop images here or browse" to select one or more JPG/JPEG/PNG images from your device or camera.',
+      'Configure your output preferences: choose Page Size (A4, Letter, Original), Orientation (Auto, Portrait, Landscape), Margin, and Image Fit.',
+      'Reorder images by dragging them or using the Up/Down arrow buttons. Each image corresponds to a PDF page.',
+      'Click "Convert to PDF". Your PDF is generated 100% locally in your browser memory and ready for immediate download.',
+    ],
+    faqs: [
+      {
+        question: 'Are my images uploaded to any server?',
+        answer: 'No. StudentAI processes all images locally inside your web browser using client-side WebAssembly and JavaScript. Your files never leave your device.',
+      },
+      {
+        question: 'Can I combine multiple JPG files into a single PDF?',
+        answer: 'Yes! You can select dozens of images at once. Use the drag-and-drop handles or touch arrow buttons to arrange the exact page sequence before converting.',
+      },
+      {
+        question: 'What is the difference between Fit, Fill, and Original mode?',
+        answer: 'Fit scales the image proportionally so the entire picture is visible within the printable margins without cropping. Fill scales the image to cover the entire page area. Original preserves the image native point dimensions.',
+      },
+      {
+        question: 'What page sizes are supported?',
+        answer: 'You can choose standard international A4 (210 × 297 mm), US Letter (8.5 × 11 inches), or Original (uses the exact dimensions of each image).',
+      },
+      {
+        question: 'Is there any file size or usage limit?',
+        answer: 'StudentAI allows conversions up to 50 MB per batch right in your browser with no daily limits or registration required.',
+      },
+    ],
   },
   {
     id: 'png-to-pdf',

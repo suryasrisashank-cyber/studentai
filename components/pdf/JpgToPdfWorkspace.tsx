@@ -429,25 +429,40 @@ function SettingsPanel({
       {/* Output Info */}
       {imageCount > 0 && (
         <SettingsSection title="Output Info" icon={<FileOutput className="w-3.5 h-3.5" />} defaultOpen>
-          <div className="space-y-1 text-xs">
+          <div className="space-y-1.5 text-xs">
             <div className="flex justify-between text-slate-600 dark:text-slate-300">
-              <span>Images selected</span>
+              <span>Images</span>
               <span className="font-bold">{imageCount}</span>
             </div>
             <div className="flex justify-between text-slate-600 dark:text-slate-300">
-              <span>PDF pages</span>
-              <span className="font-bold">{imageCount}</span>
-            </div>
-            <div className="flex justify-between text-slate-600 dark:text-slate-300">
-              <span>Total input</span>
+              <span>Input size</span>
               <span className="font-bold">{fmtBytes(totalInputSize)}</span>
             </div>
-            {outputSize > 0 && (
-              <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-bold">
-                <span>Output PDF</span>
-                <span>{fmtBytes(outputSize)}</span>
+            {outputSize > 0 ? (
+              <>
+                <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                  <span>Pages</span>
+                  <span className="font-bold">{imageCount}</span>
+                </div>
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-bold">
+                  <span>Output size</span>
+                  <span>{fmtBytes(outputSize)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                <span>Estimated output size</span>
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                  ~{fmtBytes(options.quality === 'high' ? Math.round(totalInputSize * 0.95) : Math.round(totalInputSize * 0.82))}
+                </span>
               </div>
             )}
+            <div className="flex justify-between text-slate-400 text-[11px] pt-1 border-t border-slate-100 dark:border-slate-800">
+              <span>Target filename</span>
+              <span className="font-mono text-slate-600 dark:text-slate-300">
+                {imageCount === 1 ? 'document.pdf' : 'images_assembled.pdf'}
+              </span>
+            </div>
           </div>
         </SettingsSection>
       )}
@@ -719,14 +734,17 @@ export function JpgToPdfWorkspace() {
       <div className="space-y-5 px-1">
         {/* Success card — fits mobile viewport */}
         <div className="p-6 sm:p-8 rounded-3xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/40 text-center space-y-4">
-          <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" aria-hidden="true" />
+          <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-inner">
+            <CheckCircle2 className="w-8 h-8" aria-hidden="true" />
+          </div>
           <div>
-            <p className="text-lg font-black text-slate-900 dark:text-white">PDF Ready!</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {images.length} image{images.length !== 1 ? 's' : ''} assembled &nbsp;·&nbsp;
-              <span className="text-slate-600 dark:text-slate-300">{fmtBytes(totalInputSize)}</span>
-              {' → '}
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">{fmtBytes(outputSize)}</span>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white">Document Ready!</h3>
+            <p className="font-mono text-xs font-bold text-slate-700 dark:text-slate-200 mt-1">
+              {images.length === 1 ? `${images[0].file.name.replace(/\.[^/.]+$/, '')}.pdf` : 'images_assembled.pdf'}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Pages: <span className="font-bold text-slate-700 dark:text-slate-200">{images.length}</span> &nbsp;·&nbsp;
+              Output size: <span className="font-bold text-emerald-600 dark:text-emerald-400">{fmtBytes(outputSize)}</span>
             </p>
           </div>
 
@@ -739,6 +757,18 @@ export function JpgToPdfWorkspace() {
             <Download className="w-5 h-5 sm:w-4 sm:h-4" />
             Download PDF
           </button>
+
+          {/* Process Another */}
+          <div>
+            <button
+              type="button"
+              onClick={clearAll}
+              className="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition-colors touch-manipulation"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Process Another
+            </button>
+          </div>
         </div>
 
         {/* Output info */}
@@ -754,16 +784,6 @@ export function JpgToPdfWorkspace() {
             </div>
           ))}
         </div>
-
-        {/* Process Another */}
-        <button
-          type="button"
-          onClick={clearAll}
-          className="w-full flex items-center justify-center gap-2 py-3.5 sm:py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-400 hover:text-indigo-600 transition-all touch-manipulation"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Process Another Batch
-        </button>
 
         {/* Browser disclosure */}
         <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400">
@@ -892,66 +912,74 @@ export function JpgToPdfWorkspace() {
         </div>
       )}
 
-      {/* ── Reorder hint ────────────────────────────────────────────── */}
-      <p className="text-[11px] text-slate-400 text-center">
-        <span className="sm:hidden">Use ↑↓ arrows to reorder images — order determines PDF page order</span>
-        <span className="hidden sm:inline">Drag rows or use ↑↓ to reorder — order determines PDF page order</span>
-      </p>
+      {/* ── Responsive Two-Column (Desktop) / Stacked (Mobile) Layout ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        {/* LEFT COLUMN (Desktop): Image upload & preview cards */}
+        <div className="lg:col-span-7 xl:col-span-8 space-y-3">
+          {/* Reorder hint */}
+          <p className="text-[11px] text-slate-400 text-center sm:text-left">
+            <span className="sm:hidden">Use ↑↓ buttons to reorder pages</span>
+            <span className="hidden sm:inline">Drag rows or use ↑↓ buttons to reorder pages</span>
+          </p>
 
-      {/* ── Image list ──────────────────────────────────────────────── */}
-      <div className="space-y-2">
-        {images.map((entry, idx) => (
-          <ThumbnailCard
-            key={entry.id}
-            entry={entry}
-            index={idx}
-            total={images.length}
-            onMoveUp={() => moveUp(idx)}
-            onMoveDown={() => moveDown(idx)}
-            onRemove={() => removeImage(idx)}
-            isDragging={draggingIdx === idx}
-            isDragOver={dragOverIdx === idx && draggingIdx !== idx}
-            onDragStart={() => handleDragStart(idx)}
-            onDragEnter={() => handleDragEnter(idx)}
-            onDragEnd={handleDragEnd}
+          {/* Image list */}
+          <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1 scrollbar-thin">
+            {images.map((entry, idx) => (
+              <ThumbnailCard
+                key={entry.id}
+                entry={entry}
+                index={idx}
+                total={images.length}
+                onMoveUp={() => moveUp(idx)}
+                onMoveDown={() => moveDown(idx)}
+                onRemove={() => removeImage(idx)}
+                isDragging={draggingIdx === idx}
+                isDragOver={dragOverIdx === idx && draggingIdx !== idx}
+                onDragStart={() => handleDragStart(idx)}
+                onDragEnter={() => handleDragEnter(idx)}
+                onDragEnd={handleDragEnd}
+              />
+            ))}
+          </div>
+
+          {/* Add-more compact drop zone */}
+          <DropZone onFiles={addFiles} compact fileInputRef={fileInputRef} />
+        </div>
+
+        {/* RIGHT COLUMN (Desktop): PDF Settings, Image Settings, Output Info & Action */}
+        <div className="lg:col-span-5 xl:col-span-4 space-y-4 lg:sticky lg:top-24">
+          <SettingsPanel
+            options={options}
+            onChange={setOption}
+            imageCount={images.length}
+            totalInputSize={totalInputSize}
+            outputSize={outputSize}
           />
-        ))}
-      </div>
 
-      {/* ── Add-more compact drop zone ──────────────────────────────── */}
-      <DropZone onFiles={addFiles} compact fileInputRef={fileInputRef} />
+          {/* Error */}
+          {errorMsg && (
+            <div role="alert" className="flex items-start gap-2.5 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
-      {/* ── Settings Panel ──────────────────────────────────────────── */}
-      <SettingsPanel
-        options={options}
-        onChange={setOption}
-        imageCount={images.length}
-        totalInputSize={totalInputSize}
-        outputSize={outputSize}
-      />
+          {/* Conversion CTA */}
+          <button
+            type="button"
+            onClick={convert}
+            disabled={images.length === 0}
+            className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-4 sm:py-3.5 rounded-2xl text-base sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-md transition-all touch-manipulation select-none"
+          >
+            Convert {images.length} Image{images.length !== 1 ? 's' : ''} to PDF
+          </button>
 
-      {/* ── Error ───────────────────────────────────────────────────── */}
-      {errorMsg && (
-        <div role="alert" className="flex items-start gap-2.5 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>{errorMsg}</span>
+          {/* Browser privacy disclosure */}
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 justify-center">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <span>Browser-only processing — no server upload</span>
+          </div>
         </div>
-      )}
-
-      {/* ── Action bar ──────────────────────────────────────────────── */}
-      <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-1">
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-          <span>Browser-only — no upload, no server storage</span>
-        </div>
-        <button
-          type="button"
-          onClick={convert}
-          disabled={images.length === 0}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 sm:py-3.5 rounded-2xl text-base sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-md transition-all touch-manipulation"
-        >
-          Convert {images.length} Image{images.length !== 1 ? 's' : ''} to PDF
-        </button>
       </div>
     </div>
   );

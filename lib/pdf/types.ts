@@ -21,6 +21,46 @@ export type PdfToolStatus =
   | 'EXPERIMENTAL'
   | 'DISABLED';
 
+export interface PdfFileItem {
+  id: string;
+  file: File;
+  name: string;
+  size: number;
+  type: string;
+  previewUrl?: string;
+}
+
+export interface PdfProcessingResult {
+  blob: Blob;
+  filename: string;
+  size: number;
+  mimeType: string;
+  pageCount?: number;
+}
+
+export type PdfErrorCode =
+  | 'INVALID_FILE'
+  | 'FILE_TOO_LARGE'
+  | 'UNSUPPORTED_FORMAT'
+  | 'PROCESSING_FAILED'
+  | 'BROWSER_MEMORY_LIMIT'
+  | 'DOWNLOAD_FAILED'
+  | 'UNSUPPORTED_OPERATION';
+
+export interface PdfStructuredError {
+  code: PdfErrorCode;
+  message: string;
+  details?: string;
+}
+
+export interface JpgToPdfSettings {
+  pageSize: 'A4' | 'LETTER' | 'ORIGINAL' | 'Letter' | 'Original';
+  orientation: 'AUTO' | 'PORTRAIT' | 'LANDSCAPE' | 'auto' | 'portrait' | 'landscape';
+  margin: 'NONE' | 'SMALL' | 'MEDIUM' | 'none' | 'small' | 'medium';
+  imageFit: 'FIT' | 'FILL' | 'ORIGINAL' | 'fit' | 'fill' | 'original';
+  quality: 'STANDARD' | 'HIGH' | 'standard' | 'high';
+}
+
 export type PdfProcessingMode = 'client' | 'server' | 'hybrid';
 
 export interface PdfToolDefinition {
@@ -45,6 +85,8 @@ export interface PdfToolDefinition {
   seoTitle: string;
   seoDescription: string;
   tags: string[];
+  howToUse?: string[];
+  faqs?: { question: string; answer: string }[];
 }
 
 export type ProgressCallback = (percent: number, step: string) => void;

@@ -115,6 +115,72 @@ export function PdfToolkitLayout({ tool, children, onReset, showReset }: PdfTool
       {/* Main Workspace Area */}
       <div className="w-full">{children}</div>
 
+      {/* Educational & SEO Sections: How to Use + FAQ */}
+      <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-8">
+        {/* Step-by-Step How to Use */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs">
+              ?
+            </div>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              How to Use {tool.name}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {(tool.howToUse && tool.howToUse.length > 0
+              ? tool.howToUse
+              : [
+                  `Select your ${tool.supportedInputTypes[0] || 'input'} file(s) from your device or drag them into the upload box.`,
+                  'Adjust your preferred tool parameters and conversion settings.',
+                  'Click the action button to process your document instantly in your browser.',
+                  'Download your converted document with complete privacy and security.',
+                ]
+            ).map((step, idx) => (
+              <div
+                key={idx}
+                className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs flex items-start gap-3"
+              >
+                <span className="w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                  {idx + 1}
+                </span>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  {step}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        {tool.faqs && tool.faqs.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-3">
+              {tool.faqs.map((faq, idx) => (
+                <details
+                  key={idx}
+                  className="group p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs text-xs"
+                >
+                  <summary className="font-bold text-slate-800 dark:text-slate-200 cursor-pointer list-none flex items-center justify-between gap-2 select-none">
+                    <span>{faq.question}</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-bold text-sm transition-transform group-open:rotate-180">
+                      ▾
+                    </span>
+                  </summary>
+                  <p className="mt-2.5 text-slate-600 dark:text-slate-400 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
       {/* Phase 9: Related Tools Internal Links */}
       {relatedTools.length > 0 && (
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">

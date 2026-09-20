@@ -171,6 +171,21 @@ export default async function PdfToolPage({ params }: PdfToolPageProps) {
           },
         ],
       },
+      ...(tool.faqs && tool.faqs.length > 0
+        ? [
+            {
+              '@type': 'FAQPage',
+              mainEntity: tool.faqs.map((faq) => ({
+                '@type': 'Question',
+                name: faq.question,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: faq.answer,
+                },
+              })),
+            },
+          ]
+        : []),
     ],
   };
 
