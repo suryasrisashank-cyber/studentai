@@ -99,9 +99,37 @@ export const PDF_TOOLS_REGISTRY: PdfToolDefinition[] = [
     badge: 'Popular',
     limitations: 'Merges up to 20 files and 100 pages per operation in browser memory.',
     privacyNote: 'Files are merged locally in browser memory with zero server upload.',
-    seoTitle: 'Merge PDF Online — Combine Multiple PDFs into One Document',
-    seoDescription: 'Combine multiple PDF files into one organized document right in your browser.',
-    tags: ['merge', 'combine', 'join', 'pdf', 'organize'],
+    seoTitle: 'Merge PDF Online — Combine Multiple PDFs into One Document Free',
+    seoDescription: 'Combine multiple PDF files into one clean document in seconds right in your browser. Rearrange page order, preview page counts, and download instantly.',
+    tags: ['merge', 'combine', 'join', 'pdf', 'organize', 'merge pdf online'],
+    howToUse: [
+      'Click or drag and drop multiple PDF documents into the workspace.',
+      'Reorder your documents using drag-and-drop or the Move Up (↑) and Move Down (↓) arrow buttons to set the exact document order.',
+      'Review the total file count, combined page count, and total input size in the Merge Summary panel.',
+      'Click "Merge PDFs" to combine all pages locally in your browser and download the resulting merged PDF.',
+    ],
+    faqs: [
+      {
+        question: 'Are my PDF documents uploaded to any server when merging?',
+        answer: 'No. StudentAI executes all PDF merging locally inside your browser memory using client-side WebAssembly and JavaScript. Your documents never touch our or any third-party servers.',
+      },
+      {
+        question: 'How do I rearrange the order of pages or files?',
+        answer: 'On desktop, simply drag and drop the document cards into your preferred sequence. On mobile, tap the dedicated Move Up (↑) and Move Down (↓) buttons on each card to reorder effortlessly.',
+      },
+      {
+        question: 'Is there a limit on how many PDFs I can merge at once?',
+        answer: 'You can merge up to 20 PDF documents and 100 pages per operation locally in your browser memory completely free.',
+      },
+      {
+        question: 'Will the merged PDF lose document quality or bookmarks?',
+        answer: 'No. All vector graphics, high-resolution text, embedded fonts, and page dimensions from the source documents are copied with 100% fidelity into the combined output.',
+      },
+      {
+        question: 'Can I remove a document before merging?',
+        answer: 'Yes. Each document card features a trash icon button to remove that specific file from the merge sequence, or you can click "Clear All" to start over.',
+      },
+    ],
   },
   {
     id: 'split-pdf',
