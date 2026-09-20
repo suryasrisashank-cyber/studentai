@@ -24,29 +24,20 @@ export function PdfToolkitLayout({ tool, children, onReset, showReset }: PdfTool
     .slice(0, 4);
 
   return (
-    <div className="w-full max-w-5xl mx-auto py-8 px-4 sm:px-6 space-y-8 animate-in fade-in duration-200">
-      {/* Top Breadcrumb Navigation — Phase 9 internal linking */}
+    <div className="w-full max-w-5xl mx-auto py-6 sm:py-8 px-4 sm:px-6 space-y-6 animate-in fade-in duration-200">
+      {/* Top Breadcrumb Navigation — Image 1 Style */}
       <nav aria-label="Breadcrumb" className="flex items-center justify-between">
-        <ol className="flex items-center gap-1.5 text-xs">
+        <ol className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
           <li>
             <Link
               href="/"
-              className="font-semibold text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400 transition-colors"
+              className="hover:text-slate-800 dark:hover:text-white transition-colors"
             >
               Home
             </Link>
           </li>
-          <li><ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600" /></li>
-          <li>
-            <Link
-              href="/pdf-tools"
-              className="font-semibold text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400 transition-colors"
-            >
-              PDF Tools
-            </Link>
-          </li>
-          <li><ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600" /></li>
-          <li className="font-bold text-slate-700 dark:text-slate-200 truncate max-w-[160px]">
+          <li className="text-slate-400 font-light">&gt;</li>
+          <li className="font-semibold text-slate-800 dark:text-slate-100 truncate max-w-[200px]">
             {tool.name}
           </li>
         </ol>
@@ -62,43 +53,40 @@ export function PdfToolkitLayout({ tool, children, onReset, showReset }: PdfTool
         )}
       </nav>
 
-      {/* Tool Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-3">
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          {tool.badge && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900">
-              <Sparkles className="w-3 h-3" />
-              <span>{tool.badge}</span>
-            </span>
-          )}
-
-          {isClientSide ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900">
-              <Laptop className="w-3 h-3" />
-              <span>Runs in your browser</span>
-            </span>
-          ) : isAi ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 border border-purple-100 dark:border-purple-900">
-              <Sparkles className="w-3 h-3" />
-              <span>AI-Powered</span>
-            </span>
-          ) : null}
-
-          {isLimited && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-              <AlertTriangle className="w-3 h-3" />
-              <span>Format-Limited</span>
-            </span>
-          )}
-        </div>
-
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          {tool.name}
+      {/* Tool Header — Image 1 Centered Style */}
+      <div className="text-center max-w-2xl mx-auto space-y-2 pt-2">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          {tool.slug === 'jpg-to-pdf'
+            ? 'JPG to PDF Converter'
+            : tool.slug === 'pdf-to-jpg'
+            ? 'PDF to JPG Converter'
+            : tool.name.toLowerCase().includes('converter')
+            ? tool.name
+            : ['png-to-pdf', 'word-to-pdf', 'excel-to-pdf', 'powerpoint-to-pdf', 'html-to-pdf'].includes(tool.slug)
+            ? `${tool.name} Converter`
+            : tool.name}
         </h1>
 
-        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-          {tool.description}
-        </p>
+        {tool.slug === 'jpg-to-pdf' ? (
+          <div className="text-sm sm:text-base text-slate-600 dark:text-slate-400 space-y-1">
+            <p>Convert your JPG images to PDF format in seconds</p>
+            <p>You can upload multiple images - they will be combined into one PDF</p>
+          </div>
+        ) : tool.slug === 'pdf-to-jpg' ? (
+          <div className="text-sm sm:text-base text-slate-600 dark:text-slate-400 space-y-1">
+            <p>Convert your PDF pages to high quality JPG images in seconds</p>
+            <p>You can extract all pages or select custom page ranges</p>
+          </div>
+        ) : tool.slug === 'merge-pdf' ? (
+          <div className="text-sm sm:text-base text-slate-600 dark:text-slate-400 space-y-1">
+            <p>Combine multiple PDF files into one clean document in seconds</p>
+            <p>You can upload multiple files - they will be combined into one PDF</p>
+          </div>
+        ) : (
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl mx-auto">
+            {tool.description}
+          </p>
+        )}
       </div>
 
       {/* Limitation Notice if Limited */}

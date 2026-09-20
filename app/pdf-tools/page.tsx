@@ -42,6 +42,14 @@ import {
   ShieldCheck,
   Upload,
   Zap,
+  Workflow,
+  LayoutGrid,
+  Star,
+  Moon,
+  Globe,
+  Settings,
+  CloudUpload,
+  Folder,
 } from 'lucide-react';
 import { PDF_TOOLS_REGISTRY, PDF_CATEGORIES } from '@/lib/pdf-tools-registry';
 
@@ -82,6 +90,76 @@ const ICON_MAP: Record<string, any> = {
   Search: Search,
   Sparkles: Sparkles,
 };
+
+// Stirling PDF vibrant squircle color mappings (Image 2)
+function getToolBadgeColor(slug: string): string {
+  switch (slug) {
+    // Red / Coral (Pipeline, Multi Tool, Redact)
+    case 'redact-pdf':
+    case 'html-to-pdf':
+      return 'bg-[#ef4444]';
+
+    // Emerald Green (View PDF, Page Numbers, Edit, Text, Protect)
+    case 'page-numbers':
+      return 'bg-[#22c55e]';
+    case 'edit-pdf':
+    case 'scan-to-pdf':
+    case 'protect-pdf':
+    case 'pdf-text':
+      return 'bg-[#10b981]';
+
+    // Royal Blue (Merge, Rotate, Sign, Office converters)
+    case 'merge-pdf':
+    case 'rotate-pdf':
+    case 'sign-pdf':
+    case 'word-to-pdf':
+    case 'excel-to-pdf':
+    case 'powerpoint-to-pdf':
+    case 'inspect-forms':
+    case 'fill-pdf':
+      return 'bg-[#3b82f6]';
+
+    // Indigo / Violet (Split, Crop, Organize, Remove)
+    case 'split-pdf':
+    case 'crop-pdf':
+    case 'organize-pdf':
+    case 'remove-pages':
+    case 'extract-pages':
+    case 'pdf-to-pdfa':
+      return 'bg-[#6366f1]';
+
+    // Amber / Gold (Image to PDF, PDF to Image, Unlock)
+    case 'jpg-to-pdf':
+    case 'png-to-pdf':
+    case 'pdf-to-jpg':
+    case 'pdf-to-png':
+    case 'unlock-pdf':
+    case 'annotate-pdf':
+      return 'bg-[#f59e0b]';
+
+    // Pink / Rose (Watermark, Repair)
+    case 'watermark-pdf':
+    case 'repair-pdf':
+      return 'bg-[#ec4899]';
+
+    // Cyan / Sky (OCR, Compress, PDF Info)
+    case 'ocr-pdf':
+    case 'compress-pdf':
+    case 'pdf-info':
+      return 'bg-[#06b6d4]';
+
+    // Purple / Violet (AI & Comparison Tools)
+    case 'compare-pdf':
+    case 'ai-pdf-summary':
+    case 'ai-pdf-chat':
+    case 'ai-study-guide':
+    case 'ai-pdf-translate':
+      return 'bg-[#8b5cf6]';
+
+    default:
+      return 'bg-[#3b82f6]';
+  }
+}
 
 export default function PdfToolsHubPage() {
   const router = useRouter();
@@ -173,37 +251,126 @@ export default function PdfToolsHubPage() {
     { id: 'ai', label: 'AI PDF (4)' },
   ];
 
-  const categoryOrder = [
-    'organization',
-    'optimize',
-    'convert_to',
-    'convert_from',
-    'editing',
-    'security',
-    'forms',
-    'analysis',
-    'ai',
-  ];
-
   return (
-    <div className="min-h-screen py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10 animate-in fade-in duration-200">
-      {/* ── 1. Hero Section ────────────────────────────────────────────── */}
-      <div className="text-center max-w-3xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>StudentAI Document Platform &bull; 40 Production Utilities</span>
+    <div className="min-h-screen bg-[#0d121c] text-slate-100 py-6 px-4 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200">
+      {/* ── Top Navigation Bar (Strict Stirling PDF Style — Image 2) ── */}
+      <header className="max-w-7xl mx-auto flex items-center justify-between py-2 border-b border-slate-800/80">
+        <div className="flex items-center gap-6">
+          {/* Logo + Title */}
+          <Link href="/pdf-tools" className="flex items-center gap-2.5 group">
+            <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center font-black text-white text-sm shadow-sm group-hover:scale-105 transition-transform">
+              S
+            </div>
+            <span className="text-white font-bold text-base tracking-tight">
+              StudentAI PDF
+            </span>
+          </Link>
+
+          {/* Quick Nav Items */}
+          <nav className="hidden md:flex items-center gap-4 text-xs font-medium text-slate-300">
+            <Link
+              href="/pdf-tools"
+              className="flex items-center gap-1.5 hover:text-white transition-colors"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Tools</span>
+            </Link>
+            <Link
+              href="/pdf-tools/organize-pdf"
+              className="flex items-center gap-1.5 hover:text-white transition-colors"
+            >
+              <Wrench className="w-3.5 h-3.5" />
+              <span>Multi Tools</span>
+            </Link>
+            <Link
+              href="/pdf-tools/merge-pdf"
+              className="flex items-center gap-1.5 hover:text-white transition-colors"
+            >
+              <Workflow className="w-3.5 h-3.5" />
+              <span>Pipeline</span>
+            </Link>
+            <Link
+              href="/pdf-tools/compress-pdf"
+              className="flex items-center gap-1.5 hover:text-white transition-colors"
+            >
+              <Minimize2 className="w-3.5 h-3.5" />
+              <span>Compress</span>
+            </Link>
+            <Link
+              href="/pdf-tools/split-pdf"
+              className="flex items-center gap-1.5 hover:text-white transition-colors"
+            >
+              <Scissors className="w-3.5 h-3.5" />
+              <span>Split</span>
+            </Link>
+          </nav>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-          PDF Tools
-        </h1>
+        {/* Right Utility Icons */}
+        <div className="flex items-center gap-3 text-slate-400">
+          <button
+            type="button"
+            aria-label="Favorites"
+            className="p-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <Star className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Theme toggle"
+            className="p-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <Moon className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Language"
+            className="p-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <Globe className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Search"
+            className="p-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Settings"
+            className="p-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
+        </div>
+      </header>
 
-        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          Comprehensive suite of 40 utilities to organize, convert, edit, optimize, secure, and understand PDF documents with complete client-side privacy.
-        </p>
+      {/* ── Main Hero Section (Image 2) ─────────────────────────────── */}
+      <div className="max-w-7xl mx-auto space-y-5 pt-2">
+        <div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+            StudentAI PDF
+          </h1>
+          <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-3xl leading-relaxed">
+            Your locally hosted one-stop-shop for all your PDF needs. 100% private, client-side, and free.
+          </p>
+        </div>
 
-        {/* ── Large Drag & Drop Upload Hero Area ───────────────────────── */}
-        <div className="pt-2">
+        {/* ── Search Bar (Exact Stirling PDF Pill Style — Image 2) ──── */}
+        <div className="relative w-full">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search for features..."
+            className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#18202d] border border-slate-800 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+          />
+        </div>
+
+        {/* ── Hero Drag & Drop Upload Zone (Image 1 Style Inside) ────── */}
+        <div className="pt-1">
           <input
             ref={heroInputRef}
             type="file"
@@ -227,181 +394,106 @@ export default function PdfToolsHubPage() {
             onKeyDown={(e) => e.key === 'Enter' && heroInputRef.current?.click()}
             aria-label="Drag and drop PDF or image documents here"
             className={`
-              w-full max-w-2xl mx-auto p-8 sm:p-10 rounded-3xl border-2 border-dashed
+              w-full p-6 sm:p-8 rounded-2xl border-2 border-dashed
               cursor-pointer transition-all touch-manipulation select-none
               ${
                 isDraggingOver
-                  ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-950/30 scale-[1.01]'
-                  : 'border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/60 hover:border-indigo-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 shadow-xs'
+                  ? 'border-blue-500 bg-blue-950/30 scale-[1.01]'
+                  : 'border-slate-800 bg-[#141a24] hover:border-slate-700 hover:bg-[#18202d]'
               }
             `}
           >
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-inner">
-                <Upload className="w-7 h-7" />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
+              <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+                <CloudUpload className="w-6 h-6 stroke-[2.2]" />
               </div>
               <div>
-                <p className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100">
-                  Drop your PDF or JPG files here or <span className="text-indigo-600 dark:text-indigo-400 underline">browse</span>
+                <p className="text-sm font-bold text-white">
+                  Drop your PDF or JPG files here or <span className="text-blue-400 underline">browse</span>
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Supports PDF documents, JPG images, and batch uploads &bull; Fast client-side workflow
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Images route to JPG to PDF &bull; Multiple PDFs route to Merge PDF &bull; 100% on-device
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── Instant Search Input ─────────────────────────────────────── */}
-        <div className="relative max-w-xl mx-auto pt-2">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search PDF tools by name, action, or format (e.g. merge, compress, jpg, ocr)..."
-            className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-xs text-slate-900 dark:text-white"
-          />
+        {/* ── Category Filter Tabs ──────────────────────────────────── */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all touch-manipulation ${
+                selectedCategory === cat.id
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-[#18202d] text-slate-400 hover:text-white hover:bg-[#1f2838] border border-slate-800/80'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* ── 2. Category Tabs ───────────────────────────────────────────── */}
-      <div className="flex items-center justify-start lg:justify-center gap-1.5 overflow-x-auto pb-2 text-xs scrollbar-none">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => setSelectedCategory(cat.id)}
-            className={`px-3.5 py-2 rounded-xl font-semibold whitespace-nowrap transition-all touch-manipulation ${
-              selectedCategory === cat.id
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
+      {/* ── Tool Cards Grid (Strict Stirling PDF Style — Image 2) ───── */}
+      <main className="max-w-7xl mx-auto space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredTools.map((tool) => {
+            const Icon = ICON_MAP[tool.icon] || FileText;
+            const isDisabled = disabledSlugs.includes(tool.slug);
+            const badgeBg = getToolBadgeColor(tool.slug);
 
-      {/* ── 3. Tool Directory (Categorized Card Grid) ─────────────────── */}
-      <div className="space-y-12">
-        {categoryOrder.map((catId) => {
-          const catInfo = PDF_CATEGORIES[catId];
-          const sectionTools = filteredTools.filter((t) => t.category === catId);
-          if (sectionTools.length === 0) return null;
-
-          return (
-            <div key={catId} className="space-y-4">
-              {/* Category Header */}
-              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                    {catInfo?.label || catId.toUpperCase()}
-                  </h2>
-                  <span className="text-xs text-slate-400 font-bold">({sectionTools.length})</span>
+            return (
+              <Link
+                key={tool.id}
+                href={isDisabled ? '#' : `/pdf-tools/${tool.slug}`}
+                className={`
+                  bg-[#18202d] hover:bg-[#1f2838] border border-slate-800/90 hover:border-slate-700
+                  rounded-2xl p-4 transition-all duration-150 flex items-start gap-3.5 group cursor-pointer shadow-sm
+                  ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}
+                `}
+              >
+                {/* Colorful Squircle Icon (Exact Image 2) */}
+                <div
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-sm ${badgeBg}`}
+                >
+                  {tool.slug === 'page-numbers' ? (
+                    <span className="font-extrabold text-sm tracking-tight text-white select-none">
+                      123
+                    </span>
+                  ) : (
+                    <Icon className="w-6 h-6 stroke-[2.2]" />
+                  )}
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-                  {catInfo?.description}
-                </p>
-              </div>
 
-              {/* Responsive Cards Grid (1 col on mobile, 2 on tablet, 3 on desktop) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sectionTools.map((tool) => {
-                  const Icon = ICON_MAP[tool.icon] || FileText;
-                  const isDisabled = disabledSlugs.includes(tool.slug);
-                  const isFeatured = featuredSlugs.includes(tool.slug) || tool.isPopular;
+                {/* Title & Description */}
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-white font-bold text-sm tracking-tight leading-tight group-hover:text-blue-400 transition-colors">
+                    {tool.name}
+                  </h2>
+                  <p className="text-slate-400 text-xs mt-1 leading-snug line-clamp-2">
+                    {tool.description}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
 
-                  return (
-                    <div
-                      key={tool.id}
-                      className={`
-                        group p-5 rounded-2xl border bg-white dark:bg-slate-900 transition-all shadow-2xs flex flex-col justify-between
-                        ${
-                          isDisabled
-                            ? 'opacity-60 border-slate-200 dark:border-slate-800'
-                            : 'border-slate-200/80 dark:border-slate-800 hover:border-indigo-400 hover:shadow-md'
-                        }
-                      `}
-                    >
-                      <div className="space-y-3">
-                        {/* Top Row: Icon + Badges */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
-                            <Icon className="w-5 h-5" />
-                          </div>
-
-                          <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider ${
-                                tool.status === 'PRODUCTION'
-                                  ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'
-                                  : tool.status === 'LIMITED'
-                                  ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
-                                  : 'bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300'
-                              }`}
-                            >
-                              {tool.status}
-                            </span>
-
-                            {isFeatured && (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">
-                                Featured
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Title & Description */}
-                        <div>
-                          <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                            {tool.name}
-                          </h3>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
-                            {tool.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Card Footer: Category & Use Tool Button */}
-                      <div className="flex items-center justify-between gap-2 pt-4 mt-3 border-t border-slate-100 dark:border-slate-800">
-                        <span className="text-[11px] font-semibold text-slate-400 truncate">
-                          {catInfo?.label}
-                        </span>
-
-                        {isDisabled ? (
-                          <span className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed">
-                            Disabled
-                          </span>
-                        ) : (
-                          <Link
-                            href={`/pdf-tools/${tool.slug}`}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-2xs transition-all touch-manipulation"
-                          >
-                            <span>Use Tool</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* ── Empty Search Results State ─────────────────────────────── */}
+        {/* ── Empty Search Results State ───────────────────────────── */}
         {filteredTools.length === 0 && (
           <div className="text-center py-20 space-y-4 max-w-md mx-auto">
-            <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-[#18202d] border border-slate-800 text-slate-400 flex items-center justify-center mx-auto">
               <Search className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+              <h3 className="text-base font-bold text-white">
                 No PDF tools found.
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 No tools matched &ldquo;{search}&rdquo;. Try another search keyword or browse all categories.
               </p>
             </div>
@@ -411,73 +503,73 @@ export default function PdfToolsHubPage() {
                 setSearch('');
                 setSelectedCategory('all');
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 transition-colors touch-manipulation"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors touch-manipulation"
             >
               Reset Search & Filters
             </button>
           </div>
         )}
-      </div>
+      </main>
 
-      {/* ── Smart Action Modal for Uploaded Files ─────────────────────── */}
+      {/* ── Smart Action Modal for Uploaded Files ───────────────────── */}
       {showActionModal && droppedFiles.length > 0 && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200"
         >
-          <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+          <div className="w-full max-w-md p-6 rounded-3xl bg-[#18202d] border border-slate-800 shadow-2xl space-y-4 text-white">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+              <h3 className="text-sm sm:text-base font-bold">
                 Select a Tool for Your Document
               </h3>
               <button
                 type="button"
                 onClick={() => setShowActionModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-xs font-bold"
+                className="text-slate-400 hover:text-white text-xs font-bold"
               >
                 Cancel
               </button>
             </div>
 
-            <p className="text-xs text-slate-500">
-              Uploaded: <span className="font-bold text-slate-800 dark:text-slate-200">{droppedFiles[0]?.name}</span>
+            <p className="text-xs text-slate-400">
+              Uploaded: <span className="font-bold text-white">{droppedFiles[0]?.name}</span>
             </p>
 
             <div className="grid grid-cols-2 gap-2 pt-2">
               <Link
                 href="/pdf-tools/compress-pdf"
-                className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40 text-left transition-colors"
+                className="p-3 rounded-xl border border-slate-800 bg-[#141a24] hover:border-blue-500 hover:bg-[#1f2838] text-left transition-colors"
               >
-                <Minimize2 className="w-4 h-4 text-indigo-600 mb-1" />
-                <p className="text-xs font-bold">Compress PDF</p>
+                <Minimize2 className="w-4 h-4 text-blue-400 mb-1" />
+                <p className="text-xs font-bold text-white">Compress PDF</p>
                 <p className="text-[10px] text-slate-400">Reduce file size</p>
               </Link>
 
               <Link
                 href="/pdf-tools/pdf-to-jpg"
-                className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40 text-left transition-colors"
+                className="p-3 rounded-xl border border-slate-800 bg-[#141a24] hover:border-blue-500 hover:bg-[#1f2838] text-left transition-colors"
               >
-                <ImageIcon className="w-4 h-4 text-indigo-600 mb-1" />
-                <p className="text-xs font-bold">PDF to JPG</p>
+                <ImageIcon className="w-4 h-4 text-amber-400 mb-1" />
+                <p className="text-xs font-bold text-white">PDF to JPG</p>
                 <p className="text-[10px] text-slate-400">Extract pages</p>
               </Link>
 
               <Link
                 href="/pdf-tools/merge-pdf"
-                className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40 text-left transition-colors"
+                className="p-3 rounded-xl border border-slate-800 bg-[#141a24] hover:border-blue-500 hover:bg-[#1f2838] text-left transition-colors"
               >
-                <Layers className="w-4 h-4 text-indigo-600 mb-1" />
-                <p className="text-xs font-bold">Merge PDF</p>
+                <Layers className="w-4 h-4 text-blue-400 mb-1" />
+                <p className="text-xs font-bold text-white">Merge PDF</p>
                 <p className="text-[10px] text-slate-400">Combine files</p>
               </Link>
 
               <Link
                 href="/pdf-tools/edit-pdf"
-                className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40 text-left transition-colors"
+                className="p-3 rounded-xl border border-slate-800 bg-[#141a24] hover:border-blue-500 hover:bg-[#1f2838] text-left transition-colors"
               >
-                <Pencil className="w-4 h-4 text-indigo-600 mb-1" />
-                <p className="text-xs font-bold">Edit PDF</p>
+                <Pencil className="w-4 h-4 text-emerald-400 mb-1" />
+                <p className="text-xs font-bold text-white">Edit PDF</p>
                 <p className="text-[10px] text-slate-400">Annotate & sign</p>
               </Link>
             </div>
@@ -485,21 +577,21 @@ export default function PdfToolsHubPage() {
         </div>
       )}
 
-      {/* ── 4. Trust & Transparency Footer Note ──────────────────────── */}
-      <div className="p-4 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+      {/* ── Trust & Transparency Footer Note ────────────────────────── */}
+      <footer className="max-w-7xl mx-auto p-4 sm:p-5 rounded-2xl border border-slate-800/80 bg-[#141a24] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>
-            Client-First Processing: Standard PDF utilities process files entirely inside your device&apos;s memory.
+            Client-First Privacy: All processing happens entirely inside your browser memory with zero server uploads.
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
           <span>
-            Honest Limitations: Tools labeled &ldquo;LIMITED&rdquo; disclose technical boundaries and never fake compliance.
+            Honest Boundaries: File operations are calibrated to local device hardware limits.
           </span>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

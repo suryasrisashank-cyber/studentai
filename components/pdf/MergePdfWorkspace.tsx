@@ -28,6 +28,8 @@ import {
   Layers,
   FileOutput,
   Copy,
+  CloudUpload,
+  Folder,
 } from 'lucide-react';
 import { PDFDocument } from 'pdf-lib';
 import { mergePdfs } from '@/lib/pdf/organization/merge';
@@ -381,40 +383,55 @@ export function MergePdfWorkspace() {
           aria-label="Select PDF files to merge"
         />
 
-        <div
-          onDrop={handleDrop}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDraggingOver(true);
-          }}
-          onDragLeave={() => setIsDraggingOver(false)}
-          onClick={() => fileInputRef.current?.click()}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-          aria-label="Upload PDF files to merge"
-          className={`
-            w-full border-2 border-dashed rounded-3xl text-center cursor-pointer
-            transition-all touch-manipulation select-none py-14 sm:py-20 px-4
-            ${
-              isDraggingOver
-                ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20'
-                : 'border-slate-300 dark:border-slate-700 hover:border-indigo-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'
-            }
-          `}
-        >
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-inner">
-              <Upload className="w-8 h-8" />
+        <div className="w-full max-w-2xl mx-auto rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5 sm:p-8">
+          <div
+            onDrop={handleDrop}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDraggingOver(true);
+            }}
+            onDragLeave={() => setIsDraggingOver(false)}
+            onClick={() => fileInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+            aria-label="Upload PDF files to merge"
+            className={`
+              w-full border-2 border-dashed rounded-2xl p-10 sm:p-14 text-center cursor-pointer
+              transition-all touch-manipulation select-none flex flex-col items-center justify-center
+              ${
+                isDraggingOver
+                  ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20'
+                  : 'border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'
+              }
+            `}
+          >
+            {/* Vibrant Blue Squircle with Cloud Upload Icon (Exact Image 1) */}
+            <div className="w-16 h-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/25 mb-4">
+              <CloudUpload className="w-8 h-8 stroke-[2.2]" />
             </div>
-            <div>
-              <p className="text-base font-bold text-slate-800 dark:text-slate-100">
-                Drop your PDF files here or <span className="text-indigo-600 dark:text-indigo-400 underline">browse</span>
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Select 2 or more PDFs to combine · Up to 50 MB per file
-              </p>
-            </div>
+
+            <p className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
+              Drop your PDF files here
+            </p>
+
+            <span className="text-xs text-slate-400 font-medium my-2.5">or</span>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                fileInputRef.current?.click();
+              }}
+              className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm px-6 py-2.5 rounded-xl shadow-sm inline-flex items-center gap-2 cursor-pointer transition-colors touch-manipulation"
+            >
+              <Folder className="w-4 h-4" />
+              <span>Browse files</span>
+            </button>
+
+            <p className="text-xs text-slate-400 mt-5">
+              Select 2 or more PDFs to combine · Up to 50 MB per file
+            </p>
           </div>
         </div>
 

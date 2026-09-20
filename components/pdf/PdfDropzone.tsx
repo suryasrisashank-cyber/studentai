@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { UploadCloud, FileUp, AlertCircle } from 'lucide-react';
+import { UploadCloud, FileUp, AlertCircle, CloudUpload, Folder } from 'lucide-react';
 import { validateFileSize, validatePdfMagicBytes } from '@/lib/pdf/validation';
 import { formatBytes } from '@/lib/pdf/utils';
 
@@ -85,20 +85,8 @@ export function PdfDropzone({
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-3">
-      <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => !disabled && inputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-200 ${
-          disabled
-            ? 'opacity-50 cursor-not-allowed border-slate-200 dark:border-slate-800'
-            : isDragOver
-            ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 scale-[0.99]'
-            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-slate-50/50 dark:hover:bg-slate-800/40'
-        }`}
-      >
+    <div className="w-full max-w-2xl mx-auto space-y-4">
+      <div className="w-full rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5 sm:p-8">
         <input
           ref={inputRef}
           type="file"
@@ -106,34 +94,57 @@ export function PdfDropzone({
           multiple={multiple}
           disabled={disabled}
           onChange={(e) => processFiles(e.target.files)}
-          className="hidden"
+          className="sr-only"
         />
 
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <div
-            className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${
-              isDragOver
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400'
-            }`}
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => !disabled && inputRef.current?.click()}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && !disabled && inputRef.current?.click()}
+          aria-label="Upload document file"
+          className={`
+            w-full border-2 border-dashed rounded-2xl p-10 sm:p-14 text-center cursor-pointer
+            transition-all touch-manipulation select-none flex flex-col items-center justify-center
+            ${
+              disabled
+                ? 'opacity-50 cursor-not-allowed border-slate-200 dark:border-slate-800'
+                : isDragOver
+                ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20'
+                : 'border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'
+            }
+          `}
+        >
+          {/* Vibrant Blue Squircle with Cloud Upload Icon (Exact Image 1) */}
+          <div className="w-16 h-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/25 mb-4">
+            <CloudUpload className="w-8 h-8 stroke-[2.2]" />
+          </div>
+
+          <p className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
+            {title || (multiple ? 'Drop your files here' : 'Drop your file here')}
+          </p>
+
+          <span className="text-xs text-slate-400 font-medium my-2.5">or</span>
+
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              inputRef.current?.click();
+            }}
+            className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white font-medium text-sm px-6 py-2.5 rounded-xl shadow-sm inline-flex items-center gap-2 cursor-pointer transition-colors touch-manipulation"
           >
-            {isDragOver ? <UploadCloud className="w-8 h-8" /> : <FileUp className="w-8 h-8" />}
-          </div>
+            <Folder className="w-4 h-4" />
+            <span>Browse files</span>
+          </button>
 
-          <div className="space-y-1.5 max-w-sm">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              {title || (multiple ? 'Drop PDF files here' : 'Drop your PDF here')}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {subtitle || 'or tap to browse files from your computer or phone'}
-            </p>
-          </div>
-
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-            <span>Max file size: {maxSizeMB} MB</span>
-            <span>•</span>
-            <span>Client-side local processing</span>
-          </div>
+          <p className="text-xs text-slate-400 mt-5">
+            {accept.toUpperCase().replace(/\./g, '')} · up to {maxSizeMB} MB
+          </p>
         </div>
       </div>
 

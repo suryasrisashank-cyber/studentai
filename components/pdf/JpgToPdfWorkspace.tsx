@@ -36,6 +36,8 @@ import {
   Settings,
   Image as ImageIcon,
   FileOutput,
+  CloudUpload,
+  Folder,
 } from 'lucide-react';
 
 const ExpandIcon = ChevronDown;
@@ -317,41 +319,84 @@ function DropZone({
     onFiles(Array.from(e.dataTransfer.files));
   };
 
-  return (
-    <div
-      onDrop={handleDrop}
-      onDragOver={(e) => { e.preventDefault(); setActive(true); }}
-      onDragLeave={() => setActive(false)}
-      onClick={() => fileInputRef.current?.click()}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-      aria-label="Upload images — click or drag and drop"
-      className={`
-        w-full border-2 border-dashed rounded-2xl text-center cursor-pointer
-        transition-all touch-manipulation select-none
-        ${active ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20'
-          : 'border-slate-300 dark:border-slate-700 hover:border-indigo-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'}
-        ${compact ? 'py-4 px-3' : 'py-10 sm:py-14 px-4'}
-      `}
-    >
-      <div className="flex flex-col items-center gap-2.5">
-        <div className={`rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shadow-inner
-          ${compact ? 'w-10 h-10' : 'w-14 h-14'}`}>
-          <ImagePlus className={compact ? 'w-5 h-5' : 'w-7 h-7'} />
-        </div>
-        <div>
-          <p className={`font-bold text-slate-800 dark:text-slate-100 ${compact ? 'text-xs' : 'text-sm'}`}>
-            {compact ? 'Drop more images or tap to add' : (
-              <>Drop images here or <span className="text-indigo-600 dark:text-indigo-400 underline">browse</span></>
-            )}
-          </p>
-          {!compact && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              JPEG · PNG · WebP · BMP · Multiple files supported
+  if (compact) {
+    return (
+      <div
+        onDrop={handleDrop}
+        onDragOver={(e) => { e.preventDefault(); setActive(true); }}
+        onDragLeave={() => setActive(false)}
+        onClick={() => fileInputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+        aria-label="Upload images — click or drag and drop"
+        className={`
+          w-full border-2 border-dashed rounded-2xl text-center cursor-pointer
+          transition-all touch-manipulation select-none py-4 px-3
+          ${active ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+            : 'border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'}
+        `}
+      >
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-inner">
+            <ImagePlus className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="font-bold text-slate-800 dark:text-slate-100 text-xs">
+              Drop more images or tap to add
             </p>
-          )}
+          </div>
         </div>
+      </div>
+    );
+  }
+
+  // Image 1: Main elevated upload card
+  return (
+    <div className="w-full max-w-2xl mx-auto rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5 sm:p-8">
+      <div
+        onDrop={handleDrop}
+        onDragOver={(e) => { e.preventDefault(); setActive(true); }}
+        onDragLeave={() => setActive(false)}
+        onClick={() => fileInputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+        aria-label="Upload images — click or drag and drop"
+        className={`
+          w-full border-2 border-dashed rounded-2xl p-10 sm:p-14 text-center cursor-pointer
+          transition-all touch-manipulation select-none flex flex-col items-center justify-center
+          ${active
+            ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20'
+            : 'border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'}
+        `}
+      >
+        {/* Vibrant Blue Squircle with Cloud Upload Icon (Exact Image 1) */}
+        <div className="w-16 h-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/25 mb-4">
+          <CloudUpload className="w-8 h-8 stroke-[2.2]" />
+        </div>
+
+        <p className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
+          Drop your images here
+        </p>
+
+        <span className="text-xs text-slate-400 font-medium my-2.5">or</span>
+
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            fileInputRef.current?.click();
+          }}
+          className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm px-6 py-2.5 rounded-xl shadow-sm inline-flex items-center gap-2 cursor-pointer transition-colors touch-manipulation"
+        >
+          <Folder className="w-4 h-4" />
+          <span>Browse files</span>
+        </button>
+
+        <p className="text-xs text-slate-400 mt-5">
+          .JPG,.JPEG · up to 10 files
+        </p>
       </div>
     </div>
   );
