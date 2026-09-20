@@ -136,7 +136,11 @@ export class AIRouter {
       dailyQuotaPerIp: 100,
     };
 
-    return await db.getSiteSetting('ai_settings', defaults);
+    const saved = await db.getSiteSetting('ai_settings', defaults);
+    if (saved && saved.googleModel === 'gemini-2.5-flash') {
+      saved.googleModel = 'gemini-3.6-flash';
+    }
+    return saved;
   }
 
   async getFallbackChain(): Promise<AIProviderName[]> {

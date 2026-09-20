@@ -223,6 +223,32 @@ export default function AdminAIPage() {
     }
   };
 
+  const handlePingProvider = async (provider: AIProviderName) => {
+    setIsTesting(true);
+    setTestResult(null);
+    try {
+      const res = await fetch('/api/admin/ai/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: 'Test connectivity and latency from StudentAI Admin Console.',
+          provider,
+        }),
+      });
+      const json: TestConsoleResult = await res.json();
+      setTestResult(json);
+      await fetchAIData();
+    } catch {
+      setTestResult({
+        success: false,
+        latencyMs: 0,
+        error: `Failed to ping ${provider}.`,
+      });
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   const providers = data?.providers;
   const stats = data?.telemetry?.providers || {};
   const allProviderKeys: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria'];
@@ -377,14 +403,31 @@ export default function AdminAIPage() {
                     </div>
                     <div className="flex justify-between">
                       <span>Avg Latency:</span>
-                      <span className="font-mono text-slate-700 dark:text-slate-300">{stat.avgLatencyMs || 0}ms</span>
+                      <span className="font-mono text-slate-700 dark:text-slate-300">
+                        {stat.requests > 0 && stat.avgLatencyMs > 0 ? `${stat.avgLatencyMs}ms` : 'No data'}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Success Rate:</span>
                       <span className="font-mono text-slate-700 dark:text-slate-300">
-                        {stat.requests > 0 ? Math.round((stat.successes / stat.requests) * 100) : 100}% ({stat.requests} reqs)
+                        {stat.requests > 0 ? `${Math.round((stat.successes / stat.requests) * 100)}% (${stat.requests} reqs)` : 'No requests'}
                       </span>
                     </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <button
+                      type="button"
+                      disabled={isTesting || !isConfigured}
+                      onClick={() => handlePingProvider(pName)}
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 disabled:opacity-40 transition-colors"
+                    >
+                      <Play className="w-3 h-3" />
+                      <span>Test Provider</span>
+                    </button>
+                    <span className="text-[10px] text-slate-400">
+                      {isConfigured ? 'Ready' : 'Not set'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -460,10 +503,10 @@ export default function AdminAIPage() {
               type="text"
               value={googleModel}
               onChange={(e) => setGoogleModel(e.target.value)}
-              placeholder="e.g. gemini-2.5-flash"
+              placeholder="e.g. gemini-3.6-flash"
               className="w-full px-3 py-2 rounded-xl text-xs border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono min-h-[44px]"
             />
-            <p className="text-[10px] text-slate-400">Default: gemini-2.5-flash</p>
+            <p className="text-[10px] text-slate-400">Default: gemini-3.6-flash</p>
           </div>
 
           {/* Groq Model */}

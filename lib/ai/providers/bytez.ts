@@ -66,7 +66,8 @@ export class BytezAIProvider implements AIProvider {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`,
+          'bytez-key': apiKey.replace(/^Bearer\s+/i, ''),
         },
         body: JSON.stringify({
           model,
@@ -76,6 +77,25 @@ export class BytezAIProvider implements AIProvider {
         }),
         signal: controller.signal,
       });
+
+      // If /v1 returns 404, fallback to /models/v2/openai/v1 endpoint
+      if (res.status === 404) {
+        res = await fetch('https://api.bytez.com/models/v2/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`,
+            'bytez-key': apiKey.replace(/^Bearer\s+/i, ''),
+          },
+          body: JSON.stringify({
+            model,
+            messages: formattedMessages,
+            max_tokens: maxTokens,
+            temperature,
+          }),
+          signal: controller.signal,
+        });
+      }
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') {
         throw new ProviderError('bytez', 'TIMEOUT');
@@ -150,7 +170,8 @@ export class BytezAIProvider implements AIProvider {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`,
+          'bytez-key': apiKey.replace(/^Bearer\s+/i, ''),
         },
         body: JSON.stringify({
           model,
@@ -161,6 +182,25 @@ export class BytezAIProvider implements AIProvider {
         }),
         signal: controller.signal,
       });
+
+      if (res.status === 404) {
+        res = await fetch('https://api.bytez.com/models/v2/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`,
+            'bytez-key': apiKey.replace(/^Bearer\s+/i, ''),
+          },
+          body: JSON.stringify({
+            model,
+            messages: formattedMessages,
+            max_tokens: maxTokens,
+            temperature,
+            stream: true,
+          }),
+          signal: controller.signal,
+        });
+      }
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') {
         throw new ProviderError('bytez', 'TIMEOUT');

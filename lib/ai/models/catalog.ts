@@ -19,19 +19,26 @@ export interface ModelMetadata {
 export const SUPPORTED_MODELS: Record<AIProviderName, ModelMetadata[]> = {
   google: [
     {
-      id: 'gemini-2.5-flash',
-      name: 'Gemini 2.5 Flash',
+      id: 'gemini-3.6-flash',
+      name: 'Gemini 3.6 Flash',
       provider: 'google',
       contextWindow: 1048576,
       description: 'Ultra-fast, high-efficiency multimodal model for everyday writing, reasoning, and study.',
       isDefault: true,
     },
     {
-      id: 'gemini-3.1-flash',
-      name: 'Gemini 3.1 Flash',
+      id: 'gemini-flash-latest',
+      name: 'Gemini Flash Latest',
       provider: 'google',
       contextWindow: 1048576,
-      description: 'Next-gen efficiency model optimized for high-volume student queries and speed.',
+      description: 'Always points to the latest optimized production Gemini Flash release.',
+    },
+    {
+      id: 'gemini-3.5-flash',
+      name: 'Gemini 3.5 Flash',
+      provider: 'google',
+      contextWindow: 1048576,
+      description: 'Stable high-throughput multimodal flash model.',
     },
     {
       id: 'gemini-3.8-flash',
@@ -46,13 +53,6 @@ export const SUPPORTED_MODELS: Record<AIProviderName, ModelMetadata[]> = {
       provider: 'google',
       contextWindow: 2097152,
       description: 'Flagship model for deep academic analysis, multi-document synthesis, and research.',
-    },
-    {
-      id: 'gemini-1.5-flash',
-      name: 'Gemini 1.5 Flash',
-      provider: 'google',
-      contextWindow: 1048576,
-      description: 'Stable legacy baseline flash model.',
     },
   ],
   groq: [
@@ -147,7 +147,7 @@ export const SUPPORTED_MODELS: Record<AIProviderName, ModelMetadata[]> = {
 };
 
 export const DEFAULT_MODELS: Record<AIProviderName, string> = {
-  google: 'gemini-2.5-flash',
+  google: 'gemini-3.6-flash',
   groq: 'openai/gpt-oss-120b',
   openrouter: 'openrouter/free',
   bytez: 'meta-llama/Meta-Llama-3-8B-Instruct',

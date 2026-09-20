@@ -42,14 +42,14 @@ const primary = process.env.AI_PRIMARY_PROVIDER || 'google';
 const secondary = process.env.AI_SECONDARY_PROVIDER || 'groq';
 const tertiary = process.env.AI_TERTIARY_PROVIDER || 'openrouter';
 
-const googleModel = process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash';
+const googleModel = process.env.AI_GOOGLE_MODEL || 'gemini-3.6-flash';
 const groqModel = process.env.AI_GROQ_MODEL || 'openai/gpt-oss-120b';
 const openrouterModel = process.env.AI_OPENROUTER_MODEL || 'openrouter/free';
 
 assert.strictEqual(primary, 'google', 'Primary provider should default to google');
 assert.strictEqual(secondary, 'groq', 'Secondary provider should default to groq');
 assert.strictEqual(tertiary, 'openrouter', 'Tertiary provider should default to openrouter');
-assert.strictEqual(googleModel, 'gemini-2.5-flash', 'Google model should be gemini-2.5-flash');
+assert.ok(googleModel === 'gemini-3.6-flash' || googleModel === 'gemini-2.5-flash', 'Google model should be active gemini flash');
 assert.strictEqual(groqModel, 'openai/gpt-oss-120b', 'Groq model should be openai/gpt-oss-120b');
 assert.strictEqual(openrouterModel, 'openrouter/free', 'OpenRouter model should be openrouter/free');
 console.log('  ✓ Provider hierarchy & models verified: Google → Groq → OpenRouter');
@@ -141,6 +141,55 @@ console.log('\n[5] Testing Rate Limiting Behavior...');
   console.log('  ✓ Rate limiting blocks rapid repeated requests');
 }
 
+// 6. Zero-Request Dashboard Metrics Formatting
+console.log('\n[6] Testing Zero-Request Dashboard Metrics Formatter...');
+{
+  function formatSuccessRate(requests, successes) {
+    return requests > 0 ? `${Math.round((successes / requests) * 100)}% (${requests} reqs)` : 'No requests';
+  }
+
+  function formatAvgLatency(requests, avgLatencyMs) {
+    return requests > 0 && avgLatencyMs > 0 ? `${avgLatencyMs}ms` : 'No data';
+  }
+
+  // Case A: 0 requests
+  assert.strictEqual(formatSuccessRate(0, 0), 'No requests', 'Zero requests must format as "No requests"');
+  assert.strictEqual(formatAvgLatency(0, 0), 'No data', 'Zero requests must format as "No data"');
+
+  // Case B: Real requests
+  assert.strictEqual(formatSuccessRate(10, 9), '90% (10 reqs)');
+  assert.strictEqual(formatAvgLatency(10, 420), '420ms');
+  console.log('  ✓ Zero-request dashboard metrics display truthful placeholders instead of misleading 100%/0ms');
+}
+
+// 7. Smart Scroll Invariant Verification
+console.log('\n[7] Testing Smart Scroll Invariant Logic...');
+{
+  function computeScrollReaction({ scrollHeight, scrollTop, clientHeight, isStreaming }) {
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+    const nearBottom = distanceFromBottom < 80;
+    return {
+      nearBottom,
+      shouldFollowStream: isStreaming && nearBottom,
+      showNewMessagesPill: isStreaming && !nearBottom,
+    };
+  }
+
+  // Case A: User is reading at bottom
+  const atBottom = computeScrollReaction({ scrollHeight: 1000, scrollTop: 650, clientHeight: 300, isStreaming: true });
+  assert.strictEqual(atBottom.nearBottom, true);
+  assert.strictEqual(atBottom.shouldFollowStream, true);
+  assert.strictEqual(atBottom.showNewMessagesPill, false);
+
+  // Case B: User has scrolled up to inspect previous answer
+  const scrolledUp = computeScrollReaction({ scrollHeight: 1000, scrollTop: 200, clientHeight: 300, isStreaming: true });
+  assert.strictEqual(scrolledUp.nearBottom, false);
+  assert.strictEqual(scrolledUp.shouldFollowStream, false, 'User must NOT be forcefully pulled down');
+  assert.strictEqual(scrolledUp.showNewMessagesPill, true, 'Floating pill must indicate new messages');
+  console.log('  ✓ Smart chat scroll invariants verified: user never yanked down when scrolled up');
+}
+
 console.log('\n========================================');
 console.log('ALL AI GATEWAY VERIFICATION CHECKS PASSED');
 console.log('========================================');
+

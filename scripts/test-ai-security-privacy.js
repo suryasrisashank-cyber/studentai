@@ -287,7 +287,7 @@ runTest('Bytez and Atria provider adapters enforce server-only process.env reads
 
 runTest('Zero silent model mutation: model ID must remain exact throughout generation', () => {
   const configuredModels = {
-    google: 'gemini-2.5-flash',
+    google: 'gemini-3.6-flash',
     groq: 'openai/gpt-oss-120b',
     openrouter: 'openrouter/free',
     bytez: 'meta-llama/Meta-Llama-3-8B-Instruct',

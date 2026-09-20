@@ -12,7 +12,7 @@ export class GoogleAIProvider implements AIProvider {
     if (!this.isConfigured()) {
       return { status: 'NOT_CONFIGURED' };
     }
-    const targetModel = (model || process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash').trim();
+    const targetModel = (model || process.env.AI_GOOGLE_MODEL || 'gemini-3.6-flash').trim();
     return { status: 'AVAILABLE' };
   }
 
@@ -47,7 +47,7 @@ export class GoogleAIProvider implements AIProvider {
       throw new ProviderError('google', 'MISSING_KEY');
     }
 
-    const model = (options?.model || process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash').trim();
+    const model = (options?.model || process.env.AI_GOOGLE_MODEL || 'gemini-3.6-flash').trim();
     const timeoutMs = options?.timeoutMs || 12000;
     const maxTokens = options?.maxTokens || 1500;
     const temperature = options?.temperature ?? 0.7;
@@ -130,7 +130,7 @@ export class GoogleAIProvider implements AIProvider {
       throw new ProviderError('google', 'MISSING_KEY');
     }
 
-    const model = (options?.model || process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash').trim();
+    const model = (options?.model || process.env.AI_GOOGLE_MODEL || 'gemini-3.6-flash').trim();
     const timeoutMs = options?.timeoutMs || 15000;
     const maxTokens = options?.maxTokens || 1500;
     const temperature = options?.temperature ?? 0.7;

@@ -28,6 +28,7 @@ import {
   Download,
   PanelLeftClose,
   PanelLeftOpen,
+  ChevronDown,
 } from 'lucide-react';
 
 const CONVERSATIONS_STORAGE_KEY = 'studentai:conversations_v2';
@@ -93,7 +94,9 @@ export function StudentAIChat({ greeting, subtitle }: StudentAIChatProps) {
   const [streamingRetrieval, setStreamingRetrieval] = useState<boolean>(false);
 
   const abortControllerRef = useRef<AbortController | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef<boolean>(true);
+  const [showScrollBottomBtn, setShowScrollBottomBtn] = useState(false);
 
   // Initialize and migrate conversations from LocalStorage
   useEffect(() => {
@@ -158,10 +161,42 @@ export function StudentAIChat({ greeting, subtitle }: StudentAIChatProps) {
 
   const currentMode = activeConversation?.mode || 'general';
 
-  // Auto-scroll on new messages
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+    const nearBottom = distanceFromBottom < 80;
+    isNearBottomRef.current = nearBottom;
+    if (nearBottom) {
+      setShowScrollBottomBtn(false);
+    }
+  };
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.scrollTo({
+      top: scrollContainerRef.current.scrollHeight,
+      behavior,
+    });
+    isNearBottomRef.current = true;
+    setShowScrollBottomBtn(false);
+  };
+
+  // Scroll to bottom on conversation switch or initial load
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading, streamingMessage]);
+    scrollToBottom('auto');
+  }, [activeId]);
+
+  // When streaming chunks arrive: follow smoothly ONLY if user is already near bottom
+  useEffect(() => {
+    if (isStreaming) {
+      if (isNearBottomRef.current && scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+      } else {
+        setShowScrollBottomBtn(true);
+      }
+    }
+  }, [streamingMessage, isStreaming]);
 
   const handleCreateNewChat = () => {
     const newConv = createNewConversation(currentMode);
@@ -290,6 +325,7 @@ export function StudentAIChat({ greeting, subtitle }: StudentAIChatProps) {
     );
 
     setInput('');
+    setTimeout(() => scrollToBottom('smooth'), 50);
     setIsLoading(true);
     setIsStreaming(true);
     setStreamingMessage('');
@@ -449,7 +485,7 @@ export function StudentAIChat({ greeting, subtitle }: StudentAIChatProps) {
   };
 
   return (
-    <div className="flex h-[calc(100vh-8.5rem)] min-h-[550px] w-full rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-900/50 backdrop-blur-md shadow-sm overflow-hidden animate-in fade-in duration-200">
+    <div className="flex h-[calc(100dvh-5.5rem)] sm:h-[calc(100vh-8.5rem)] min-h-[480px] sm:min-h-[550px] w-full rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-900/50 backdrop-blur-md shadow-sm overflow-hidden animate-in fade-in duration-200">
       {/* Desktop Sidebar */}
       <aside
         aria-label="Conversation history"
@@ -639,7 +675,7 @@ export function StudentAIChat({ greeting, subtitle }: StudentAIChatProps) {
       )}
 
       {/* Main Chat Workspace */}
-      <main className="flex-1 flex flex-col min-w-0 bg-white/40 dark:bg-slate-900/30 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 bg-white/40 dark:bg-slate-900/30 overflow-hidden relative">
         {/* Workspace Header */}
         <div className="px-4 py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-white/80 dark:bg-slate-900/80 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
@@ -732,7 +768,7 @@ export function StudentAIChat({ greeting, subtitle }: StudentAIChatProps) {
         </div>
 
         {/* Messages Scroll Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-xl mx-auto py-8 space-y-6 animate-in fade-in duration-300">
               <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
@@ -818,9 +854,21 @@ export function StudentAIChat({ greeting, subtitle }: StudentAIChatProps) {
               </button>
             </div>
           )}
-
-          <div ref={messagesEndRef} />
         </div>
+
+        {/* Floating Scroll-to-Bottom Pill */}
+        {showScrollBottomBtn && (
+          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+            <button
+              type="button"
+              onClick={() => scrollToBottom('smooth')}
+              className="pointer-events-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-lg transition-all active:scale-95 animate-in fade-in slide-in-from-bottom-2"
+            >
+              <ChevronDown className="w-3.5 h-3.5 animate-bounce" />
+              <span>New messages</span>
+            </button>
+          </div>
+        )}
 
         {/* Input Area */}
         <div className="p-3 sm:p-4 border-t border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 shrink-0">

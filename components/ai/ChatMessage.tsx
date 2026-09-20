@@ -19,7 +19,7 @@ interface ChatMessageProps {
   onEdit?: (content: string) => void;
 }
 
-export function ChatMessage({ message, timestamp, onRetry, onEdit }: ChatMessageProps) {
+export const ChatMessage = React.memo(function ChatMessage({ message, timestamp, onRetry, onEdit }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
 
@@ -239,4 +239,5 @@ export function ChatMessage({ message, timestamp, onRetry, onEdit }: ChatMessage
       </div>
     </div>
   );
-}
+});
+

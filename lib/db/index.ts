@@ -644,60 +644,98 @@ export const db = {
     const status = getDatabaseStatus();
     if (!status.connected && isProd) return { available: false, providers: {} };
 
+    const aiEventTypes = [
+      'AI_REQUEST',
+      'AI_SUCCESS',
+      'AI_FAILURE',
+      'AI_FALLBACK',
+      'AI_CHAT_SUCCESS',
+      'AI_CHAT_STREAM_SUCCESS',
+      'AI_CHAT_FAILURE',
+    ];
+
+    const initProviders = () => ({
+      google: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
+      groq: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
+      openrouter: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
+      bytez: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
+      atria: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
+    });
+
+    const processEvents = (events: any[]) => {
+      const providers: Record<string, { requests: number; successes: number; failures: number; fallbacks: number; totalLatencyMs: number; avgLatencyMs: number }> = initProviders();
+
+      for (const ev of events) {
+        let p = (ev.feature || '').toLowerCase();
+        let latencyMs = 0;
+        let isFallback = false;
+
+        if (ev.metadataJson) {
+          try {
+            const meta = typeof ev.metadataJson === 'string' ? JSON.parse(ev.metadataJson) : ev.metadataJson;
+            if (meta?.provider) {
+              p = String(meta.provider).toLowerCase();
+            }
+            if (typeof meta?.latencyMs === 'number') {
+              latencyMs = meta.latencyMs;
+            }
+            if (Boolean(meta?.fallbackUsed)) {
+              isFallback = true;
+            }
+          } catch {}
+        }
+
+        if (!providers[p]) {
+          providers[p] = { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 };
+        }
+
+        if (['AI_REQUEST'].includes(ev.eventType)) {
+          providers[p].requests++;
+        } else if (['AI_SUCCESS', 'AI_CHAT_SUCCESS', 'AI_CHAT_STREAM_SUCCESS'].includes(ev.eventType)) {
+          providers[p].requests++;
+          providers[p].successes++;
+          if (latencyMs > 0) {
+            providers[p].totalLatencyMs += latencyMs;
+          }
+          if (isFallback) {
+            providers[p].fallbacks++;
+          }
+        } else if (['AI_FAILURE', 'AI_CHAT_FAILURE'].includes(ev.eventType)) {
+          providers[p].requests++;
+          providers[p].failures++;
+        } else if (ev.eventType === 'AI_FALLBACK') {
+          providers[p].fallbacks++;
+        }
+      }
+
+      for (const p in providers) {
+        if (providers[p].successes > 0) {
+          providers[p].avgLatencyMs = Math.round(providers[p].totalLatencyMs / providers[p].successes);
+        }
+      }
+
+      return providers;
+    };
+
     if (prisma && hasDatabaseUrl) {
       try {
         const aiEvents = await prisma.usageEvent.findMany({
           where: {
-            eventType: { in: ['AI_REQUEST', 'AI_SUCCESS', 'AI_FAILURE', 'AI_FALLBACK'] },
+            eventType: { in: aiEventTypes },
           },
         });
 
-        const providers: Record<string, { requests: number; successes: number; failures: number; fallbacks: number; totalLatencyMs: number; avgLatencyMs: number }> = {
-          google: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
-          groq: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
-          openrouter: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
-        };
-
-        for (const ev of aiEvents) {
-          const p = ev.feature.toLowerCase();
-          if (!providers[p]) {
-            providers[p] = { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 };
-          }
-          if (ev.eventType === 'AI_REQUEST') providers[p].requests++;
-          if (ev.eventType === 'AI_SUCCESS') {
-            providers[p].successes++;
-            if (ev.metadataJson) {
-              try {
-                const meta = JSON.parse(ev.metadataJson);
-                if (typeof meta?.latencyMs === 'number') {
-                  providers[p].totalLatencyMs += meta.latencyMs;
-                }
-              } catch {}
-            }
-          }
-          if (ev.eventType === 'AI_FAILURE') providers[p].failures++;
-          if (ev.eventType === 'AI_FALLBACK') providers[p].fallbacks++;
-        }
-
-        for (const p in providers) {
-          if (providers[p].successes > 0) {
-            providers[p].avgLatencyMs = Math.round(providers[p].totalLatencyMs / providers[p].successes);
-          }
-        }
-
-        return { available: true, providers };
+        return { available: true, providers: processEvents(aiEvents) };
       } catch {
         if (isProd) return { available: false, providers: {} };
       }
     }
 
+    // Dev store fallback
+    const devAiEvents = devStore.usageEvents.filter((e) => aiEventTypes.includes(e.eventType));
     return {
       available: true,
-      providers: {
-        google: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
-        groq: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
-        openrouter: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
-      },
+      providers: processEvents(devAiEvents),
     };
   },
 
