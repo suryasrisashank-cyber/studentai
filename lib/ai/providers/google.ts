@@ -1,11 +1,19 @@
-import { AIProvider, AIResponse, ChatMessage, GenerationOptions, ProviderError } from '../types';
+import { AIProvider, AIProviderName, AIProviderStatus, AIResponse, ChatMessage, GenerationOptions, ProviderError } from '../types';
 
 export class GoogleAIProvider implements AIProvider {
-  name = 'google';
+  name: AIProviderName = 'google';
 
   isConfigured(): boolean {
     const key = process.env.GOOGLE_AI_API_KEY?.trim();
     return Boolean(key && key.length > 0);
+  }
+
+  getStatus(model?: string): { status: AIProviderStatus; message?: string } {
+    if (!this.isConfigured()) {
+      return { status: 'NOT_CONFIGURED', message: 'GOOGLE_AI_API_KEY is missing' };
+    }
+    const targetModel = (model || process.env.AI_GOOGLE_MODEL || 'gemini-2.5-flash').trim();
+    return { status: 'AVAILABLE', message: `Configured with model: ${targetModel}` };
   }
 
   private formatContents(messages: ChatMessage[]): { role: 'user' | 'model'; parts: { text: string }[] }[] {

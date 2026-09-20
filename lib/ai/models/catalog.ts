@@ -1,20 +1,22 @@
 /**
  * StudentAI AI Model Catalog & Verification
  * 
- * Verified active model catalog for Google, Groq, and OpenRouter as of September 2026.
+ * Verified active model catalog for Google, Groq, OpenRouter, Bytez, and Atria.
  * Supports dynamic configuration, admin custom models, and validation checks.
  */
+
+import { AIProviderName } from '../types';
 
 export interface ModelMetadata {
   id: string;
   name: string;
-  provider: 'google' | 'groq' | 'openrouter';
+  provider: AIProviderName;
   contextWindow: number;
   description: string;
   isDefault?: boolean;
 }
 
-export const SUPPORTED_MODELS: Record<'google' | 'groq' | 'openrouter', ModelMetadata[]> = {
+export const SUPPORTED_MODELS: Record<AIProviderName, ModelMetadata[]> = {
   google: [
     {
       id: 'gemini-2.5-flash',
@@ -101,18 +103,61 @@ export const SUPPORTED_MODELS: Record<'google' | 'groq' | 'openrouter', ModelMet
       description: 'Efficient open-weights instruction model from Google on OpenRouter.',
     },
   ],
+  bytez: [
+    {
+      id: 'meta-llama/Meta-Llama-3-8B-Instruct',
+      name: 'Meta Llama 3 8B Instruct (Bytez)',
+      provider: 'bytez',
+      contextWindow: 8192,
+      description: 'Fast, balanced open weights LLM served via Bytez API.',
+      isDefault: true,
+    },
+    {
+      id: 'mistralai/Mistral-7B-Instruct-v0.3',
+      name: 'Mistral 7B Instruct v0.3 (Bytez)',
+      provider: 'bytez',
+      contextWindow: 32768,
+      description: 'High-efficiency French and multilingual reasoning model hosted on Bytez.',
+    },
+    {
+      id: 'Qwen/Qwen2.5-7B-Instruct',
+      name: 'Qwen 2.5 7B Instruct (Bytez)',
+      provider: 'bytez',
+      contextWindow: 32768,
+      description: 'Leading competitive open-source code and math model on Bytez.',
+    },
+  ],
+  atria: [
+    {
+      id: 'Atria-Dawn-Preview',
+      name: 'Atria Dawn Preview',
+      provider: 'atria',
+      contextWindow: 32768,
+      description: 'Agentic reasoning and structured task decomposition model by Atria / Shanghai AI Lab.',
+      isDefault: true,
+    },
+    {
+      id: 'Atria-Dawn-Agent',
+      name: 'Atria Dawn Agent',
+      provider: 'atria',
+      contextWindow: 32768,
+      description: 'Tool-use and planning optimized agent model by Atria.',
+    },
+  ],
 };
 
-export const DEFAULT_MODELS: Record<'google' | 'groq' | 'openrouter', string> = {
+export const DEFAULT_MODELS: Record<AIProviderName, string> = {
   google: 'gemini-2.5-flash',
   groq: 'openai/gpt-oss-120b',
   openrouter: 'openrouter/free',
+  bytez: 'meta-llama/Meta-Llama-3-8B-Instruct',
+  atria: 'Atria-Dawn-Preview',
 };
 
 /**
  * Validates whether a given model identifier is recognized or syntactically valid for the provider.
  */
-export function validateModelId(provider: 'google' | 'groq' | 'openrouter', modelId: string): {
+export function validateModelId(provider: AIProviderName, modelId: string): {
   valid: boolean;
   isKnownCatalogModel: boolean;
   sanitizedId: string;
@@ -134,4 +179,3 @@ export function validateModelId(provider: 'google' | 'groq' | 'openrouter', mode
   const isValidFormat = !hasTraversal && /^[a-zA-Z0-9][a-zA-Z0-9_\-\.\:\/]*[a-zA-Z0-9]$/.test(trimmed) && trimmed.length >= 3;
   return { valid: isValidFormat, isKnownCatalogModel: false, sanitizedId: trimmed };
 }
-

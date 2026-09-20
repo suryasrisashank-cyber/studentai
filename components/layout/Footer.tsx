@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Sparkles, ShieldCheck, Heart } from 'lucide-react';
+import { CookiePreferencesButton } from '../privacy/CookiePreferencesButton';
 
 export function Footer() {
   return (
@@ -108,6 +109,9 @@ export function Footer() {
                 <Link href="/terms" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                   Terms of Service
                 </Link>
+              </li>
+              <li>
+                <CookiePreferencesButton />
               </li>
             </ul>
           </div>

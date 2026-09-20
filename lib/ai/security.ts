@@ -111,10 +111,13 @@ export function validateAIRequest(body: unknown): ValidationResult {
 export function sanitizeAIOutput(text: string): string {
   if (!text) return '';
 
-  // Redact potential API key formats (Google, Groq, OpenRouter, generic hex/base64 tokens)
   return text
     .replace(/gsk_[a-zA-Z0-9_-]{20,}/g, '[REDACTED_API_KEY]')
     .replace(/sk-or-v1-[a-zA-Z0-9_-]{20,}/g, '[REDACTED_API_KEY]')
     .replace(/AIza[0-9A-Za-z-_]{35}/g, '[REDACTED_API_KEY]')
-    .replace(/AQ\.[a-zA-Z0-9_-]{30,}/g, '[REDACTED_API_KEY]');
+    .replace(/AQ\.[a-zA-Z0-9_-]{30,}/g, '[REDACTED_API_KEY]')
+    .replace(/bytez_[a-zA-Z0-9_-]{16,}/gi, '[REDACTED_API_KEY]')
+    .replace(/atria_[a-zA-Z0-9_-]{16,}/gi, '[REDACTED_API_KEY]')
+    .replace(/sk-[a-zA-Z0-9_-]{24,}/g, '[REDACTED_API_KEY]')
+    .replace(/Bearer\s+[a-zA-Z0-9_\-\.]{20,}/gi, 'Bearer [REDACTED_TOKEN]');
 }

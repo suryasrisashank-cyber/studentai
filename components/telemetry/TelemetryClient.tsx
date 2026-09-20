@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { hasConsent, CONSENT_UPDATED_EVENT, ConsentPreferences } from '@/lib/privacy/consent';
 
 const SESSION_STORAGE_KEY = 'studentai:anonymous_session_id';
 
@@ -29,9 +30,29 @@ function getCoarseDevice(): 'mobile' | 'tablet' | 'desktop' {
 export function TelemetryClient() {
   const pathname = usePathname();
   const lastToolRecorded = useRef<string | null>(null);
+  const [canTrack, setCanTrack] = useState<boolean>(false);
 
-  // Send anonymous heartbeat every 3 minutes
   useEffect(() => {
+    // Initial consent check
+    setCanTrack(hasConsent('analytics'));
+
+    const onConsentChanged = (e: Event) => {
+      const custom = e as CustomEvent<ConsentPreferences>;
+      if (custom.detail) {
+        setCanTrack(Boolean(custom.detail.analytics));
+      } else {
+        setCanTrack(hasConsent('analytics'));
+      }
+    };
+
+    window.addEventListener(CONSENT_UPDATED_EVENT, onConsentChanged);
+    return () => window.removeEventListener(CONSENT_UPDATED_EVENT, onConsentChanged);
+  }, []);
+
+  // Send anonymous heartbeat every 3 minutes if analytics consent granted
+  useEffect(() => {
+    if (!canTrack) return;
+
     const sessionId = getOrGenerateSessionId();
     const deviceCategory = getCoarseDevice();
 
@@ -52,10 +73,11 @@ export function TelemetryClient() {
     sendHeartbeat();
     const interval = setInterval(sendHeartbeat, 3 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [canTrack]);
 
-  // Track tool usage if on a tool page (slug only, never tool inputs or text)
+  // Track tool usage if on a tool page and analytics consent granted
   useEffect(() => {
+    if (!canTrack) return;
     if (!pathname?.startsWith('/tools/')) return;
 
     const parts = pathname.split('/');
@@ -78,7 +100,8 @@ export function TelemetryClient() {
         }),
       }).catch(() => {});
     } catch {}
-  }, [pathname]);
+  }, [pathname, canTrack]);
 
   return null;
 }
+

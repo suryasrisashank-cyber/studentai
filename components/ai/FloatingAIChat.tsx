@@ -105,7 +105,7 @@ export function FloatingAIChat() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data?.error || 'StudentAI Assistant encountered an issue.');
+        throw new Error(data?.error?.message || data?.error || 'StudentAI Assistant encountered an issue.');
       }
 
       setMessages((prev) => [...prev, { role: 'assistant', content: data.text }]);

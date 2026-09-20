@@ -44,16 +44,46 @@ export interface GenerationOptions {
   timeoutMs?: number;
 }
 
+export type AIProviderName = 'google' | 'groq' | 'openrouter' | 'bytez' | 'atria';
+
+export type AIProviderStatus =
+  | 'CONFIGURED'
+  | 'AVAILABLE'
+  | 'OPERATIONAL'
+  | 'DISABLED'
+  | 'NOT_CONFIGURED';
+
+export type AIErrorCode =
+  | 'AI_DISABLED'
+  | 'AI_AUTH_REQUIRED'
+  | 'AI_QUOTA_EXCEEDED'
+  | 'AI_RATE_LIMITED'
+  | 'AI_PROVIDER_UNAVAILABLE'
+  | 'AI_MODEL_UNAVAILABLE'
+  | 'AI_TIMEOUT'
+  | 'AI_INVALID_REQUEST'
+  | 'AI_CONTEXT_TOO_LARGE'
+  | 'AI_FILE_TOO_LARGE'
+  | 'AI_INTERNAL_ERROR';
+
 export interface AISiteSettings {
   enabled: boolean;
-  primaryProvider: 'google' | 'groq' | 'openrouter';
-  secondaryProvider: 'google' | 'groq' | 'openrouter';
-  tertiaryProvider: 'google' | 'groq' | 'openrouter';
+  globalKillSwitch?: boolean;
+  primaryProvider: AIProviderName;
+  secondaryProvider: AIProviderName;
+  tertiaryProvider: AIProviderName;
+  providerPriority?: AIProviderName[];
   googleModel: string;
   groqModel: string;
   openrouterModel: string;
+  bytezModel?: string;
+  atriaModel?: string;
   retrievalEnabled: boolean;
   maxOutputTokens: number;
+  providerTimeouts?: Partial<Record<AIProviderName, number>>;
+  providerTokenLimits?: Partial<Record<AIProviderName, number>>;
+  rateLimitPerMinute?: number;
+  dailyQuotaPerIp?: number;
 }
 
 export interface AdminAITestResult {
@@ -65,11 +95,13 @@ export interface AdminAITestResult {
   retrievalUsed: boolean;
   sourcesCount: number;
   error?: string;
+  statusState?: AIProviderStatus;
 }
 
 export interface AIProvider {
-  name: string;
+  name: AIProviderName;
   isConfigured(): boolean;
+  getStatus?(model?: string): { status: AIProviderStatus; message?: string };
   generate(
     messages: ChatMessage[],
     systemPrompt: string,
@@ -95,4 +127,13 @@ export class ProviderError extends Error {
     this.category = `${provider.toUpperCase()}_${category}`;
     this.statusCode = statusCode;
   }
+}
+
+export interface StandardAIErrorResponse {
+  error: {
+    code: AIErrorCode;
+    message: string;
+    status: number;
+    details?: string;
+  };
 }

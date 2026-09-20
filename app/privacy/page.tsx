@@ -1,6 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { ShieldCheck, Lock, Database, Info, HardDrive, Bot, BarChart3, Clock } from 'lucide-react';
+import { CookiePreferencesButton } from '@/components/privacy/CookiePreferencesButton';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — Transparent Data & Telemetry Handling',
@@ -24,7 +25,7 @@ export default function PrivacyPage() {
         </p>
       </div>
 
-      <div className="p-5 rounded-3xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/80 text-xs sm:text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed space-y-2">
+      <div className="p-5 rounded-3xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/80 text-xs sm:text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed space-y-3">
         <p className="font-bold text-sm">Our Privacy Commitments at a Glance:</p>
         <p>
           &bull; <strong>Private Tool Content:</strong> Grades, calculations, attendance records, study notes, todo tasks, and uploaded resume text remain strictly on your local device. We never store your academic inputs on our server.
@@ -35,6 +36,9 @@ export default function PrivacyPage() {
         <p>
           &bull; <strong>No Commercial Tracking:</strong> We do not use third-party advertising trackers, sell user profiles, or collect personal identifiers from public students.
         </p>
+        <div className="pt-2">
+          <CookiePreferencesButton variant="button" />
+        </div>
       </div>
 
       <div className="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-6 text-sm sm:text-base leading-relaxed">

@@ -3,12 +3,26 @@ import { validateAIRequest } from '@/lib/ai/security';
 import { checkRateLimit } from '@/lib/ai/rate-limit';
 import { buildSystemPrompt } from '@/lib/ai/prompts';
 import { aiRouter } from '@/lib/ai/router';
-import { ChatMessage, SourceCitation } from '@/lib/ai/types';
+import { ChatMessage, SourceCitation, AIErrorCode } from '@/lib/ai/types';
 import { analyzeUserQuery } from '@/lib/ai/retrieval/freshness';
 import { retrieveCurrentData } from '@/lib/ai/retrieval/search';
 import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
+
+function formatErrorResponse(code: AIErrorCode, message: string, status: number, details?: string) {
+  return NextResponse.json(
+    {
+      error: {
+        code,
+        message,
+        status,
+        ...(details ? { details } : {}),
+      },
+    },
+    { status, headers: { 'Cache-Control': 'no-store, no-cache' } }
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,34 +33,29 @@ export async function POST(req: NextRequest) {
     ]);
     const aiSettings = await aiRouter.getEffectiveSettings();
 
-
     if (maintenance.enabled) {
-      return NextResponse.json(
-        {
-          error:
-            maintenance.message ||
-            'StudentAI Assistant is temporarily unavailable due to scheduled platform maintenance. Please check back shortly.',
-        },
-        { status: 503, headers: { 'Cache-Control': 'no-store' } }
+      return formatErrorResponse(
+        'AI_DISABLED',
+        maintenance.message || 'StudentAI Assistant is temporarily unavailable due to scheduled platform maintenance. Please check back shortly.',
+        503
       );
     }
 
-    if (!aiSettings.enabled) {
-      return NextResponse.json(
-        {
-          error:
-            'The AI Assistant has been temporarily paused by the administrator. Please check back shortly or explore our 20 client-side tools.',
-        },
-        { status: 503, headers: { 'Cache-Control': 'no-store' } }
+    if (!aiSettings.enabled || aiSettings.globalKillSwitch) {
+      return formatErrorResponse(
+        'AI_DISABLED',
+        'The AI Assistant has been temporarily paused by the administrator. Please check back shortly or explore our client-side tools.',
+        503
       );
     }
 
     // 1. Content-Type Validation
     const contentType = req.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
-      return NextResponse.json(
-        { error: 'Invalid Content-Type. Expected application/json.' },
-        { status: 415 }
+      return formatErrorResponse(
+        'AI_INVALID_REQUEST',
+        'Invalid Content-Type. Expected application/json.',
+        415
       );
     }
 
@@ -59,8 +68,12 @@ export async function POST(req: NextRequest) {
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
-          error: "You're sending messages too quickly. Please wait a moment and try again.",
-          retryAfter: rateLimit.retryAfterSeconds,
+          error: {
+            code: 'AI_RATE_LIMITED' as AIErrorCode,
+            message: "You're sending messages too quickly. Please wait a moment and try again.",
+            status: 429,
+            retryAfter: rateLimit.retryAfterSeconds,
+          },
         },
         {
           status: 429,
@@ -77,17 +90,22 @@ export async function POST(req: NextRequest) {
     try {
       rawBody = await req.json();
     } catch {
-      return NextResponse.json(
-        { error: 'Malformed JSON payload in request.' },
-        { status: 400 }
+      return formatErrorResponse(
+        'AI_INVALID_REQUEST',
+        'Malformed JSON payload in request.',
+        400
       );
     }
 
     const validation = validateAIRequest(rawBody);
     if (!validation.valid || !validation.sanitizedRequest) {
-      return NextResponse.json(
-        { error: validation.error || 'Invalid request parameters.' },
-        { status: 400 }
+      const code: AIErrorCode = validation.error?.toLowerCase().includes('length') || validation.error?.toLowerCase().includes('large')
+        ? 'AI_CONTEXT_TOO_LARGE'
+        : 'AI_INVALID_REQUEST';
+      return formatErrorResponse(
+        code,
+        validation.error || 'Invalid request parameters.',
+        400
       );
     }
 
@@ -164,8 +182,11 @@ export async function POST(req: NextRequest) {
               err instanceof Error
                 ? err.message
                 : 'StudentAI Assistant encountered an issue processing your stream.';
+            const isTimeout = errorMsg.toLowerCase().includes('timeout');
+            const code: AIErrorCode = isTimeout ? 'AI_TIMEOUT' : 'AI_PROVIDER_UNAVAILABLE';
             const errorEvent = `data: ${JSON.stringify({
               type: 'error',
+              code,
               error: errorMsg,
             })}\n\n`;
             controller.enqueue(encoder.encode(errorEvent));
@@ -179,6 +200,7 @@ export async function POST(req: NextRequest) {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache, no-transform',
           Connection: 'keep-alive',
+          'X-Accel-Buffering': 'no',
         },
       });
     }
@@ -211,9 +233,15 @@ export async function POST(req: NextRequest) {
         ? err.message
         : 'StudentAI Assistant is temporarily unavailable. Please try again shortly.';
 
-    return NextResponse.json(
-      { error: message },
-      { status: 503, headers: { 'Cache-Control': 'no-store' } }
-    );
+    const isTimeout = message.toLowerCase().includes('timeout');
+    const isKillSwitch = message.startsWith('AI_DISABLED');
+    const code: AIErrorCode = isKillSwitch
+      ? 'AI_DISABLED'
+      : isTimeout
+      ? 'AI_TIMEOUT'
+      : 'AI_PROVIDER_UNAVAILABLE';
+
+    const status = isKillSwitch ? 503 : isTimeout ? 504 : 502;
+    return formatErrorResponse(code, message, status);
   }
 }

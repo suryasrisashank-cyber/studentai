@@ -1,11 +1,19 @@
-import { AIProvider, AIResponse, ChatMessage, GenerationOptions, ProviderError } from '../types';
+import { AIProvider, AIProviderName, AIProviderStatus, AIResponse, ChatMessage, GenerationOptions, ProviderError } from '../types';
 
 export class GroqAIProvider implements AIProvider {
-  name = 'groq';
+  name: AIProviderName = 'groq';
 
   isConfigured(): boolean {
     const key = process.env.GROQ_API_KEY?.trim();
     return Boolean(key && key.length > 0);
+  }
+
+  getStatus(model?: string): { status: AIProviderStatus; message?: string } {
+    if (!this.isConfigured()) {
+      return { status: 'NOT_CONFIGURED', message: 'GROQ_API_KEY is missing' };
+    }
+    const targetModel = (model || process.env.AI_GROQ_MODEL || 'openai/gpt-oss-120b').trim();
+    return { status: 'AVAILABLE', message: `Configured with model: ${targetModel}` };
   }
 
   async generate(

@@ -8,6 +8,7 @@ import { MobileToolsDrawer } from './MobileToolsDrawer';
 import { FloatingAIChat } from '../ai/FloatingAIChat';
 import { TelemetryClient } from '../telemetry/TelemetryClient';
 import { Footer } from './Footer';
+import { CookieConsentBanner } from '../privacy/CookieConsentBanner';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -37,6 +38,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Floating AI companion for quick questions */}
       <FloatingAIChat />
+
+      {/* Cookie / Privacy Consent Banner & Modal */}
+      <CookieConsentBanner />
 
       {/* Touch-friendly mobile tools drawer */}
       <MobileToolsDrawer
