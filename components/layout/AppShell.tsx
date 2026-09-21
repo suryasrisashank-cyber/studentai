@@ -33,14 +33,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const isHomePage = pathname === '/';
+
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#090d16] text-slate-900 dark:text-slate-100">
       <TelemetryClient />
       <Header onOpenMobileTools={() => setMobileDrawerOpen(true)} />
 
       <div className="flex-1 flex w-full">
-        {/* Persistent desktop tools sidebar */}
-        <ToolsSidebar />
+        {/* Persistent desktop tools sidebar for tool pages */}
+        {!isHomePage && <ToolsSidebar />}
 
         {/* Main page content area */}
         <main className="flex-1 min-w-0 w-full overflow-x-hidden">{children}</main>

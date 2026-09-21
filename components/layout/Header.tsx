@@ -164,6 +164,15 @@ export function Header({ onOpenMobileTools }: { onOpenMobileTools?: () => void }
 
               <ThemeToggle />
 
+              {/* Launch AI CTA */}
+              <Link
+                href="/ai"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-md shadow-indigo-600/30 transition-all"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
+                <span>Launch AI</span>
+              </Link>
+
               {/* Mobile Menu Button */}
               <button
                 type="button"
