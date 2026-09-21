@@ -514,6 +514,21 @@ export function StudentAIWorkspace({
               <div className="animate-in fade-in duration-300">
                 <StudentAIHero greeting={greeting} subtitle={subtitle} />
                 <StudentAIActionCards onSelectCard={(p) => handleSendMessage(p)} />
+
+                {/* Wireframe Divider: AI CONVERSATION */}
+                <div className="relative my-6 text-center select-none">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-800/80"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-[#050816] px-4 text-[11px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#6D5DFB]"></span>
+                      AI CONVERSATION
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]"></span>
+                    </span>
+                  </div>
+                </div>
+
                 <StudentAIPromptChips onSelectPrompt={(p) => handleSendMessage(p)} />
               </div>
             ) : (
@@ -536,6 +551,20 @@ export function StudentAIWorkspace({
                   >
                     + New Session
                   </button>
+                </div>
+
+                {/* Wireframe Divider: AI CONVERSATION */}
+                <div className="relative my-4 text-center select-none">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-800/80"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-[#050816] px-3.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#6D5DFB]"></span>
+                      AI CONVERSATION
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]"></span>
+                    </span>
+                  </div>
                 </div>
 
                 {/* Messages List */}

@@ -237,7 +237,7 @@ export default function HomePage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
-            <span>Next-Gen Academic AI SaaS 2.0 • Claude 3.5 & Gemini Inside</span>
+            <span>AI Assistant Central Intelligence • 20 Student Utilities • 40 PDF Tools</span>
             <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 text-[10px] font-bold">
               100% FREE
             </span>
@@ -263,16 +263,16 @@ export default function HomePage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-sm sm:text-base bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             >
               <Sparkles className="w-5 h-5 text-indigo-200" />
-              <span>Launch AI Workspace — Free</span>
+              <span>Launch AI Assistant — Free</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
 
             <Link
-              href="/pdf-tools"
+              href="/tools"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl font-semibold text-sm sm:text-base border border-slate-700 hover:border-slate-500 bg-slate-900/80 hover:bg-slate-800 text-slate-200 transition-all duration-200"
             >
               <FileText className="w-4 h-4 text-emerald-400" />
-              <span>Explore 60+ PDF & Study Tools</span>
+              <span>Explore 20 Student Utilities & 40 PDF Tools</span>
             </Link>
           </div>
 
@@ -718,7 +718,7 @@ export default function HomePage() {
                 <td className="p-4 sm:p-5 font-medium text-white">Integrated Student Utilities</td>
                 <td className="p-4 sm:p-5 text-emerald-400 font-semibold flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>60+ Free Calculators, Planners & PDF Tools</span>
+                  <span>20 Student Utilities + 40 PDF Tools</span>
                 </td>
                 <td className="p-4 sm:p-5 text-slate-500">Zero built-in calculation utilities</td>
               </tr>
@@ -745,10 +745,10 @@ export default function HomePage() {
               <span>Offline & Browser-Based</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">
-              60+ Free Student Productivity Utilities
+              20 Student Utilities
             </h2>
             <p className="mt-1 text-sm text-slate-400">
-              Calculators, PDF editors, career tools, and planners running 100% private in your browser.
+              Academic calculators, study planners, resume tools, and task trackers running 100% private in your browser.
             </p>
           </div>
 
@@ -756,7 +756,7 @@ export default function HomePage() {
             href="/tools"
             className="mt-4 md:mt-0 text-sm font-semibold text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1"
           >
-            <span>View all {TOOLS_REGISTRY.length} utilities</span>
+            <span>View all 20 student utilities</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

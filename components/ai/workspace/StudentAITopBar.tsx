@@ -104,39 +104,39 @@ export function StudentAITopBar({
     AVAILABLE_MODELS.find((m) => m.id === selectedModel) || AVAILABLE_MODELS[0];
 
   return (
-    <header className="sticky top-0 z-30 w-full h-14 px-4 sm:px-6 bg-[#050816]/90 backdrop-blur-md border-b border-slate-800/80 flex items-center justify-between">
-      {/* Left branding */}
-      <div className="flex items-center gap-3">
-        {/* Mobile Hamburger */}
+    <header className="sticky top-0 z-30 w-full h-14 px-3 sm:px-6 bg-[#050816]/95 backdrop-blur-md border-b border-slate-800/80 flex items-center justify-between">
+      {/* Left branding (Mobile: ☰ StudentAI) */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Mobile Hamburger (☰) */}
         <button
           type="button"
           onClick={onToggleMobileSidebar}
           aria-label="Open sidebar"
-          className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+          className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Sparkle Logo */}
+        {/* Sparkle Logo & StudentAI Brand */}
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#6D5DFB] to-[#3B82F6] flex items-center justify-center text-white shadow-sm shadow-[#6D5DFB]/40">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#6D5DFB] to-[#3B82F6] flex items-center justify-center text-white shadow-sm shadow-[#6D5DFB]/40 shrink-0">
             <Sparkles className="w-4 h-4" />
           </div>
-          <span className="font-bold text-base sm:text-lg tracking-tight text-white">
-            Student<span className="text-[#6D5DFB]">AI</span>
+          <span className="font-extrabold text-base sm:text-lg tracking-tight text-white">
+            Student<span className="text-[#8B5CF6]">AI</span>
           </span>
         </div>
 
-        {/* Study Workspace Badge */}
+        {/* Study Workspace Badge (Desktop only) */}
         <div className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#121936] text-[#A5B4FC] border border-[#6D5DFB]/30">
-          Study Workspace
+          Central Intelligence
         </div>
       </div>
 
-      {/* Right controls */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Model Selector Dropdown */}
-        <div className="relative">
+      {/* Right controls (Mobile: SS profile / Sign In) */}
+      <div className="flex items-center gap-1.5 sm:gap-3">
+        {/* Model Selector Dropdown (Hidden on tiny screens, prominent on tablet+) */}
+        <div className="relative hidden md:block">
           <button
             type="button"
             onClick={() => setModelDropdownOpen(!modelDropdownOpen)}
@@ -155,7 +155,7 @@ export function StudentAITopBar({
               />
               <div className="absolute right-0 mt-2 w-64 p-1.5 rounded-2xl bg-[#0B1128] border border-slate-700/80 shadow-2xl z-50 animate-in fade-in zoom-in-95">
                 <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
-                  Select AI Reasoning Engine
+                  Select AI Engine
                 </div>
                 <div className="py-1 space-y-1">
                   {AVAILABLE_MODELS.map((m) => {
@@ -192,12 +192,12 @@ export function StudentAITopBar({
           )}
         </div>
 
-        {/* Live Video AI Button (Lumeo Assistant) */}
+        {/* Live Video AI Button (Desktop) */}
         {onOpenVideoModal && (
           <button
             type="button"
             onClick={onOpenVideoModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-violet-600/25 to-indigo-600/25 hover:from-violet-600/40 hover:to-indigo-600/40 text-violet-200 border border-violet-500/40 transition-all shadow-sm group"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-violet-600/25 to-indigo-600/25 hover:from-violet-600/40 hover:to-indigo-600/40 text-violet-200 border border-violet-500/40 transition-all shadow-sm group"
             title="Open Lumeo Live Video & Voice Assistant"
           >
             <span className="relative flex h-2 w-2">
@@ -205,30 +205,30 @@ export function StudentAITopBar({
               <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
             </span>
             <Video className="w-3.5 h-3.5 text-violet-300 group-hover:scale-110 transition-transform" />
-            <span className="hidden sm:inline">Live AI</span>
+            <span>Live AI</span>
           </button>
         )}
 
-        {/* Document AI Suite Button */}
+        {/* Document AI Suite Button (Desktop) */}
         {onOpenDocModal && (
           <button
             type="button"
             onClick={onOpenDocModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-emerald-600/20 to-teal-600/20 hover:from-emerald-600/35 hover:to-teal-600/35 text-emerald-200 border border-emerald-500/30 transition-all shadow-sm group"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-emerald-600/20 to-teal-600/20 hover:from-emerald-600/35 hover:to-teal-600/35 text-emerald-200 border border-emerald-500/30 transition-all shadow-sm group"
             title="Open Document AI Suite (Summary, Study Guide, Translate, Chat)"
           >
             <FileText className="w-3.5 h-3.5 text-emerald-300 group-hover:scale-110 transition-transform" />
-            <span className="hidden sm:inline">PDF AI</span>
+            <span>PDF AI</span>
           </button>
         )}
 
-        {/* Share Button */}
+        {/* Share Button (Desktop) */}
         <button
           type="button"
           onClick={handleShare}
           aria-label="Share workspace"
           title={shareCopied ? 'Link copied!' : 'Share workspace'}
-          className="p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-colors relative"
+          className="hidden sm:flex p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-colors relative"
         >
           {shareCopied ? (
             <Check className="w-4 h-4 text-emerald-400" />
@@ -237,19 +237,19 @@ export function StudentAITopBar({
           )}
         </button>
 
-        {/* Theme Toggle */}
+        {/* Theme Toggle (Desktop) */}
         <button
           type="button"
           onClick={toggleTheme}
           aria-label="Toggle theme"
           title="Toggle theme"
-          className="p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+          className="hidden sm:flex p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
         >
           {theme === 'light' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
 
-        {/* Notifications Bell */}
-        <div className="relative">
+        {/* Notifications Bell (Desktop) */}
+        <div className="relative hidden sm:block">
           <button
             type="button"
             onClick={() => setNotificationOpen(!notificationOpen)}
@@ -274,9 +274,9 @@ export function StudentAITopBar({
                 </div>
                 <div className="py-2.5 space-y-2 text-xs text-slate-300">
                   <div className="p-2 rounded-xl bg-[#121A3B] border border-slate-800">
-                    <p className="font-semibold text-white">Welcome to StudentAI Pro!</p>
+                    <p className="font-semibold text-white">StudentAI Central Intelligence Active</p>
                     <p className="text-[11px] text-slate-400 mt-0.5">
-                      Updated Gemini 3.6 Flash & Groq LPU reasoning pipelines active.
+                      20 Student Utilities + 40 PDF Tools ready for 1-click execution.
                     </p>
                   </div>
                 </div>
@@ -285,7 +285,7 @@ export function StudentAITopBar({
           )}
         </div>
 
-        {/* User Profile Avatar / Sign In */}
+        {/* User Profile Avatar / Sign In (Mobile & Desktop: SS) */}
         {isLoggedIn ? (
           <div className="relative">
             <button

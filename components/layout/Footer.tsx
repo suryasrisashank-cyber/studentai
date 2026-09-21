@@ -76,18 +76,23 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
               <li>
-                <Link href="/pdf-tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-semibold text-purple-600 dark:text-purple-400">
-                  PDF Tools (33 Utilities)
+                <Link href="/ai" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-semibold text-indigo-600 dark:text-indigo-400">
+                  AI Assistant (Central Intelligence)
                 </Link>
               </li>
               <li>
-                <Link href="/ai" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium text-indigo-600 dark:text-indigo-400">
-                  AI Assistant
+                <Link href="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium text-slate-700 dark:text-slate-300">
+                  20 Student Utilities
+                </Link>
+              </li>
+              <li>
+                <Link href="/pdf-tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-semibold text-purple-600 dark:text-purple-400">
+                  40 PDF Tools
                 </Link>
               </li>
               <li>
                 <Link href="/tools" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                  Browse All Tools
+                  Browse All Utilities
                 </Link>
               </li>
               <li>

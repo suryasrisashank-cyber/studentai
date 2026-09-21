@@ -46,11 +46,16 @@ export default function ToolsDirectoryPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
       <div className="text-center max-w-3xl mx-auto mb-10">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 mb-3">
+          <span>20 Student Utilities</span>
+          <span>•</span>
+          <span>Integrated with AI Assistant</span>
+        </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-          All Student Utilities
+          20 Student Utilities
         </h1>
         <p className="mt-3 text-base text-slate-600 dark:text-slate-400">
-          Browse our suite of {TOOLS_REGISTRY.length} free, client-side tools. No account required.
+          Browse our suite of 20 free, client-side academic tools and calculators. No account required, 100% private.
         </p>
       </div>
 

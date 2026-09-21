@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import {
   GraduationCap,
   Plus,
@@ -26,8 +27,17 @@ import {
   ClipboardList,
   Sparkles,
   Download,
+  Wrench,
+  FileText,
+  Layers,
+  CalendarCheck,
+  Briefcase,
+  LogIn,
+  LogOut,
+  ExternalLink,
 } from 'lucide-react';
 import { Conversation } from './types';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface StudentAISidebarProps {
   conversations: Conversation[];
@@ -78,6 +88,24 @@ const SUBJECTS = [
   },
 ];
 
+const FEATURED_STUDENT_TOOLS = [
+  { name: 'B.Tech CGPA Calculator', href: '/tools/cgpa-calculator', icon: GraduationCap },
+  { name: 'Attendance & Bunk Planner', href: '/tools/attendance-calculator', icon: CalendarCheck },
+  { name: 'Semester Study Planner', href: '/tools/study-planner', icon: BookOpen },
+  { name: 'Pomodoro Focus Timer', href: '/tools/pomodoro-timer', icon: Clock },
+  { name: 'Resume Keyword Checker', href: '/tools/resume-keyword-checker', icon: Briefcase },
+  { name: 'Notes & Markdown Editor', href: '/tools/notes-editor', icon: FileText },
+];
+
+const FEATURED_PDF_TOOLS = [
+  { name: 'Merge PDF Files', href: '/pdf-tools/merge-pdf', icon: Layers },
+  { name: 'Split & Extract Pages', href: '/pdf-tools/split-pdf', icon: FileText },
+  { name: 'Compress PDF Size', href: '/pdf-tools/compress-pdf', icon: Sparkles },
+  { name: 'OCR & PDF Scanner', href: '/pdf-tools/ocr-pdf', icon: Search },
+  { name: 'Edit & Annotate PDF', href: '/pdf-tools/edit-pdf', icon: Edit2 },
+  { name: 'Protect & Encrypt', href: '/pdf-tools/protect-pdf', icon: Shield },
+];
+
 const EDUCATOR_TOOLS = [
   {
     id: 'lesson-plans',
@@ -116,15 +144,24 @@ export function StudentAISidebar({
   onSelectEducatorTool,
   onExportAll,
   onClearAll,
-  userInitial = 'SS',
-  userName = 'Sashank',
-  userRole = 'B.Tech Final Year',
+  userInitial: propInitial = 'SS',
+  userName: propName = 'Sashank',
+  userRole: propRole = 'B.Tech Final Year',
 }: StudentAISidebarProps) {
+  const { user, signOut, openAuthModal } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [toolsExpanded, setToolsExpanded] = useState(false);
+  const [pdfToolsExpanded, setPdfToolsExpanded] = useState(false);
   const [educatorExpanded, setEducatorExpanded] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  // Compute user presentation
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || propName;
+  const displayEmail = user?.email;
+  const userInitial = (user?.email?.[0] || displayName?.[0] || propInitial).toUpperCase();
+  const userRole = user ? 'Supabase Verified Student' : propRole;
 
   // Filter conversations
   const filteredConversations = useMemo(() => {
@@ -151,9 +188,9 @@ export function StudentAISidebar({
       aria-label="StudentAI Sidebar Navigation"
       className="w-64 sm:w-72 lg:w-[270px] shrink-0 h-full bg-[#050816] border-r border-slate-800/80 flex flex-col justify-between select-none overflow-hidden"
     >
-      {/* Top Section */}
+      {/* Scrollable Section */}
       <div className="flex-1 flex flex-col min-h-0 overflow-y-auto scrollbar-none p-3.5 space-y-4">
-        {/* Brand Header */}
+        {/* 1. Brand Header */}
         <div className="flex items-center gap-3 px-1 pt-1">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6D5DFB] to-[#3B82F6] flex items-center justify-center text-white shadow-md shadow-[#6D5DFB]/30 shrink-0">
             <GraduationCap className="w-5 h-5" />
@@ -168,7 +205,7 @@ export function StudentAISidebar({
           </div>
         </div>
 
-        {/* New Chat Button */}
+        {/* 2. + New Chat Button */}
         <button
           type="button"
           onClick={onCreateNewChat}
@@ -199,21 +236,19 @@ export function StudentAISidebar({
           )}
         </div>
 
-        {/* Recent Chats Section */}
+        {/* 3. Recent Chats Section */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between px-2 text-xs font-semibold text-slate-400">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-slate-500" />
               <span>Recent Chats</span>
             </div>
-            {conversations.length > 5 && (
-              <span className="text-[10px] text-[#8B5CF6] hover:underline cursor-pointer">
-                View all &rarr;
-              </span>
-            )}
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 font-mono">
+              {conversations.length}
+            </span>
           </div>
 
-          <div className="space-y-1 max-h-56 overflow-y-auto scrollbar-none pr-0.5">
+          <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-none pr-0.5">
             {filteredConversations.length === 0 ? (
               <div className="text-center py-4 text-[11px] text-slate-500">
                 {searchQuery ? 'No chats match search.' : 'No previous conversations.'}
@@ -308,7 +343,7 @@ export function StudentAISidebar({
           </div>
         </div>
 
-        {/* Subjects Section */}
+        {/* 4. Subjects Section */}
         <div className="space-y-1 pt-1 border-t border-slate-800/80">
           <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             Subjects
@@ -334,7 +369,105 @@ export function StudentAISidebar({
           </div>
         </div>
 
-        {/* Educator Workspace Section */}
+        {/* 5. Tools (20 Student Utilities) */}
+        <div className="pt-1 border-t border-slate-800/80">
+          <button
+            type="button"
+            onClick={() => setToolsExpanded(!toolsExpanded)}
+            className="w-full p-2 rounded-xl hover:bg-[#0E1533] transition-colors flex items-center justify-between text-left group"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <Wrench className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="text-xs font-bold text-white">Tools</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">
+                  20 Utilities
+                </span>
+              </div>
+            </div>
+            {toolsExpanded ? (
+              <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            )}
+          </button>
+
+          {toolsExpanded && (
+            <div className="mt-1 space-y-0.5 pl-2 animate-in fade-in slide-in-from-top-1 duration-150">
+              {FEATURED_STUDENT_TOOLS.map((tool) => {
+                const Icon = tool.icon;
+                return (
+                  <Link
+                    key={tool.href}
+                    href={tool.href}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] text-slate-300 hover:text-white hover:bg-[#121C42] transition-colors"
+                  >
+                    <Icon className="w-3 h-3 text-indigo-400 shrink-0" />
+                    <span className="truncate">{tool.name}</span>
+                  </Link>
+                );
+              })}
+              <Link
+                href="/tools"
+                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 hover:bg-[#121C42] transition-colors pt-1"
+              >
+                <span>All 20 Student Utilities</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* 6. PDF Tools (40 PDF Tools) */}
+        <div className="pt-1 border-t border-slate-800/80">
+          <button
+            type="button"
+            onClick={() => setPdfToolsExpanded(!pdfToolsExpanded)}
+            className="w-full p-2 rounded-xl hover:bg-[#0E1533] transition-colors flex items-center justify-between text-left group"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="text-xs font-bold text-white">PDF Tools</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                  40 Tools
+                </span>
+              </div>
+            </div>
+            {pdfToolsExpanded ? (
+              <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            )}
+          </button>
+
+          {pdfToolsExpanded && (
+            <div className="mt-1 space-y-0.5 pl-2 animate-in fade-in slide-in-from-top-1 duration-150">
+              {FEATURED_PDF_TOOLS.map((tool) => {
+                const Icon = tool.icon;
+                return (
+                  <Link
+                    key={tool.href}
+                    href={tool.href}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] text-slate-300 hover:text-white hover:bg-[#121C42] transition-colors"
+                  >
+                    <Icon className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <span className="truncate">{tool.name}</span>
+                  </Link>
+                );
+              })}
+              <Link
+                href="/pdf-tools"
+                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 hover:bg-[#121C42] transition-colors pt-1"
+              >
+                <span>All 40 PDF Tools</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* 7. Educator Workspace Section */}
         <div className="pt-1 border-t border-slate-800/80">
           <button
             type="button"
@@ -348,7 +481,7 @@ export function StudentAISidebar({
                   Educator Workspace
                 </div>
                 <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">
-                  Create lessons, track progress, manage classes
+                  Lesson plans, questions, quizzes
                 </div>
               </div>
             </div>
@@ -380,7 +513,7 @@ export function StudentAISidebar({
         </div>
       </div>
 
-      {/* Bottom Profile Area */}
+      {/* 8. Bottom Profile / Supabase Auth Area */}
       <div className="p-3 border-t border-slate-800/80 bg-[#060A1C] relative">
         <button
           type="button"
@@ -392,11 +525,19 @@ export function StudentAISidebar({
               {userInitial}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold text-white truncate">{userName}</div>
-              <div className="text-[10px] text-slate-400 truncate">{userRole}</div>
+              <div className="text-xs font-bold text-white truncate">{displayName}</div>
+              <div className="text-[10px] text-slate-400 truncate">
+                {user ? (
+                  <span className="text-emerald-400 font-medium">Supabase Synced</span>
+                ) : (
+                  userRole
+                )}
+              </div>
             </div>
           </div>
-          <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform ${profileMenuOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-slate-500 transition-transform ${profileMenuOpen ? 'rotate-180' : ''}`}
+          />
         </button>
 
         {/* Profile Options Popup */}
@@ -406,11 +547,33 @@ export function StudentAISidebar({
               className="fixed inset-0 z-40"
               onClick={() => setProfileMenuOpen(false)}
             />
-            <div className="absolute bottom-16 left-3 right-3 p-2 rounded-2xl bg-[#0B1128] border border-slate-700/80 shadow-2xl z-50 animate-in fade-in slide-in-from-bottom-2">
-              <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-slate-400 border-b border-slate-800">
-                Workspace Controls
+            <div className="absolute bottom-16 left-3 right-3 p-2.5 rounded-2xl bg-[#0B1128] border border-slate-700/80 shadow-2xl z-50 animate-in fade-in slide-in-from-bottom-2">
+              <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-slate-400 border-b border-slate-800 flex items-center justify-between">
+                <span>Account & Controls</span>
+                {user ? (
+                  <span className="text-emerald-400 font-normal lowercase truncate max-w-[120px]">
+                    {displayEmail}
+                  </span>
+                ) : (
+                  <span className="text-amber-400 font-normal">Guest Session</span>
+                )}
               </div>
+
               <div className="py-1 space-y-0.5 text-xs text-slate-300">
+                {!user ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileMenuOpen(false);
+                      openAuthModal();
+                    }}
+                    className="w-full text-left px-2.5 py-2 rounded-lg bg-gradient-to-r from-indigo-600/30 to-purple-600/30 hover:from-indigo-600/50 hover:to-purple-600/50 text-indigo-200 border border-indigo-500/40 flex items-center gap-2 transition-all font-semibold my-1"
+                  >
+                    <LogIn className="w-3.5 h-3.5 text-indigo-300" />
+                    <span>Sign In with Supabase</span>
+                  </button>
+                ) : null}
+
                 <button
                   type="button"
                   onClick={() => {
@@ -422,6 +585,7 @@ export function StudentAISidebar({
                   <Download className="w-3.5 h-3.5 text-slate-400" />
                   <span>Export Chat History</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -433,6 +597,20 @@ export function StudentAISidebar({
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Clear All Conversations</span>
                 </button>
+
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileMenuOpen(false);
+                      signOut();
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-rose-950/40 text-rose-400 hover:text-rose-300 flex items-center gap-2 transition-colors border-t border-slate-800/80 mt-1 pt-1"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out</span>
+                  </button>
+                ) : null}
               </div>
             </div>
           </>

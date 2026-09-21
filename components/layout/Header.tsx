@@ -61,14 +61,9 @@ export function Header({ onOpenMobileTools }: { onOpenMobileTools?: () => void }
   };
 
   const navLinks = [
-    { href: '/tools', label: 'All Tools' },
-    { href: '/pdf-tools', label: 'PDF Tools', icon: FileText },
     { href: '/ai', label: 'AI Assistant', icon: Bot },
-    { href: '/tools?category=student', label: 'Student', icon: GraduationCap },
-    { href: '/tools?category=study', label: 'Study', icon: BookOpen },
-    { href: '/tools?category=career', label: 'Career', icon: Briefcase },
-    { href: '/tools?category=productivity', label: 'Productivity', icon: CheckSquare },
-    { href: '/tools?category=everyday', label: 'Everyday', icon: Wrench },
+    { href: '/tools', label: '20 Student Utilities', icon: GraduationCap },
+    { href: '/pdf-tools', label: '40 PDF Tools', icon: FileText },
     { href: '/about', label: 'About' },
   ];
 

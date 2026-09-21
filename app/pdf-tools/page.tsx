@@ -349,11 +349,16 @@ export default function PdfToolsHubPage() {
       {/* ── Main Hero Section (Image 2) ─────────────────────────────── */}
       <div className="max-w-7xl mx-auto space-y-5 pt-2">
         <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mb-2">
+            <span>40 PDF Tools</span>
+            <span>•</span>
+            <span>Connected to StudentAI Central Intelligence</span>
+          </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
             StudentAI PDF
           </h1>
           <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-3xl leading-relaxed">
-            Your locally hosted one-stop-shop for all your PDF needs. 100% private, client-side, and free.
+            40 high-performance, client-side PDF utilities. Organize, convert, optimize, edit, secure, and chat with documents with 100% browser-based privacy.
           </p>
         </div>
 
