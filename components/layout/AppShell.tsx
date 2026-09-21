@@ -21,6 +21,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  // If navigating /ai, isolate into dedicated full-viewport educational AI workspace
+  const isAiRoute = pathname === '/ai' || pathname?.startsWith('/ai');
+  if (isAiRoute) {
+    return (
+      <div className="min-h-[100dvh] h-[100dvh] flex flex-col bg-[#050816] text-[#F8FAFC] overflow-hidden">
+        <TelemetryClient />
+        <main className="flex-1 min-w-0 w-full h-full overflow-hidden flex flex-col">{children}</main>
+        <CookieConsentBanner />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#090d16] text-slate-900 dark:text-slate-100">
       <TelemetryClient />

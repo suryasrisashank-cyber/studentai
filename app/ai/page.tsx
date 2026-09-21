@@ -61,19 +61,8 @@ export default async function AIPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="mb-4 flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
-        <Link href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-          Home
-        </Link>
-        <ChevronRight className="w-4 h-4 text-slate-400" />
-        <span className="text-slate-900 dark:text-slate-200 font-medium">
-          AI Assistant
-        </span>
-      </nav>
-
-      {/* Main Interactive Chat Interface */}
+    <div className="w-full h-full min-h-[100dvh] flex flex-col bg-[#050816] overflow-hidden">
+      {/* Main Interactive Study Workspace */}
       <StudentAIChat greeting={aiWelcome.greeting} subtitle={aiWelcome.subtitle} />
     </div>
   );

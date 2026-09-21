@@ -11,6 +11,20 @@
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --text-muted: #64748b;
+
+    /* StudentAI Premium Workspace Tokens */
+    --studentai-bg: #050816;
+    --studentai-bg-secondary: #080D22;
+    --studentai-card: rgba(17, 25, 55, 0.72);
+    --studentai-glass: rgba(255, 255, 255, 0.045);
+    --studentai-border: rgba(148, 163, 184, 0.16);
+    --studentai-purple: #6D5DFB;
+    --studentai-purple-light: #8B5CF6;
+    --studentai-blue: #3B82F6;
+    --studentai-cyan: #22D3EE;
+    --studentai-text: #F8FAFC;
+    --studentai-text-secondary: #CBD5E1;
+    --studentai-text-muted: #94A3B8;
   }
 
   .dark {
@@ -34,6 +48,36 @@
     outline: 2px solid #6366f1;
     outline-offset: 2px;
   }
+}
+
+/* StudentAI Glass & Gradient Utilities */
+.studentai-glass-card {
+  background: rgba(17, 25, 55, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.studentai-glass-elevated {
+  background: rgba(22, 33, 72, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(109, 93, 251, 0.28);
+}
+
+.studentai-gradient-primary {
+  background: linear-gradient(135deg, #6D5DFB 0%, #8B5CF6 45%, #3B82F6 100%);
+}
+
+.studentai-gradient-text {
+  background: linear-gradient(135deg, #6D5DFB 0%, #8B5CF6 45%, #3B82F6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.studentai-user-bubble {
+  background: linear-gradient(135deg, #6D5DFB 0%, #3B82F6 100%);
+  color: #FFFFFF;
 }
 
 /* Custom scrollbars */
