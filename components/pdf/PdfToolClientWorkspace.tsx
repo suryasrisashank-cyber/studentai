@@ -16,6 +16,7 @@ import { PdfAiPanel } from './PdfAiPanel';
 import { JpgToPdfWorkspace } from './JpgToPdfWorkspace';
 import { PdfToJpgWorkspace } from './PdfToJpgWorkspace';
 import { MergePdfWorkspace } from './MergePdfWorkspace';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 import { downloadUint8Array, readFileAsArrayBuffer, readFileAsDataUrl } from '@/lib/pdf/utils';
 import { loadPdf } from '@/lib/pdf/core/load';
@@ -53,6 +54,7 @@ import { comparePdfs, PdfComparisonResult } from '@/lib/pdf/security/compare';
 import { runPdfOcr } from '@/lib/pdf/ocr/recognize';
 
 export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
+  const { user, requireAiAccess, getAccessToken } = useAuth();
   const canonicalSlug = SLUG_ALIASES[tool.slug] || tool.slug;
 
   const [files, setFiles] = useState<File[]>([]);
@@ -428,9 +430,22 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
               toolSlug={canonicalSlug}
               extractedText={extractedText}
               onRunAi={async (action, opts) => {
+                if (!user) {
+                  requireAiAccess(
+                    () => {},
+                    undefined,
+                    'Sign in to your StudentAI account to use AI-powered PDF analysis.'
+                  );
+                  throw new Error('Authentication required. Please sign in to run AI analysis.');
+                }
+                const token = await getAccessToken();
+                const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                if (token) {
+                  headers['Authorization'] = `Bearer ${token}`;
+                }
                 const res = await fetch('/api/ai/pdf', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers,
                   body: JSON.stringify({
                     action,
                     text: extractedText,
@@ -438,6 +453,10 @@ export function PdfToolClientWorkspace({ tool }: { tool: PdfToolDefinition }) {
                     targetLanguage: opts.targetLanguage,
                   }),
                 });
+                if (res.status === 401) {
+                  requireAiAccess(() => {}, undefined, 'Authentication required to use AI PDF features.');
+                  throw new Error('Authentication required. Please sign in to run AI analysis.');
+                }
                 const json = await res.json();
                 if (!res.ok) throw new Error(json.error || 'AI Analysis failed');
                 return json.text;

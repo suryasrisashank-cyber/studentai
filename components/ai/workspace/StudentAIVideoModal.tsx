@@ -18,6 +18,7 @@ import {
   Globe,
 } from 'lucide-react';
 import { ChatMessage } from '@/lib/ai/types';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface StudentAIVideoModalProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ export function StudentAIVideoModal({
   selectedModel = 'studentai-pro',
   systemPrompt,
 }: StudentAIVideoModalProps) {
+  const { user, requireAiAccess, getAccessToken } = useAuth();
   const [state, setState] = useState<AssistantState>('idle');
   const [isMicOn, setIsMicOn] = useState(true);
   const [isVideoOn, setIsVideoOn] = useState(false);
@@ -224,21 +226,47 @@ export function StudentAIVideoModal({
     const query = (queryText || transcript || manualInput).trim();
     if (!query) return;
 
+    if (!user) {
+      stopSpeech();
+      requireAiAccess(
+        () => handleSubmitQuestion(query),
+        query,
+        'Sign in to your StudentAI account to interact with the Live Video AI Assistant.'
+      );
+      return;
+    }
+
     setState('thinking');
     setTranscript('');
     setManualInput('');
     stopSpeech();
 
     try {
+      const token = await getAccessToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           message: query,
           mode: 'explain',
           stream: false,
         }),
       });
+
+      if (res.status === 401) {
+        setState('idle');
+        requireAiAccess(
+          () => handleSubmitQuestion(query),
+          query,
+          'Authentication required to use Live Video AI. Please sign in.'
+        );
+        return;
+      }
 
       if (!res.ok) {
         throw new Error('Could not complete audio reasoning.');

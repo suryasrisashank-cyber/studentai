@@ -24,6 +24,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { extractTextFromFile, ExtractedDocument } from '@/lib/pdf/extract-text';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export interface StudentAIDocumentModalProps {
   isOpen: boolean;
@@ -59,6 +60,7 @@ export function StudentAIDocumentModal({
   onClose,
   onSendToWorkspaceChat,
 }: StudentAIDocumentModalProps) {
+  const { user, requireAiAccess, getAccessToken } = useAuth();
   const [activeTab, setActiveTab] = useState<ToolTab>('summary');
   const [file, setFile] = useState<File | null>(null);
   const [docData, setDocData] = useState<ExtractedDocument | null>(null);
@@ -198,14 +200,25 @@ export function StudentAIDocumentModal({
     }
 
     // Standard Server AI Gateway (/api/ai/pdf)
+    const token = await getAccessToken();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const res = await fetch('/api/ai/pdf', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         ...payload,
         text: docData.text,
       }),
     });
+
+    if (res.status === 401) {
+      requireAiAccess(() => {}, undefined, 'Authentication required to use AI Document features. Please sign in.');
+      throw new Error('Authentication required. Please sign in to continue.');
+    }
 
     const data = await res.json();
     if (!res.ok) {
@@ -217,6 +230,14 @@ export function StudentAIDocumentModal({
   // Run Summary
   const handleRunSummary = async () => {
     if (!docData) return;
+    if (!user && !useLocalKey) {
+      requireAiAccess(
+        () => handleRunSummary(),
+        undefined,
+        'Sign in to your StudentAI account to generate AI summaries of your documents.'
+      );
+      return;
+    }
     setSummaryLoading(true);
     setError(null);
     try {
@@ -236,6 +257,14 @@ export function StudentAIDocumentModal({
   // Run Study Guide
   const handleRunStudyGuide = async () => {
     if (!docData) return;
+    if (!user && !useLocalKey) {
+      requireAiAccess(
+        () => handleRunStudyGuide(),
+        undefined,
+        'Sign in to your StudentAI account to create comprehensive AI study guides.'
+      );
+      return;
+    }
     setStudyLoading(true);
     setError(null);
     try {
@@ -256,6 +285,14 @@ export function StudentAIDocumentModal({
   // Run Translation
   const handleRunTranslate = async () => {
     if (!docData) return;
+    if (!user && !useLocalKey) {
+      requireAiAccess(
+        () => handleRunTranslate(),
+        undefined,
+        'Sign in to your StudentAI account to translate study documents with AI.'
+      );
+      return;
+    }
     setTranslateLoading(true);
     setError(null);
     try {
@@ -276,6 +313,16 @@ export function StudentAIDocumentModal({
   const handleSendChat = async () => {
     if (!docData || !chatInput.trim() || chatLoading) return;
     const question = chatInput.trim();
+
+    if (!user && !useLocalKey) {
+      requireAiAccess(
+        () => handleSendChat(),
+        question,
+        'Sign in to your StudentAI account to chat with your document using AI.'
+      );
+      return;
+    }
+
     setChatInput('');
     setError(null);
 

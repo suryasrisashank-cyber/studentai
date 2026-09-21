@@ -40,7 +40,7 @@ export function StudentAIWorkspace({
   greeting = 'Welcome to StudentAI',
   subtitle = 'Your intelligent study and teaching companion.',
 }: StudentAIWorkspaceProps) {
-  const { user, signOut, openAuthModal } = useAuth();
+  const { user, signOut, openAuthModal, requireAiAccess, getAccessToken } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string>('');
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -273,9 +273,43 @@ export function StudentAIWorkspace({
     }
   };
 
+  const handleOpenVideoModal = () => {
+    if (!user) {
+      requireAiAccess(
+        () => setVideoModalOpen(true),
+        undefined,
+        'Sign in to your StudentAI account to interact with the Live Video AI Assistant.'
+      );
+      return;
+    }
+    setVideoModalOpen(true);
+  };
+
+  const handleOpenDocModal = () => {
+    if (!user) {
+      requireAiAccess(
+        () => setDocModalOpen(true),
+        undefined,
+        'Sign in to your StudentAI account to use AI Document Summary, Study Guides, and Translation.'
+      );
+      return;
+    }
+    setDocModalOpen(true);
+  };
+
   const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
     if (!query || isLoading) return;
+
+    // Enforce Supabase Authentication before contacting AI Assistant
+    if (!user) {
+      requireAiAccess(
+        () => handleSendMessage(query),
+        query,
+        'Sign in to your StudentAI account to unlock AI answers, problem solving, and tutor guidance.'
+      );
+      return;
+    }
 
     setErrorMessage(null);
 
@@ -322,11 +356,17 @@ export function StudentAIWorkspace({
         content: m.content,
       }));
 
+      const token = await getAccessToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           message: query,
           history: historyPayload,
@@ -335,6 +375,29 @@ export function StudentAIWorkspace({
         }),
         signal: controller.signal,
       });
+
+      if (res.status === 401) {
+        setIsLoading(false);
+        setIsStreaming(false);
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id === activeId) {
+              return {
+                ...c,
+                messages: c.messages.filter((m) => m !== userMessage),
+              };
+            }
+            return c;
+          })
+        );
+        setInput(query);
+        requireAiAccess(
+          () => handleSendMessage(query),
+          query,
+          'Authentication required to use StudentAI AI features. Please sign in.'
+        );
+        return;
+      }
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
@@ -498,8 +561,8 @@ export function StudentAIWorkspace({
           userName={user?.email?.split('@')[0] || 'Student'}
           onSignOut={signOut}
           onOpenAuthModal={openAuthModal}
-          onOpenVideoModal={() => setVideoModalOpen(true)}
-          onOpenDocModal={() => setDocModalOpen(true)}
+          onOpenVideoModal={handleOpenVideoModal}
+          onOpenDocModal={handleOpenDocModal}
         />
 
         {/* Scrollable Center Content Area */}
@@ -654,8 +717,8 @@ export function StudentAIWorkspace({
           mode={currentMode}
           onSelectMode={handleSetMode}
           placeholder="Ask StudentAI anything..."
-          onOpenVideoModal={() => setVideoModalOpen(true)}
-          onOpenDocModal={() => setDocModalOpen(true)}
+          onOpenVideoModal={handleOpenVideoModal}
+          onOpenDocModal={handleOpenDocModal}
         />
       </div>
 

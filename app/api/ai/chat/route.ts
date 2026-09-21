@@ -7,6 +7,7 @@ import { ChatMessage, SourceCitation, AIErrorCode } from '@/lib/ai/types';
 import { analyzeUserQuery } from '@/lib/ai/retrieval/freshness';
 import { retrieveCurrentData } from '@/lib/ai/retrieval/search';
 import { db } from '@/lib/db';
+import { requireAiAuth } from '@/lib/auth/require-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +48,12 @@ export async function POST(req: NextRequest) {
         'The AI Assistant has been temporarily paused by the administrator. Please check back shortly or explore our client-side tools.',
         503
       );
+    }
+
+    // 0.1 Enforce Mandatory Supabase Authentication for all AI chat/generation requests
+    const auth = await requireAiAuth(req);
+    if (!auth.authenticated || !auth.user) {
+      return auth.errorResponse!;
     }
 
     // 1. Content-Type Validation

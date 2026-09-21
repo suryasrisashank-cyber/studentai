@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { aiRouter } from '@/lib/ai/router';
 import { ChatMessage } from '@/lib/ai/types';
 import { checkRateLimit } from '@/lib/ai/rate-limit';
+import { requireAiAuth } from '@/lib/auth/require-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +34,12 @@ export async function POST(req: NextRequest) {
         },
         { status: 503, headers: { 'Cache-Control': 'no-store' } }
       );
+    }
+
+    // 1.1 Enforce Mandatory Supabase Authentication for all AI PDF operations
+    const auth = await requireAiAuth(req);
+    if (!auth.authenticated || !auth.user) {
+      return auth.errorResponse!;
     }
 
     // 2. Client Identifier & Rate Limiting

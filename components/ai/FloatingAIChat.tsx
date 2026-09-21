@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChatMessage, StudentAIMode } from '@/lib/ai/types';
+import { useAuth } from '@/components/auth/AuthProvider';
 import Tooltip from '@mui/material/Tooltip';
 import {
   Bot,
@@ -37,6 +38,7 @@ const QUICK_ACTIONS = [
 
 export function FloatingAIChat() {
   const pathname = usePathname();
+  const { user, requireAiAccess, getAccessToken } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<FloatingMessage[]>([]);
   const [input, setInput] = useState('');
@@ -76,6 +78,15 @@ export function FloatingAIChat() {
     const textToSend = (customText || input).trim();
     if (!textToSend || isLoading) return;
 
+    if (!user) {
+      requireAiAccess(
+        () => handleSend(textToSend),
+        textToSend,
+        'Sign in to your StudentAI account to chat with StudentAI Quick Assistant.'
+      );
+      return;
+    }
+
     setErrorMessage(null);
     const newMsg: FloatingMessage = { role: 'user', content: textToSend };
     const updatedHistory = [...messages, newMsg];
@@ -92,9 +103,15 @@ export function FloatingAIChat() {
         content: m.content,
       }));
 
+      const token = await getAccessToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           message: textToSend,
           history: historyPayload,
@@ -102,6 +119,18 @@ export function FloatingAIChat() {
         }),
         signal: controller.signal,
       });
+
+      if (res.status === 401) {
+        setIsLoading(false);
+        setMessages((prev) => prev.filter((m) => m !== newMsg));
+        setInput(textToSend);
+        requireAiAccess(
+          () => handleSend(textToSend),
+          textToSend,
+          'Authentication required to use StudentAI AI features. Please sign in.'
+        );
+        return;
+      }
 
       const data = await res.json();
       if (!res.ok) {

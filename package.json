@@ -8,7 +8,7 @@
     "build": "node scripts/deploy-migration.js && next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node scripts/test-math.js && node scripts/test-ai-gateway.js && node scripts/test-admin-security.js && node scripts/test-control-center-e2e.js && node scripts/test-pdf-toolkit.js && node scripts/test-admin-hardening.js && node scripts/test-ai-eval-suite.js && node scripts/test-admin-runtime.js && node scripts/test-jpg-to-pdf.js && node scripts/test-pdf-to-jpg.js && node scripts/test-merge-pdf.js && node scripts/test-pdf-workspace-architecture.js && node scripts/test-ai-security-privacy.js",
+    "test": "node scripts/test-math.js && node scripts/test-ai-gateway.js && node scripts/test-admin-security.js && node scripts/test-control-center-e2e.js && node scripts/test-pdf-toolkit.js && node scripts/test-admin-hardening.js && node scripts/test-ai-eval-suite.js && node scripts/test-admin-runtime.js && node scripts/test-jpg-to-pdf.js && node scripts/test-pdf-to-jpg.js && node scripts/test-merge-pdf.js && node scripts/test-pdf-workspace-architecture.js && node scripts/test-ai-security-privacy.js && node scripts/test-supabase-auth-gating.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",
     "@prisma/client": "^5.21.1",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "@types/jszip": "^3.4.0",
     "clsx": "^2.1.1",
