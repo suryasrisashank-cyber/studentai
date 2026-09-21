@@ -13,6 +13,8 @@ import {
   Cpu,
   Layers,
   Zap,
+  Video,
+  FileText,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 
@@ -22,6 +24,8 @@ interface StudentAITopBarProps {
   onSelectModel: (model: string) => void;
   userInitial?: string;
   userName?: string;
+  onOpenVideoModal?: () => void;
+  onOpenDocModal?: () => void;
 }
 
 const AVAILABLE_MODELS = [
@@ -30,6 +34,13 @@ const AVAILABLE_MODELS = [
     name: 'StudentAI Pro',
     tag: 'Fast & Comprehensive',
     provider: 'Google Gemini 3.6 Flash',
+    icon: Sparkles,
+  },
+  {
+    id: 'claude-sonnet',
+    name: 'Anthropic Claude 3.5',
+    tag: 'Deep Reasoning & Code',
+    provider: 'Claude 3.5 Sonnet',
     icon: Sparkles,
   },
   {
@@ -61,6 +72,8 @@ export function StudentAITopBar({
   onSelectModel,
   userInitial = 'SS',
   userName = 'Sashank',
+  onOpenVideoModal,
+  onOpenDocModal,
 }: StudentAITopBarProps) {
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
@@ -169,6 +182,36 @@ export function StudentAITopBar({
             </>
           )}
         </div>
+
+        {/* Live Video AI Button (Lumeo Assistant) */}
+        {onOpenVideoModal && (
+          <button
+            type="button"
+            onClick={onOpenVideoModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-violet-600/25 to-indigo-600/25 hover:from-violet-600/40 hover:to-indigo-600/40 text-violet-200 border border-violet-500/40 transition-all shadow-sm group"
+            title="Open Lumeo Live Video & Voice Assistant"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+            </span>
+            <Video className="w-3.5 h-3.5 text-violet-300 group-hover:scale-110 transition-transform" />
+            <span className="hidden sm:inline">Live AI</span>
+          </button>
+        )}
+
+        {/* Document AI Suite Button */}
+        {onOpenDocModal && (
+          <button
+            type="button"
+            onClick={onOpenDocModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-emerald-600/20 to-teal-600/20 hover:from-emerald-600/35 hover:to-teal-600/35 text-emerald-200 border border-emerald-500/30 transition-all shadow-sm group"
+            title="Open Document AI Suite (Summary, Study Guide, Translate, Chat)"
+          >
+            <FileText className="w-3.5 h-3.5 text-emerald-300 group-hover:scale-110 transition-transform" />
+            <span className="hidden sm:inline">PDF AI</span>
+          </button>
+        )}
 
         {/* Share Button */}
         <button

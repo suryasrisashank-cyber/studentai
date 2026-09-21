@@ -8,4 +8,6 @@ export * from './StudentAIActionCards';
 export * from './StudentAIPromptChips';
 export * from './StudentAIChatMessage';
 export * from './StudentAIComposer';
+export * from './StudentAIVideoModal';
+export * from './StudentAIDocumentModal';
 export * from './StudentAIWorkspace';

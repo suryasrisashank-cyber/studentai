@@ -144,6 +144,30 @@ export const SUPPORTED_MODELS: Record<AIProviderName, ModelMetadata[]> = {
       description: 'Tool-use and planning optimized agent model by Atria.',
     },
   ],
+  claude: [
+    {
+      id: 'claude-3-5-sonnet-20241022',
+      name: 'Claude 3.5 Sonnet',
+      provider: 'claude',
+      contextWindow: 200000,
+      description: 'Anthropic flagship model with industry-leading reasoning, coding, and comprehension.',
+      isDefault: true,
+    },
+    {
+      id: 'claude-3-5-haiku-20241022',
+      name: 'Claude 3.5 Haiku',
+      provider: 'claude',
+      contextWindow: 200000,
+      description: 'Ultra-fast, lightweight model ideal for quick study explanations and instant feedback.',
+    },
+    {
+      id: 'claude-3-7-sonnet-20250219',
+      name: 'Claude 3.7 Sonnet',
+      provider: 'claude',
+      contextWindow: 200000,
+      description: 'Anthropic hybrid reasoning model for deep mathematics and STEM problem solving.',
+    },
+  ],
 };
 
 export const DEFAULT_MODELS: Record<AIProviderName, string> = {
@@ -152,6 +176,7 @@ export const DEFAULT_MODELS: Record<AIProviderName, string> = {
   openrouter: 'openrouter/free',
   bytez: 'meta-llama/Meta-Llama-3-8B-Instruct',
   atria: 'Atria-Dawn-Preview',
+  claude: 'claude-3-5-sonnet-20241022',
 };
 
 /**

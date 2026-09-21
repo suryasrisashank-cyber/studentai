@@ -118,6 +118,7 @@ export function sanitizeAIOutput(text: string): string {
     .replace(/AQ\.[a-zA-Z0-9_-]{30,}/g, '[REDACTED_API_KEY]')
     .replace(/bytez_[a-zA-Z0-9_-]{16,}/gi, '[REDACTED_API_KEY]')
     .replace(/atria_[a-zA-Z0-9_-]{16,}/gi, '[REDACTED_API_KEY]')
+    .replace(/sk-ant-[a-zA-Z0-9_-]{20,}/g, '[REDACTED_API_KEY]')
     .replace(/sk-[a-zA-Z0-9_-]{24,}/g, '[REDACTED_API_KEY]')
     .replace(/Bearer\s+[a-zA-Z0-9_\-\.]{20,}/gi, 'Bearer [REDACTED_TOKEN]');
 }

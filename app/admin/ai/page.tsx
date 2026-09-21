@@ -69,6 +69,7 @@ const PROVIDER_DISPLAY_NAMES: Record<AIProviderName, string> = {
   openrouter: 'OpenRouter Free Auto',
   bytez: 'Bytez API',
   atria: 'Atria AI Lab',
+  claude: 'Anthropic Claude',
 };
 
 export default function AdminAIPage() {
@@ -251,7 +252,7 @@ export default function AdminAIPage() {
 
   const providers = data?.providers;
   const stats = data?.telemetry?.providers || {};
-  const allProviderKeys: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria'];
+  const allProviderKeys: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria', 'claude'];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200">

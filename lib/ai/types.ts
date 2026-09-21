@@ -44,7 +44,7 @@ export interface GenerationOptions {
   timeoutMs?: number;
 }
 
-export type AIProviderName = 'google' | 'groq' | 'openrouter' | 'bytez' | 'atria';
+export type AIProviderName = 'google' | 'groq' | 'openrouter' | 'bytez' | 'atria' | 'claude';
 
 export type AIProviderStatus =
   | 'CONFIGURED'
@@ -75,6 +75,7 @@ export interface AISiteSettings {
   tertiaryProvider: AIProviderName;
   providerPriority?: AIProviderName[];
   googleModel: string;
+  claudeModel?: string;
   groqModel: string;
   openrouterModel: string;
   bytezModel?: string;

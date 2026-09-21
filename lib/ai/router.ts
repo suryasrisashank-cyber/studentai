@@ -13,6 +13,7 @@ import { GroqAIProvider } from './providers/groq';
 import { OpenRouterAIProvider } from './providers/openrouter';
 import { BytezAIProvider } from './providers/bytez';
 import { AtriaAIProvider } from './providers/atria';
+import { ClaudeAIProvider } from './providers/claude';
 import { sanitizeAIOutput } from './security';
 import { db } from '@/lib/db';
 import { DEFAULT_MODELS, validateModelId } from './models/catalog';
@@ -27,12 +28,14 @@ export class AIRouter {
     const openrouter = new OpenRouterAIProvider();
     const bytez = new BytezAIProvider();
     const atria = new AtriaAIProvider();
+    const claude = new ClaudeAIProvider();
 
     this.providers.set(google.name, google);
     this.providers.set(groq.name, groq);
     this.providers.set(openrouter.name, openrouter);
     this.providers.set(bytez.name, bytez);
     this.providers.set(atria.name, atria);
+    this.providers.set(claude.name, claude);
   }
 
   getProvider(name: AIProviderName): AIProvider | undefined {
@@ -46,6 +49,7 @@ export class AIRouter {
       openrouter: this.providers.get('openrouter')?.isConfigured() ?? false,
       bytez: this.providers.get('bytez')?.isConfigured() ?? false,
       atria: this.providers.get('atria')?.isConfigured() ?? false,
+      claude: this.providers.get('claude')?.isConfigured() ?? false,
     };
   }
 
@@ -110,8 +114,9 @@ export class AIRouter {
       primaryProvider: ((process.env.AI_PRIMARY_PROVIDER || 'google').trim().toLowerCase() as AIProviderName) || 'google',
       secondaryProvider: ((process.env.AI_SECONDARY_PROVIDER || 'groq').trim().toLowerCase() as AIProviderName) || 'groq',
       tertiaryProvider: ((process.env.AI_TERTIARY_PROVIDER || 'openrouter').trim().toLowerCase() as AIProviderName) || 'openrouter',
-      providerPriority: ['google', 'groq', 'openrouter', 'bytez', 'atria'],
+      providerPriority: ['google', 'claude', 'groq', 'openrouter', 'bytez', 'atria'],
       googleModel: process.env.AI_GOOGLE_MODEL || DEFAULT_MODELS.google,
+      claudeModel: process.env.AI_CLAUDE_MODEL || DEFAULT_MODELS.claude,
       groqModel: process.env.AI_GROQ_MODEL || DEFAULT_MODELS.groq,
       openrouterModel: process.env.AI_OPENROUTER_MODEL || DEFAULT_MODELS.openrouter,
       bytezModel: process.env.AI_BYTEZ_MODEL || DEFAULT_MODELS.bytez,
@@ -120,6 +125,7 @@ export class AIRouter {
       maxOutputTokens: 1500,
       providerTimeouts: {
         google: 15000,
+        claude: 15000,
         groq: 15000,
         openrouter: 15000,
         bytez: 15000,
@@ -127,6 +133,7 @@ export class AIRouter {
       },
       providerTokenLimits: {
         google: 2000,
+        claude: 2000,
         groq: 2000,
         openrouter: 2000,
         bytez: 2000,
@@ -158,8 +165,8 @@ export class AIRouter {
       }
     }
 
-    // Ensure all 5 providers exist in chain as fallback
-    const allProviders: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria'];
+    // Ensure all registered providers exist in chain as fallback
+    const allProviders: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria', 'claude'];
     for (const p of allProviders) {
       if (this.providers.has(p) && !chain.includes(p)) {
         chain.push(p);
@@ -176,6 +183,7 @@ export class AIRouter {
     if (providerName === 'openrouter') return settings.openrouterModel || DEFAULT_MODELS.openrouter;
     if (providerName === 'bytez') return settings.bytezModel || DEFAULT_MODELS.bytez;
     if (providerName === 'atria') return settings.atriaModel || DEFAULT_MODELS.atria;
+    if (providerName === 'claude') return settings.claudeModel || DEFAULT_MODELS.claude;
     return '';
   }
 

@@ -25,6 +25,8 @@ interface StudentAIComposerProps {
   mode: StudentAIMode;
   onSelectMode: (mode: StudentAIMode) => void;
   placeholder?: string;
+  onOpenVideoModal?: () => void;
+  onOpenDocModal?: () => void;
 }
 
 const STUDY_MODES: { id: StudentAIMode; label: string; icon: string }[] = [
@@ -45,6 +47,8 @@ export function StudentAIComposer({
   mode,
   onSelectMode,
   placeholder = 'Ask StudentAI anything...',
+  onOpenVideoModal,
+  onOpenDocModal,
 }: StudentAIComposerProps) {
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [codeModeActive, setCodeModeActive] = useState(false);
@@ -117,9 +121,15 @@ export function StudentAIComposer({
           <div className="flex items-center gap-1 sm:gap-1.5">
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label="Attach document"
-              title="Attach study document"
+              onClick={() => {
+                if (onOpenDocModal) {
+                  onOpenDocModal();
+                } else {
+                  fileInputRef.current?.click();
+                }
+              }}
+              aria-label="Upload document or launch Document AI"
+              title="Upload document or launch Document AI Suite"
               className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
             >
               <Paperclip className="w-4 h-4" />
@@ -204,9 +214,14 @@ export function StudentAIComposer({
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
-              aria-label="Voice input"
-              title="Voice input"
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+              onClick={() => {
+                if (onOpenVideoModal) {
+                  onOpenVideoModal();
+                }
+              }}
+              aria-label="Live voice and video AI assistant"
+              title="Launch Live Voice & Video AI Assistant (Lumeo)"
+              className="p-2 rounded-xl text-slate-400 hover:text-violet-300 hover:bg-violet-500/10 transition-colors"
             >
               <Mic className="w-4 h-4" />
             </button>

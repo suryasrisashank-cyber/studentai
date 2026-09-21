@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
     const chain = await aiRouter.getFallbackChain();
 
-    const providerNames: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria'];
+    const providerNames: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria', 'claude'];
     const providersState: Record<string, any> = {};
 
     for (const name of providerNames) {
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const current = await aiRouter.getEffectiveSettings();
 
-    const validProviders: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria'];
+    const validProviders: AIProviderName[] = ['google', 'groq', 'openrouter', 'bytez', 'atria', 'claude'];
 
     const updated: AISiteSettings = {
       ...current,

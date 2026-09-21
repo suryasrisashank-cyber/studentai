@@ -660,6 +660,7 @@ export const db = {
       openrouter: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
       bytez: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
       atria: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
+      claude: { requests: 0, successes: 0, failures: 0, fallbacks: 0, totalLatencyMs: 0, avgLatencyMs: 0 },
     });
 
     const processEvents = (events: any[]) => {

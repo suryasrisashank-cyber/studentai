@@ -65,7 +65,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Malformed JSON payload.' }, { status: 400 });
     }
 
-    const { action = 'summarize', text = '', format = 'concise', targetLanguage = 'English' } = body || {};
+    const {
+      action = 'summarize',
+      text = '',
+      format = 'concise',
+      length,
+      level = 'undergrad',
+      questions = 8,
+      style = 'faithful',
+      targetLanguage = 'English',
+      question = '',
+      messages: inputMessages,
+    } = body || {};
 
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return NextResponse.json(
@@ -80,32 +91,94 @@ export async function POST(req: NextRequest) {
     // 4. Construct System Prompt & Instructions based on action
     let systemPrompt =
       'You are StudentAI, an expert educational AI assistant. You analyze academic PDFs and study documents for students with high accuracy, clarity, and pedagogical focus.';
-    let userPrompt = '';
+    let messages: ChatMessage[] = [];
 
     if (action === 'summarize') {
-      if (format === 'exam-prep') {
-        userPrompt = `Analyze the following academic document and generate comprehensive EXAM-FOCUSED STUDY NOTES:\n1. Key Conceptual Highlights\n2. Likely Exam Questions & Detailed Answers\n3. Critical Formulas/Definitions\n\nDOCUMENT TEXT:\n${sanitizedText}`;
-      } else if (format === 'key-points') {
-        userPrompt = `Extract the top 10 most critical KEY TAKEAWAYS and bullet points from this document:\n\nDOCUMENT TEXT:\n${sanitizedText}`;
-      } else if (format === 'detailed') {
-        userPrompt = `Provide an in-depth, structured academic SUMMARY of this document, organized by major topics with explanations:\n\nDOCUMENT TEXT:\n${sanitizedText}`;
-      } else {
-        userPrompt = `Provide a clean, concise, 3-4 paragraph EXECUTIVE SUMMARY of the following document:\n\nDOCUMENT TEXT:\n${sanitizedText}`;
+      const summaryLength = length || (format === 'concise' ? 'medium' : format === 'detailed' ? 'long' : 'short');
+      let depthDesc = 'Write a short summary, then a bulleted list of the key points, then any terms a student would need defined.';
+      if (summaryLength === 'short') {
+        depthDesc = 'Write one tight paragraph covering only the single most important idea.';
+      } else if (summaryLength === 'long') {
+        depthDesc = 'Work through the document section by section. For each section give a heading and three or four sentences. End with the overall takeaway.';
       }
+      messages = [
+        {
+          role: 'user',
+          content: `You are helping a student understand a document. ${depthDesc} Answer in ${targetLanguage}. Do not invent anything that is not in the text.\n\n---\nDOCUMENT TEXT:\n${sanitizedText}`,
+        },
+      ];
+    } else if (action === 'study-guide') {
+      systemPrompt =
+        'You are an expert tutor creating structured, rigorous study and revision guides for students.';
+      const instruction = `Turn this material into a revision guide for a ${level} student, in ${targetLanguage}.
+
+Use exactly these sections:
+## Core ideas
+## Key terms
+(term followed by a one-line definition)
+## Things students get wrong
+## Practice questions
+(${questions} questions, numbered, with the answer indented under each one)
+
+Use only what is in the text. If something is not covered, say so rather than filling it in.
+
+---
+DOCUMENT TEXT:
+${sanitizedText}`;
+      messages = [{ role: 'user', content: instruction }];
     } else if (action === 'translate') {
-      systemPrompt = `You are a professional academic translator. Translate the following study document content into ${targetLanguage}. Preserve original terminology, formulas, and structural readability.`;
-      userPrompt = `Translate the following text accurately into ${targetLanguage}:\n\n${sanitizedText}`;
+      const how =
+        style === 'simple'
+          ? `Translate into ${targetLanguage}, simplifying the language so a learner can follow it. Keep all facts intact.`
+          : `Translate into ${targetLanguage}, staying close to the original wording and keeping technical terms accurate.`;
+      systemPrompt = `You are a professional academic translator. ${how} Keep the [page N] markers exactly as they are. Output only the translation.`;
+      messages = [
+        {
+          role: 'user',
+          content: `${how} Keep the [page N] markers exactly as they are. Output only the translation.\n\n---\nDOCUMENT TEXT:\n${sanitizedText}`,
+        },
+      ];
+    } else if (action === 'chat') {
+      systemPrompt = `You answer questions about one document only. Its text follows.
+Answer using the document. If the answer is not in it, say plainly that the document does not cover it — never guess. Cite page numbers from the [page N] markers when you can. Keep answers short unless asked for detail.
+
+DOCUMENT:
+${sanitizedText}`;
+
+      if (Array.isArray(inputMessages) && inputMessages.length > 0) {
+        messages = inputMessages.map((m: any) => ({
+          role: m.role === 'model' || m.role === 'assistant' || m.role === 'ai' ? 'assistant' : 'user',
+          content: m.content || m.text || '',
+        }));
+      } else if (question) {
+        messages = [{ role: 'user', content: question }];
+      } else {
+        messages = [{ role: 'user', content: 'What are the main topics and takeaways from this document?' }];
+      }
     } else if (action === 'markdown') {
       systemPrompt =
         'You are a technical document formatter. Convert the provided extracted PDF text into clean, structured GitHub Flavored Markdown. Use proper headers (#, ##, ###), lists, tables where apparent, and code blocks.';
-      userPrompt = `Convert the following extracted PDF text into well-formatted Markdown:\n\n${sanitizedText}`;
+      messages = [
+        {
+          role: 'user',
+          content: `Convert the following extracted PDF text into well-formatted Markdown:\n\n${sanitizedText}`,
+        },
+      ];
     } else if (action === 'exam-questions') {
-      userPrompt = `Based solely on the following document, create 5 multiple choice questions and 3 conceptual short-answer questions with detailed answer explanations for students:\n\nDOCUMENT TEXT:\n${sanitizedText}`;
+      messages = [
+        {
+          role: 'user',
+          content: `Based solely on the following document, create 5 multiple choice questions and 3 conceptual short-answer questions with detailed answer explanations for students:\n\nDOCUMENT TEXT:\n${sanitizedText}`,
+        },
+      ];
     } else {
-      userPrompt = `Analyze and explain the core concepts of this document for a student:\n\nDOCUMENT TEXT:\n${sanitizedText}`;
+      messages = [
+        {
+          role: 'user',
+          content: `Analyze and explain the core concepts of this document for a student:\n\nDOCUMENT TEXT:\n${sanitizedText}`,
+        },
+      ];
     }
-
-    const messages: ChatMessage[] = [{ role: 'user', content: userPrompt }];
 
     // 5. Invoke Multi-Provider Gateway (Google -> Groq -> OpenRouter)
     const response = await aiRouter.generate(messages, systemPrompt);

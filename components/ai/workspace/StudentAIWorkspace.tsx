@@ -11,6 +11,8 @@ import { StudentAIActionCards } from './StudentAIActionCards';
 import { StudentAIPromptChips } from './StudentAIPromptChips';
 import { StudentAIChatMessage } from './StudentAIChatMessage';
 import { StudentAIComposer } from './StudentAIComposer';
+import { StudentAIVideoModal } from './StudentAIVideoModal';
+import { StudentAIDocumentModal } from './StudentAIDocumentModal';
 import { AlertCircle, ChevronDown, Sparkles } from 'lucide-react';
 
 const CONVERSATIONS_STORAGE_KEY = 'studentai:conversations_v2';
@@ -41,6 +43,8 @@ export function StudentAIWorkspace({
   const [activeId, setActiveId] = useState<string>('');
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState('studentai-pro');
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [docModalOpen, setDocModalOpen] = useState(false);
 
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -472,6 +476,8 @@ export function StudentAIWorkspace({
           onToggleMobileSidebar={() => setMobileDrawerOpen(true)}
           selectedModel={selectedModel}
           onSelectModel={setSelectedModel}
+          onOpenVideoModal={() => setVideoModalOpen(true)}
+          onOpenDocModal={() => setDocModalOpen(true)}
         />
 
         {/* Scrollable Center Content Area */}
@@ -597,8 +603,27 @@ export function StudentAIWorkspace({
           mode={currentMode}
           onSelectMode={handleSetMode}
           placeholder="Ask StudentAI anything..."
+          onOpenVideoModal={() => setVideoModalOpen(true)}
+          onOpenDocModal={() => setDocModalOpen(true)}
         />
       </div>
+
+      {/* 4. Live Video AI Assistant Modal (Lumeo Experience) */}
+      <StudentAIVideoModal
+        isOpen={videoModalOpen}
+        onClose={() => setVideoModalOpen(false)}
+        systemPrompt="You are StudentAI, an empathetic and highly intelligent video AI learning tutor. Speak clearly, concisely, and help students master challenging concepts."
+      />
+
+      {/* 5. Document AI Suite Modal (Summary, Study Guide, Translate, Chat) */}
+      <StudentAIDocumentModal
+        isOpen={docModalOpen}
+        onClose={() => setDocModalOpen(false)}
+        onSendToWorkspaceChat={(prompt) => {
+          setDocModalOpen(false);
+          setInput(prompt);
+        }}
+      />
     </div>
   );
 }
