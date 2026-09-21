@@ -24,6 +24,10 @@ interface StudentAITopBarProps {
   onSelectModel: (model: string) => void;
   userInitial?: string;
   userName?: string;
+  userEmail?: string | null;
+  isLoggedIn?: boolean;
+  onSignOut?: () => void;
+  onOpenAuthModal?: () => void;
   onOpenVideoModal?: () => void;
   onOpenDocModal?: () => void;
 }
@@ -72,10 +76,15 @@ export function StudentAITopBar({
   onSelectModel,
   userInitial = 'SS',
   userName = 'Sashank',
+  userEmail,
+  isLoggedIn = false,
+  onSignOut,
+  onOpenAuthModal,
   onOpenVideoModal,
   onOpenDocModal,
 }: StudentAITopBarProps) {
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -276,13 +285,57 @@ export function StudentAITopBar({
           )}
         </div>
 
-        {/* User Profile Avatar */}
-        <div
-          title={userName}
-          className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6D5DFB] to-[#3B82F6] flex items-center justify-center text-white text-xs font-bold shadow-md shadow-[#6D5DFB]/30 select-none cursor-pointer"
-        >
-          {userInitial}
-        </div>
+        {/* User Profile Avatar / Sign In */}
+        {isLoggedIn ? (
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              title={userEmail || userName}
+              className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6D5DFB] to-[#3B82F6] flex items-center justify-center text-white text-xs font-bold shadow-md shadow-[#6D5DFB]/30 select-none cursor-pointer hover:ring-2 hover:ring-indigo-400 transition-all"
+            >
+              {userInitial}
+            </button>
+
+            {userMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setUserMenuOpen(false)}
+                />
+                <div className="absolute right-0 mt-2 w-64 p-3 rounded-2xl bg-[#0B1128] border border-slate-700/80 shadow-2xl z-50 animate-in fade-in zoom-in-95 text-left">
+                  <div className="pb-2 border-b border-slate-800">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Authenticated Student</p>
+                    <p className="text-xs font-semibold text-white truncate">{userEmail || userName}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 text-[10px] font-medium">
+                      Supabase Cloud Sync
+                    </span>
+                  </div>
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        onSignOut?.();
+                      }}
+                      className="w-full py-1.5 px-2.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors text-left"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onOpenAuthModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-md shadow-indigo-600/30 transition-all"
+          >
+            <span>Sign In</span>
+          </button>
+        )}
       </div>
     </header>
   );

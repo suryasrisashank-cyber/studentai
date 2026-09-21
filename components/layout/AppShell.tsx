@@ -9,6 +9,7 @@ import { FloatingAIChat } from '../ai/FloatingAIChat';
 import { TelemetryClient } from '../telemetry/TelemetryClient';
 import { Footer } from './Footer';
 import { CookieConsentBanner } from '../privacy/CookieConsentBanner';
+import { Auth3DModal } from '../auth/Auth3DModal';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -28,6 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="min-h-[100dvh] h-[100dvh] flex flex-col bg-[#050816] text-[#F8FAFC] overflow-hidden">
         <TelemetryClient />
         <main className="flex-1 min-w-0 w-full h-full overflow-hidden flex flex-col">{children}</main>
+        <Auth3DModal />
         <CookieConsentBanner />
       </div>
     );
@@ -52,6 +54,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Floating AI companion for quick questions */}
       <FloatingAIChat />
+
+      {/* 3D Supabase Auth Modal */}
+      <Auth3DModal />
 
       {/* Cookie / Privacy Consent Banner & Modal */}
       <CookieConsentBanner />

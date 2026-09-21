@@ -13,6 +13,7 @@ import { StudentAIChatMessage } from './StudentAIChatMessage';
 import { StudentAIComposer } from './StudentAIComposer';
 import { StudentAIVideoModal } from './StudentAIVideoModal';
 import { StudentAIDocumentModal } from './StudentAIDocumentModal';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { AlertCircle, ChevronDown, Sparkles } from 'lucide-react';
 
 const CONVERSATIONS_STORAGE_KEY = 'studentai:conversations_v2';
@@ -39,6 +40,7 @@ export function StudentAIWorkspace({
   greeting = 'Welcome to StudentAI',
   subtitle = 'Your intelligent study and teaching companion.',
 }: StudentAIWorkspaceProps) {
+  const { user, signOut, openAuthModal } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string>('');
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -58,6 +60,20 @@ export function StudentAIWorkspace({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef<boolean>(true);
   const [showScrollBottomBtn, setShowScrollBottomBtn] = useState(false);
+
+  // Automatically trigger 3D Auth Modal when user touches the AI tool if unauthenticated
+  useEffect(() => {
+    try {
+      const hasPrompted = sessionStorage.getItem('studentai:auth_touch_prompted');
+      if (!user && !hasPrompted) {
+        sessionStorage.setItem('studentai:auth_touch_prompted', 'true');
+        const timer = setTimeout(() => {
+          openAuthModal();
+        }, 700);
+        return () => clearTimeout(timer);
+      }
+    } catch {}
+  }, [user, openAuthModal]);
 
   // Initialize and migrate conversations from LocalStorage
   useEffect(() => {
@@ -476,6 +492,12 @@ export function StudentAIWorkspace({
           onToggleMobileSidebar={() => setMobileDrawerOpen(true)}
           selectedModel={selectedModel}
           onSelectModel={setSelectedModel}
+          isLoggedIn={Boolean(user)}
+          userEmail={user?.email || null}
+          userInitial={user?.email ? user.email.slice(0, 2).toUpperCase() : 'AI'}
+          userName={user?.email?.split('@')[0] || 'Student'}
+          onSignOut={signOut}
+          onOpenAuthModal={openAuthModal}
           onOpenVideoModal={() => setVideoModalOpen(true)}
           onOpenDocModal={() => setDocModalOpen(true)}
         />

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { ThemeRegistry } from '@/components/providers/ThemeRegistry';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AppShell } from '@/components/layout/AppShell';
 
 export const metadata: Metadata = {
@@ -138,7 +139,9 @@ export default async function RootLayout({
                     </a>
                   </div>
                 )}
-                <AppShell>{children}</AppShell>
+                <AuthProvider>
+                  <AppShell>{children}</AppShell>
+                </AuthProvider>
               </>
             )}
           </ThemeProvider>
